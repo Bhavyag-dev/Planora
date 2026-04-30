@@ -12,4 +12,5 @@ View your app in AI Studio: https://ai.studio/apps/a35199ba-9aad-4036-9130-004a4
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
-# eventcampuss
+# Campusevents
+A website to know about all your events
