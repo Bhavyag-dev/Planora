@@ -1,0 +1,277 @@
+import { useState, useEffect, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
+import { Calendar, MapPin, Users, Search, Filter, Tag, LayoutDashboard, ArrowRight } from 'lucide-react';
+import { formatDate } from '../lib/utils';
+import { Input } from '../components/Input';
+import { Button } from '../components/Button';
+import { useAuth } from '../hooks/useAuth';
+
+interface Event {
+  _id: string;
+  title: string;
+  description: string;
+  date: string;
+  venue: string;
+  category: string;
+  seatLimit: number;
+  registeredCount: number;
+}
+
+export const Events = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    if (user) {
+      if (user.role === 'super_admin' || user.role === 'admin') {
+        navigate('/super-admin');
+      } else if (user.role === 'college_admin') {
+        navigate('/college-admin');
+      } else if (user.role === 'dept_admin') {
+        navigate('/dept-admin');
+      }
+    }
+  }, [user, navigate]);
+  
+  // Filter states
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('All');
+  const [sortBy, setSortBy] = useState<'date-asc' | 'date-desc'>('date-asc');
+  const [showOnlyAvailable, setShowOnlyAvailable] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/events', {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setEvents(data);
+        } else {
+          console.error('Expected array of events, got:', data);
+          setEvents([]);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Fetch error:', err);
+        setEvents([]);
+        setLoading(false);
+      });
+  }, []);
+
+  const categories = useMemo(() => {
+    const cats = new Set(events.map(e => e.category || 'General'));
+    return ['All', ...Array.from(cats)];
+  }, [events]);
+
+  const filteredEvents = useMemo(() => {
+    let result = events.filter(event => {
+      const matchesSearch = 
+        event.title.toLowerCase().includes(search.toLowerCase()) ||
+        event.description.toLowerCase().includes(search.toLowerCase());
+      
+      const matchesCategory = category === 'All' || event.category === category;
+      const isAvailable = !showOnlyAvailable || (event.registeredCount < event.seatLimit);
+      const isPublished = (event as any).status === 'published';
+      
+      return matchesSearch && matchesCategory && isAvailable && isPublished;
+    });
+
+    result.sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return sortBy === 'date-asc' ? dateA - dateB : dateB - dateA;
+    });
+
+    return result;
+  }, [events, search, category, sortBy, showOnlyAvailable]);
+
+  // Color mapping for categories
+  const getCategoryColor = (cat: string) => {
+    const colors: Record<string, string> = {
+      'Tech': 'from-indigo-500/20 to-cyan-500/20 text-indigo-400 border-indigo-500/30',
+      'Cultural': 'from-purple-500/20 to-pink-500/20 text-purple-400 border-purple-500/30',
+      'Sports': 'from-amber-500/20 to-orange-500/20 text-amber-400 border-amber-500/30',
+    };
+    return colors[cat] || 'from-zinc-500/20 to-zinc-400/20 text-zinc-300 border-zinc-500/30';
+  };
+
+  if (loading) return (
+    <div className="flex min-h-[50vh] flex-col items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-purple-500 border-t-transparent" />
+        <p className="mt-4 text-sm font-medium text-zinc-400">Loading events...</p>
+    </div>
+  );
+
+  return (
+    <div className="space-y-10 pb-12">
+      {/* Header section with gradient line */}
+      <div className="relative pb-6 border-b border-white/[0.06] flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="absolute bottom-0 left-0 h-px w-1/3 bg-gradient-to-r from-indigo-500 via-purple-500 to-transparent" />
+        <div>
+          <h1 className="text-4xl font-bold tracking-tight text-white mb-2">
+            Discover <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Events</span>
+          </h1>
+          <p className="text-zinc-400">Find and register for the best activities on campus</p>
+        </div>
+        
+        {(user?.role === 'super_admin' || user?.role === 'admin' || user?.role === 'college_admin' || user?.role === 'dept_admin') && (
+          <Button onClick={() => {
+            const path = user.role === 'super_admin' || user.role === 'admin' ? '/super-admin' : 
+                         user.role === 'college_admin' ? '/college-admin' : '/dept-admin';
+            navigate(path);
+          }} variant="outline" className="gap-2 shrink-0">
+            <LayoutDashboard size={18} />
+            Go to Dashboard
+          </Button>
+        )}
+      </div>
+
+      {/* Filters Section - Glassmorphic card */}
+      <div className="grid gap-4 rounded-3xl border border-white/[0.06] bg-white/[0.02] p-6 shadow-2xl backdrop-blur-xl md:grid-cols-4">
+        <div className="relative md:col-span-2 space-y-1.5">
+          <label className="flex items-center gap-1.5 text-xs font-bold text-zinc-500 uppercase tracking-widest pl-1">
+             Search
+          </label>
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
+            <Input 
+              placeholder="Search by title or description..." 
+              className="pl-11 h-12 bg-white/[0.03] border-white/[0.06] rounded-xl text-white focus-visible:ring-purple-500/50"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="flex items-center gap-1.5 text-xs font-bold text-zinc-500 uppercase tracking-widest pl-1">
+            <Tag size={12} /> Category
+          </label>
+          <select 
+            className="flex h-12 w-full appearance-none rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            {categories.map(cat => (
+              <option key={cat} value={cat} className="bg-zinc-900 text-white">{cat}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="flex items-center gap-1.5 text-xs font-bold text-zinc-500 uppercase tracking-widest pl-1">
+            <Filter size={12} /> Sort & View
+          </label>
+          <div className="flex gap-2">
+            <select 
+              className="flex h-12 flex-1 appearance-none rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+            >
+              <option value="date-asc" className="bg-zinc-900">Oldest First</option>
+              <option value="date-desc" className="bg-zinc-900">Newest First</option>
+            </select>
+            <button
+              onClick={() => setShowOnlyAvailable(!showOnlyAvailable)}
+              className={`flex h-12 w-12 items-center justify-center shrink-0 rounded-xl border transition-all duration-300 ${
+                showOnlyAvailable 
+                  ? 'bg-purple-500/20 text-purple-400 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.2)]' 
+                  : 'bg-white/[0.03] text-zinc-400 border-white/[0.06] hover:bg-white/[0.08] hover:text-white'
+              }`}
+              title="Only show available events"
+            >
+              <Users size={16} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Events Grid */}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <AnimatePresence>
+          {filteredEvents.map((event, index) => (
+            <motion.div
+              layout
+              key={event._id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ delay: index * 0.05, duration: 0.4 }}
+              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/[0.06] bg-white/[0.02] shadow-2xl transition-all hover:bg-white/[0.04] hover:shadow-purple-500/5 hover:-translate-y-1"
+            >
+              <Link to={`/events/${event._id}`} className="absolute inset-0 z-10" />
+              
+              {/* Card Header (Category & Date) */}
+              <div className="p-6 pb-0">
+                <div className="flex items-center justify-between mb-4">
+                  <span className={`inline-flex items-center rounded-full bg-gradient-to-r px-3 py-1 text-[10px] font-bold uppercase tracking-widest border ${getCategoryColor(event.category || 'General')}`}>
+                    {event.category || 'General'}
+                  </span>
+                </div>
+                
+                <h3 className="text-xl font-bold text-white leading-tight group-hover:text-purple-300 transition-colors">
+                  {event.title}
+                </h3>
+                <p className="mt-3 line-clamp-2 text-sm text-zinc-400">
+                  {event.description}
+                </p>
+              </div>
+
+              {/* Card Footer Details */}
+              <div className="p-6 pt-6 mt-auto">
+                <div className="space-y-2 mb-6">
+                  <div className="flex items-center gap-2 text-sm text-zinc-300">
+                    <Calendar size={14} className="text-purple-400" />
+                    {formatDate(event.date)}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-zinc-300">
+                    <MapPin size={14} className="text-pink-400" />
+                    <span className="truncate">{event.venue}</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between pt-4 border-t border-white/[0.06]">
+                  <div className="flex items-center gap-1.5 text-xs font-medium">
+                    <Users size={14} className="text-zinc-500" />
+                    {event.seatLimit - event.registeredCount <= 0 ? (
+                      <span className="text-red-400 flex items-center gap-1">
+                        Sold Out
+                      </span>
+                    ) : (
+                      <span className="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded text-[10px] uppercase tracking-wider">
+                        {event.seatLimit - event.registeredCount} Left
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-indigo-400 opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+                    <ArrowRight size={18} />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      {filteredEvents.length === 0 && (
+        <motion.div 
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-white/[0.1] bg-white/[0.01] p-16 text-center"
+        >
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/[0.03] mb-4">
+            <Search className="text-zinc-500" size={24} />
+          </div>
+          <h3 className="text-xl font-bold text-white mb-2">No events found</h3>
+          <p className="text-zinc-400 max-w-sm mx-auto">
+            Try adjusting your search terms or filters to find what you're looking for.
+          </p>
+        </motion.div>
+      )}
+    </div>
+  );
+};

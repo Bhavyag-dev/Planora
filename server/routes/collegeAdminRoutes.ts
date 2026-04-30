@@ -1,0 +1,194 @@
+import express from 'express';
+import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { Department } from '../models/Department';
+import { Specialization } from '../models/Specialization';
+import { User } from '../models/User';
+import { Event } from '../models/Event';
+import { College } from '../models/College';
+import { Transaction } from '../models/Transaction';
+import { AuditLog } from '../models/AuditLog';
+
+const router = express.Router();
+
+// Helper to log audit actions
+const logAudit = async (userId: string, action: string, module: string, details: string) => {
+  try {
+    await AuditLog.create({ userId, action, module, details });
+  } catch (err) {
+    console.error('Audit log failed:', err);
+  }
+};
+
+// Middleware to ensure user is a college admin
+const isCollegeAdmin = (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  if (req.user?.role !== 'college_admin') {
+    return res.status(403).json({ message: 'College Admin access required' });
+  }
+  next();
+};
+
+// --- Department & Specialization Management ---
+
+// Create Department
+router.post('/departments', authMiddleware, isCollegeAdmin, async (req: AuthRequest, res) => {
+  try {
+    const { name, description } = req.body;
+    const department = new Department({
+      name,
+      description,
+      college: req.user?.college
+    });
+    await department.save();
+    await logAudit(req.user?.id!, 'CREATE_DEPARTMENT', 'COLLEGE', `Created department ${name}`);
+    res.status(201).json(department);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get all departments in college
+router.get('/departments', authMiddleware, isCollegeAdmin, async (req: AuthRequest, res) => {
+  try {
+    const departments = await Department.find({ college: req.user?.college });
+    res.json(departments);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Create Specialization
+router.post('/specializations', authMiddleware, isCollegeAdmin, async (req: AuthRequest, res) => {
+  try {
+    const { name, departmentId, description } = req.body;
+    const specialization = new Specialization({
+      name,
+      department: departmentId,
+      college: req.user?.college,
+      description
+    });
+    await specialization.save();
+    await logAudit(req.user?.id!, 'CREATE_SPECIALIZATION', 'COLLEGE', `Created specialization ${name}`);
+    res.status(201).json(specialization);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get all specializations in college
+router.get('/specializations', authMiddleware, isCollegeAdmin, async (req: AuthRequest, res) => {
+  try {
+    const specializations = await Specialization.find({ college: req.user?.college }).populate('department', 'name');
+    res.json(specializations);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// --- User Management ---
+
+// Get all users in college
+router.get('/users', authMiddleware, isCollegeAdmin, async (req: AuthRequest, res) => {
+  try {
+    const users = await User.find({ college: req.user?.college })
+      .populate('department', 'name')
+      .populate('specialization', 'name')
+      .sort({ createdAt: -1 });
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update user role/department/specialization
+router.patch('/users/:id', authMiddleware, isCollegeAdmin, async (req: AuthRequest, res) => {
+  try {
+    const { role, department, specialization } = req.body;
+    const user = await User.findById(req.params.id);
+    if (!user || user.college?.toString() !== req.user?.college?.toString()) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (role) user.role = role;
+    if (department) user.department = department;
+    if (specialization) user.specialization = specialization;
+
+    await user.save();
+    await logAudit(req.user?.id!, 'UPDATE_USER', 'USER', `Updated user ${user.email} permissions`);
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// --- Event Management ---
+
+// Get all events in college
+router.get('/events', authMiddleware, isCollegeAdmin, async (req: AuthRequest, res) => {
+  try {
+    const events = await Event.find({ college: req.user?.college })
+      .populate('department', 'name')
+      .populate('organizer', 'name email')
+      .sort({ createdAt: -1 });
+    res.json(events);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update event status (Approval/Moderation)
+router.patch('/events/:id/status', authMiddleware, isCollegeAdmin, async (req: AuthRequest, res) => {
+  try {
+    const { status } = req.body;
+    const event = await Event.findById(req.params.id);
+    if (!event || event.college?.toString() !== req.user?.college?.toString()) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    event.status = status;
+    await event.save();
+    await logAudit(req.user?.id!, 'MODERATE_EVENT', 'EVENT', `Updated event ${event.title} status to ${status}`);
+    res.json(event);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// --- Payments & Revenue ---
+
+// Get all transactions in college
+router.get('/transactions', authMiddleware, isCollegeAdmin, async (req: AuthRequest, res) => {
+  try {
+    const transactions = await Transaction.find({ college: req.user?.college })
+      .populate('event', 'title')
+      .populate('user', 'name email')
+      .sort({ createdAt: -1 });
+    res.json(transactions);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// --- College Settings & Branding ---
+
+// Get college settings
+router.get('/settings', authMiddleware, isCollegeAdmin, async (req: AuthRequest, res) => {
+  try {
+    const college = await College.findById(req.user?.college);
+    res.json(college);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update college settings
+router.patch('/settings', authMiddleware, isCollegeAdmin, async (req: AuthRequest, res) => {
+  try {
+    const college = await College.findByIdAndUpdate(req.user?.college, req.body, { new: true });
+    await logAudit(req.user?.id!, 'UPDATE_COLLEGE_SETTINGS', 'COLLEGE', `Updated college branding/settings`);
+    res.json(college);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+export default router;

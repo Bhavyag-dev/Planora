@@ -1,0 +1,5 @@
+{
+  "name": "CampusEvents - Premium Event Management",
+  "description": "A high-quality, full-stack college event management platform with student registrations, admin dashboards, and QR code ticketing.",
+  "requestFramePermissions": ["camera"]
+}
