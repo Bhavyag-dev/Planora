@@ -1,5 +1,6 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import { User } from '../models/User';
 import { College } from '../models/College';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
@@ -7,6 +8,16 @@ import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { AuditLog } from '../models/AuditLog';
 
 const router = express.Router();
+
+const ensureDatabaseConnected = (res: express.Response) => {
+  if (mongoose.connection.readyState !== 1) {
+    res.status(503).json({
+      message: 'Database is not connected. Configure MONGODB_URI and restart the backend server.',
+    });
+    return false;
+  }
+  return true;
+};
 
 // Helper to log audit actions
 const logAudit = async (userId: string, action: string, module: string, details: string) => {
@@ -20,6 +31,8 @@ const logAudit = async (userId: string, action: string, module: string, details:
 
 router.post('/signup', async (req, res) => {
   try {
+    if (!ensureDatabaseConnected(res)) return;
+
     const { name, email, password } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: 'User already exists' });
@@ -74,6 +87,8 @@ router.post('/signup', async (req, res) => {
 
 router.post('/login', async (req, res) => {
   try {
+    if (!ensureDatabaseConnected(res)) return;
+
     const { email, password } = req.body;
     const user = await User.findOne({ email }).populate('college');
     if (!user) return res.status(400).json({ message: 'Invalid credentials' });

@@ -27,8 +27,17 @@ export const Signup = () => {
         body: JSON.stringify({ name, email, password, role }),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+      const contentType = res.headers.get('content-type') || '';
+      let data: any = null;
+
+      if (contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        throw new Error(text || 'Received an unexpected response from the server.');
+      }
+
+      if (!res.ok) throw new Error(data?.message || 'Signup failed');
 
       login(data.user, data.token);
     } catch (err: any) {
