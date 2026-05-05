@@ -13,7 +13,6 @@ import {
   ShieldCheck, 
   Search, 
   Filter, 
-  MoreVertical, 
   CheckCircle2, 
   XCircle, 
   AlertCircle,
@@ -70,6 +69,8 @@ export const CollegeAdminDashboard = () => {
   const [showAddSpec, setShowAddSpec] = useState(false);
   const [newDept, setNewDept] = useState({ name: '', description: '' });
   const [newSpec, setNewSpec] = useState({ name: '', departmentId: '', description: '' });
+  const [userAssignments, setUserAssignments] = useState<Record<string, { role: string; department: string; specialization: string }>>({});
+  const [savingUserId, setSavingUserId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -187,6 +188,69 @@ export const CollegeAdminDashboard = () => {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleAssignmentDraftChange = (userId: string, updates: Partial<{ role: string; department: string; specialization: string }>) => {
+    setUserAssignments(prev => {
+      const current = prev[userId] || { role: '', department: '', specialization: '' };
+      const next = { ...current, ...updates };
+
+      if (updates.role === 'student') {
+        next.department = '';
+        next.specialization = '';
+      }
+      if (updates.role === 'dept_admin') {
+        next.specialization = '';
+      }
+      if (updates.department !== undefined && updates.department !== current.department) {
+        next.specialization = '';
+      }
+
+      return { ...prev, [userId]: next };
+    });
+  };
+
+  const saveUserAssignment = async (userId: string) => {
+    const assignment = userAssignments[userId];
+    if (!assignment) return;
+
+    if (assignment.role === 'dept_admin' && !assignment.department) {
+      alert('Please select a department for the department admin.');
+      return;
+    }
+    if (assignment.role === 'spec_admin' && (!assignment.department || !assignment.specialization)) {
+      alert('Please select both department and specialization for specialization admin.');
+      return;
+    }
+
+    setSavingUserId(userId);
+    try {
+      const res = await fetch(`/api/college-admin/users/${userId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          role: assignment.role,
+          department: assignment.department || null,
+          specialization: assignment.specialization || null
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: 'Failed to update user assignment' }));
+        alert(err.message || 'Failed to update user assignment');
+        return;
+      }
+
+      await fetchData();
+    } catch (err) {
+      console.error(err);
+      alert('Unable to update user assignment right now.');
+    } finally {
+      setSavingUserId(null);
     }
   };
 
@@ -342,7 +406,7 @@ export const CollegeAdminDashboard = () => {
               <th className="px-6 py-4 font-semibold">Role</th>
               <th className="px-6 py-4 font-semibold">Department</th>
               <th className="px-6 py-4 font-semibold">Specialization</th>
-              <th className="px-6 py-4 font-semibold">Actions</th>
+              <th className="px-6 py-4 font-semibold">Assign Admin Access</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-100">
@@ -368,9 +432,56 @@ export const CollegeAdminDashboard = () => {
                 <td className="px-6 py-4 text-zinc-400">{u.department?.name || '-'}</td>
                 <td className="px-6 py-4 text-zinc-400">{u.specialization?.name || '-'}</td>
                 <td className="px-6 py-4">
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical size={16} />
-                  </Button>
+                  {u.role !== 'college_admin' ? (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <select
+                        className="h-9 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2 text-xs"
+                        value={(userAssignments[u._id]?.role ?? u.role)}
+                        onChange={(e) => handleAssignmentDraftChange(u._id, { role: e.target.value })}
+                      >
+                        <option value="student">Student</option>
+                        <option value="dept_admin">Department Admin</option>
+                        <option value="spec_admin">Specialization Admin</option>
+                      </select>
+
+                      <select
+                        className="h-9 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2 text-xs"
+                        value={(userAssignments[u._id]?.department ?? u.department?._id ?? '')}
+                        onChange={(e) => handleAssignmentDraftChange(u._id, { department: e.target.value })}
+                        disabled={(userAssignments[u._id]?.role ?? u.role) === 'student'}
+                      >
+                        <option value="">Select Department</option>
+                        {departments.map((d: any) => (
+                          <option key={d._id} value={d._id}>{d.name}</option>
+                        ))}
+                      </select>
+
+                      {(userAssignments[u._id]?.role ?? u.role) === 'spec_admin' && (
+                        <select
+                          className="h-9 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2 text-xs"
+                          value={(userAssignments[u._id]?.specialization ?? u.specialization?._id ?? '')}
+                          onChange={(e) => handleAssignmentDraftChange(u._id, { specialization: e.target.value })}
+                        >
+                          <option value="">Select Field</option>
+                          {specializations
+                            .filter((s: any) => s.department?._id === (userAssignments[u._id]?.department ?? u.department?._id ?? ''))
+                            .map((s: any) => (
+                              <option key={s._id} value={s._id}>{s.name}</option>
+                            ))}
+                        </select>
+                      )}
+
+                      <Button
+                        size="sm"
+                        onClick={() => saveUserAssignment(u._id)}
+                        isLoading={savingUserId === u._id}
+                      >
+                        Save
+                      </Button>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-zinc-500">Primary college admin</span>
+                  )}
                 </td>
               </tr>
             ))}

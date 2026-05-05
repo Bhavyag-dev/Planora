@@ -109,8 +109,20 @@ router.patch('/users/:id', authMiddleware, isCollegeAdmin, async (req: AuthReque
     }
 
     if (role) user.role = role;
-    if (department) user.department = department;
-    if (specialization) user.specialization = specialization;
+
+    if (role === 'student' || role === 'college_admin' || role === 'admin' || role === 'super_admin') {
+      user.department = undefined;
+      user.specialization = undefined;
+    } else if (role === 'dept_admin') {
+      user.department = department;
+      user.specialization = undefined;
+    } else if (role === 'spec_admin') {
+      user.department = department;
+      user.specialization = specialization;
+    } else {
+      if (department !== undefined) user.department = department || undefined;
+      if (specialization !== undefined) user.specialization = specialization || undefined;
+    }
 
     await user.save();
     await logAudit(req.user?.id!, 'UPDATE_USER', 'USER', `Updated user ${user.email} permissions`);

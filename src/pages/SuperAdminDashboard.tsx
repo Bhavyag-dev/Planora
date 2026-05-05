@@ -80,6 +80,9 @@ export const SuperAdminDashboard = () => {
   const [auditLogs, setAuditLogs] = useState([]);
   const [systemSettings, setSystemSettings] = useState<any>(null);
   const [showAddCollege, setShowAddCollege] = useState(false);
+  const [creatingCollege, setCreatingCollege] = useState(false);
+  const [addCollegeError, setAddCollegeError] = useState('');
+  const [addCollegeSuccess, setAddCollegeSuccess] = useState('');
   const [loading, setLoading] = useState(true);
   const [updatingSettings, setUpdatingSettings] = useState(false);
   
@@ -263,6 +266,10 @@ export const SuperAdminDashboard = () => {
 
   const handleAddCollege = async (e: React.FormEvent) => {
     e.preventDefault();
+    setCreatingCollege(true);
+    setAddCollegeError('');
+    setAddCollegeSuccess('');
+
     try {
       const res = await fetch('/api/colleges', {
         method: 'POST',
@@ -272,16 +279,28 @@ export const SuperAdminDashboard = () => {
         },
         body: JSON.stringify(newCollege)
       });
+
+      const contentType = res.headers.get('content-type') || '';
+      const payload = contentType.includes('application/json')
+        ? await res.json()
+        : { message: 'Unexpected server response while creating college.' };
+
       if (res.ok) {
-        setShowAddCollege(false);
+        setAddCollegeSuccess('College created successfully.');
         setNewCollege({ name: '', domain: '', address: '', adminName: '', adminEmail: '', adminPassword: '' });
-        fetchData();
+        await fetchData();
+        setTimeout(() => {
+          setShowAddCollege(false);
+          setAddCollegeSuccess('');
+        }, 900);
       } else {
-        const error = await res.json();
-        alert(error.message || 'Failed to create college');
+        setAddCollegeError(payload.message || 'Failed to create college');
       }
     } catch (err) {
       console.error(err);
+      setAddCollegeError('Unable to reach server. Please try again.');
+    } finally {
+      setCreatingCollege(false);
     }
   };
 
@@ -355,7 +374,7 @@ export const SuperAdminDashboard = () => {
             <Shield size={14} className="text-emerald-500" />
             <span className="font-mono text-[10px] font-bold uppercase tracking-widest">Super Admin Control Plane</span>
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-white">Platform Command</h1>
+          <h1 className="text-4xl font-bold tracking-tight text-white">Platform Control Center</h1>
           <p className="text-zinc-400">Global oversight and infrastructure management for CampusSaaS.</p>
         </div>
         
@@ -368,10 +387,12 @@ export const SuperAdminDashboard = () => {
             <Database size={16} />
             Export Data
           </Button>
-          <Button onClick={() => setShowAddCollege(true)} className="gap-2 shadow-lg shadow-black/5">
-            <Plus size={18} />
-            Provision College
-          </Button>
+          {activeTab === 'colleges' && (
+            <Button onClick={() => setShowAddCollege(true)} className="gap-2 shadow-lg shadow-black/5">
+              <Plus size={18} />
+              Add College
+            </Button>
+          )}
         </div>
       </div>
 
@@ -1255,29 +1276,33 @@ export const SuperAdminDashboard = () => {
       </AnimatePresence>
 
 
-      {/* Provision College Modal */}
+      {/* Add College Modal */}
       {showAddCollege && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 p-4 backdrop-blur-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4 backdrop-blur-md">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white/[0.02] shadow-2xl"
+            className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-white/[0.08] bg-zinc-900/80 shadow-[0_30px_80px_rgba(0,0,0,0.6)]"
           >
-            <div className="flex items-center justify-between border-b border-white/[0.04] bg-white/[0.05]/40/50 px-8 py-6">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(139,92,246,0.18),transparent_55%)]" aria-hidden="true" />
+            <div className="absolute -right-20 top-8 h-44 w-44 rounded-full bg-purple-500/15 blur-3xl" aria-hidden="true" />
+            <div className="absolute -left-16 bottom-8 h-40 w-40 rounded-full bg-indigo-500/10 blur-3xl" aria-hidden="true" />
+
+            <div className="relative flex items-center justify-between border-b border-white/[0.08] bg-black/20 px-8 py-6">
               <div>
-                <h2 className="text-2xl font-bold tracking-tight">Provision New Institution</h2>
-                <p className="text-sm text-zinc-400">Initialize a new college environment and primary administrator.</p>
+                <h2 className="text-2xl font-bold tracking-tight text-white">Add New College</h2>
+                <p className="text-sm text-zinc-400">Create a college account and set its primary admin.</p>
               </div>
-              <button onClick={() => setShowAddCollege(false)} className="rounded-full p-2 hover:bg-white/[0.08]">
+              <button onClick={() => setShowAddCollege(false)} className="rounded-full p-2 text-zinc-300 transition-colors hover:bg-white/[0.08] hover:text-white">
                 <X size={20} />
               </button>
             </div>
             
-            <form onSubmit={handleAddCollege} className="p-8">
+            <form onSubmit={handleAddCollege} className="relative p-8">
               <div className="grid gap-8 md:grid-cols-2">
                 {/* College Details */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 border-b border-white/[0.04] pb-2">
+                <div className="space-y-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
+                  <div className="flex items-center gap-2 border-b border-white/[0.08] pb-2">
                     <Building2 size={16} className="text-zinc-400" />
                     <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-400">Institutional Identity</h3>
                   </div>
@@ -1304,8 +1329,8 @@ export const SuperAdminDashboard = () => {
                 </div>
 
                 {/* Admin Details */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 border-b border-white/[0.04] pb-2">
+                <div className="space-y-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
+                  <div className="flex items-center gap-2 border-b border-white/[0.08] pb-2">
                     <Shield size={16} className="text-zinc-400" />
                     <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-400">Primary Administrator</h3>
                   </div>
@@ -1347,23 +1372,33 @@ export const SuperAdminDashboard = () => {
                 </div>
               </div>
 
-              <div className="mt-10 flex items-center justify-between rounded-2xl bg-white/[0.05]/40 p-4">
+              <div className="mt-10 flex items-center justify-between rounded-2xl border border-white/[0.08] bg-black/20 p-4">
                 <div className="flex items-center gap-3 text-zinc-400">
                   <AlertCircle size={18} />
                   <p className="text-[10px] font-medium leading-tight">
-                    Provisioning will create a dedicated database partition and<br />
-                    send an activation email to the primary administrator.
+                    This will create the college and its admin login.<br />
+                    Make sure the admin email is valid and unique.
                   </p>
                 </div>
                 <div className="flex gap-3">
-                  <Button type="button" variant="outline" onClick={() => setShowAddCollege(false)}>
+                  <Button type="button" variant="outline" onClick={() => setShowAddCollege(false)} disabled={creatingCollege}>
                     Cancel
                   </Button>
-                  <Button type="submit" className="bg-white/[0.05] shadow-xl shadow-black/20">
-                    Initialize Infrastructure
+                  <Button type="submit" className="shadow-xl shadow-purple-900/30" isLoading={creatingCollege}>
+                    Create College
                   </Button>
                 </div>
               </div>
+              {(addCollegeError || addCollegeSuccess) && (
+                <div className={cn(
+                  "mt-4 rounded-xl border px-4 py-3 text-sm",
+                  addCollegeError
+                    ? "border-red-500/30 bg-red-500/10 text-red-300"
+                    : "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                )}>
+                  {addCollegeError || addCollegeSuccess}
+                </div>
+              )}
             </form>
           </motion.div>
         </div>
