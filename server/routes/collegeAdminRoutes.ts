@@ -41,8 +41,9 @@ router.post('/departments', authMiddleware, isCollegeAdmin, async (req: AuthRequ
     await department.save();
     await logAudit(req.user?.id!, 'CREATE_DEPARTMENT', 'COLLEGE', `Created department ${name}`);
     res.status(201).json(department);
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+  } catch (err: any) {
+    console.error('Error creating department:', err);
+    res.status(500).json({ message: err.message || 'Server error' });
   }
 });
 
@@ -99,8 +100,9 @@ router.post('/specializations', authMiddleware, isCollegeAdmin, async (req: Auth
     await specialization.save();
     await logAudit(req.user?.id!, 'CREATE_SPECIALIZATION', 'COLLEGE', `Created specialization ${name}`);
     res.status(201).json(specialization);
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+  } catch (err: any) {
+    console.error('Error creating specialization:', err);
+    res.status(500).json({ message: err.message || 'Server error' });
   }
 });
 
@@ -126,6 +128,33 @@ router.get('/users', authMiddleware, isCollegeAdmin, async (req: AuthRequest, re
     res.json(users);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Create a new user (e.g. Department Admin) in the college
+router.post('/users', authMiddleware, isCollegeAdmin, async (req: AuthRequest, res) => {
+  try {
+    const { name, email, password, role, department } = req.body;
+    
+    // Check if user exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(400).json({ message: 'User with this email already exists' });
+
+    const user = new User({
+      name,
+      email,
+      password,
+      role: role || 'student',
+      college: req.user?.college,
+      department: department || undefined
+    });
+    
+    await user.save();
+    await logAudit(req.user?.id!, 'CREATE_USER', 'USER', `Created user ${email} with role ${user.role}`);
+    res.status(201).json(user);
+  } catch (err: any) {
+    console.error('Error creating user:', err);
+    res.status(500).json({ message: err.message || 'Server error' });
   }
 });
 

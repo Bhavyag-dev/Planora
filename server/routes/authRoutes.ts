@@ -135,7 +135,16 @@ router.get('/search', authMiddleware, async (req: AuthRequest, res) => {
     if (email) query.email = { $regex: email as string, $options: 'i' };
     if (collegeId) query.college = collegeId;
     if (departmentId) query.department = departmentId;
-    if (role) query.role = role;
+    
+    // Super Admin should not view department-level admins
+    if (req.user?.role === 'super_admin' || req.user?.role === 'admin') {
+      if (role && ['dept_admin', 'spec_admin'].includes(role as string)) {
+        return res.json([]);
+      }
+      query.role = role ? role : { $nin: ['dept_admin', 'spec_admin'] };
+    } else {
+      if (role) query.role = role;
+    }
 
     const users = await User.find(query)
       .select('name email role college department')

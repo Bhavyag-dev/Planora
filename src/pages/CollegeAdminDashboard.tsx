@@ -73,6 +73,8 @@ export const CollegeAdminDashboard = () => {
   const [savingUserId, setSavingUserId] = useState<string | null>(null);
 
   const [editingDept, setEditingDept] = useState<any>(null);
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'student', department: '' });
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -119,7 +121,7 @@ export const CollegeAdminDashboard = () => {
   const handleAddDept = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/departments', {
+      const res = await fetch('/api/college-admin/departments', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -131,9 +133,13 @@ export const CollegeAdminDashboard = () => {
         setShowAddDept(false);
         setNewDept({ name: '', description: '' });
         fetchData();
+      } else {
+        const errData = await res.json();
+        alert(errData.message || 'Failed to create department');
       }
     } catch (err) {
       console.error(err);
+      alert('Network error');
     }
   };
 
@@ -158,6 +164,30 @@ export const CollegeAdminDashboard = () => {
     }
   };
 
+  const handleAddUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/college-admin/users', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(newUser)
+      });
+      if (res.ok) {
+        setShowAddUser(false);
+        setNewUser({ name: '', email: '', password: '', role: 'student', department: '' });
+        fetchData();
+      } else {
+        const error = await res.json();
+        alert(error.message || 'Failed to create user');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleDeleteDept = async (deptId: string) => {
     if (!confirm('Are you sure you want to delete this department?')) return;
     try {
@@ -169,9 +199,13 @@ export const CollegeAdminDashboard = () => {
       });
       if (res.ok) {
         fetchData();
+      } else {
+        const errData = await res.json();
+        alert(errData.message || 'Failed to delete department');
       }
     } catch (err) {
       console.error(err);
+      alert('Network error');
     }
   };
 
@@ -190,9 +224,13 @@ export const CollegeAdminDashboard = () => {
         setShowAddSpec(false);
         setNewSpec({ name: '', departmentId: '', description: '' });
         fetchData();
+      } else {
+        const errData = await res.json();
+        alert(errData.message || 'Failed to create specialization');
       }
     } catch (err) {
       console.error(err);
+      alert('Network error');
     }
   };
 
@@ -379,6 +417,12 @@ export const CollegeAdminDashboard = () => {
           <Button onClick={() => setShowAddDept(true)} variant="outline" className="gap-2">
             <Plus size={18} /> Add Department
           </Button>
+          <Button onClick={() => {
+            setNewUser({ name: '', email: '', password: '', role: 'dept_admin', department: '' });
+            setShowAddUser(true);
+          }} variant="outline" className="gap-2 border-purple-500/30 text-purple-400 hover:bg-purple-500/10">
+            <Plus size={18} /> Add Admin
+          </Button>
           <Button onClick={() => setShowAddSpec(true)} className="gap-2">
             <Plus size={18} /> Add Specialization
           </Button>
@@ -399,6 +443,12 @@ export const CollegeAdminDashboard = () => {
                   <p className="text-sm text-zinc-400">{dept.description}</p>
                 </div>
                 <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="border-purple-500/30 text-purple-400 hover:bg-purple-500/10" onClick={() => {
+                    setNewUser({ name: '', email: '', password: '', role: 'dept_admin', department: dept._id });
+                    setShowAddUser(true);
+                  }}>
+                    <Plus size={14} className="mr-1" /> Add Admin
+                  </Button>
                   <Button variant="ghost" size="sm" onClick={() => setEditingDept(dept)}>Edit</Button>
                   <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-500/10" onClick={() => handleDeleteDept(dept._id)}>Delete</Button>
                 </div>
@@ -433,13 +483,13 @@ export const CollegeAdminDashboard = () => {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 border-b border-white/[0.04] p-6 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-xl font-bold">College Users</h2>
-          <p className="text-xs text-zinc-400">Manage students and department-level administrators.</p>
+          <h2 className="text-xl font-bold">Department Admins</h2>
+          <p className="text-xs text-zinc-400">View and manage administrators across all departments.</p>
         </div>
         <div className="flex gap-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-            <Input className="pl-10 h-9 w-64 rounded-xl border-white/[0.06] bg-white/[0.03] text-xs focus-visible:ring-purple-500/50" placeholder="Search users..." />
+            <Input className="pl-10 h-9 w-64 rounded-xl border-white/[0.06] bg-white/[0.03] text-xs focus-visible:ring-purple-500/50" placeholder="Search admins..." />
           </div>
         </div>
       </div>
@@ -455,7 +505,7 @@ export const CollegeAdminDashboard = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/[0.04]">
-            {collegeUsers.map((u: any) => {
+            {collegeUsers.filter(u => u.role === 'dept_admin' || u.role === 'spec_admin').map((u: any) => {
               const draftRole = userAssignments[u._id]?.role ?? u.role;
               const draftDept = userAssignments[u._id]?.department ?? u.department?._id ?? '';
               const isAdmin = draftRole === 'dept_admin' || draftRole === 'spec_admin';
@@ -790,7 +840,7 @@ export const CollegeAdminDashboard = () => {
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md rounded-2xl border border-white/[0.06] bg-[#09090b] p-8 shadow-2xl">
             <h2 className="text-2xl font-bold">Add Department</h2>
             <p className="mt-1 text-sm text-zinc-400">Create a new department (e.g., BBA, BTech).</p>
-            <form onSubmit={handleAddDept} className="mt-6 space-y-4">
+            <form onSubmit={handleAddDept} onKeyDown={(e) => e.key === 'Enter' && handleAddDept(e as any)} className="mt-6 space-y-4">
               <Input label="Department Name" value={newDept.name} onChange={e => setNewDept({ ...newDept, name: e.target.value })} required className="bg-white/[0.03] border-white/[0.06]" />
               <Input label="Description" value={newDept.description} onChange={e => setNewDept({ ...newDept, description: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
               <div className="flex gap-3 pt-4">
@@ -806,7 +856,7 @@ export const CollegeAdminDashboard = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4 backdrop-blur-md">
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md rounded-2xl border border-white/[0.06] bg-[#09090b] p-8 shadow-2xl">
             <h2 className="text-2xl font-bold">Edit Department</h2>
-            <form onSubmit={handleEditDept} className="mt-6 space-y-4">
+            <form onSubmit={handleEditDept} onKeyDown={(e) => e.key === 'Enter' && handleEditDept(e as any)} className="mt-6 space-y-4">
               <Input label="Department Name" value={editingDept.name} onChange={e => setEditingDept({ ...editingDept, name: e.target.value })} required className="bg-white/[0.03] border-white/[0.06]" />
               <Input label="Description" value={editingDept.description} onChange={e => setEditingDept({ ...editingDept, description: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
               <div className="flex gap-3 pt-4">
@@ -823,7 +873,7 @@ export const CollegeAdminDashboard = () => {
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md rounded-2xl border border-white/[0.06] bg-[#09090b] p-8 shadow-2xl">
             <h2 className="text-2xl font-bold">Add Specialization</h2>
             <p className="mt-1 text-sm text-zinc-400">Create a specialization under a department.</p>
-            <form onSubmit={handleAddSpec} className="mt-6 space-y-4">
+            <form onSubmit={handleAddSpec} onKeyDown={(e) => e.key === 'Enter' && handleAddSpec(e as any)} className="mt-6 space-y-4">
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-zinc-300">Department</label>
                 <select 
@@ -843,6 +893,51 @@ export const CollegeAdminDashboard = () => {
               <div className="flex gap-3 pt-4">
                 <Button type="button" variant="outline" className="flex-1 border-white/[0.06] hover:bg-white/[0.02]" onClick={() => setShowAddSpec(false)}>Cancel</Button>
                 <Button type="submit" className="flex-1">Create Specialization</Button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
+      {showAddUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4 backdrop-blur-md">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md rounded-2xl border border-white/[0.06] bg-[#09090b] p-8 shadow-2xl">
+            <h2 className="text-2xl font-bold">Add User</h2>
+            <p className="mt-1 text-sm text-zinc-400">Create a new user or department admin.</p>
+            <form onSubmit={handleAddUser} onKeyDown={(e) => e.key === 'Enter' && handleAddUser(e as any)} className="mt-6 space-y-4">
+              <Input label="Name" value={newUser.name} onChange={e => setNewUser({ ...newUser, name: e.target.value })} required className="bg-white/[0.03] border-white/[0.06]" />
+              <Input label="Email" type="email" value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} required className="bg-white/[0.03] border-white/[0.06]" />
+              <Input label="Password" type="password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} required className="bg-white/[0.03] border-white/[0.06]" />
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-zinc-300">Role</label>
+                <select 
+                  className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500/50 text-white"
+                  value={newUser.role}
+                  onChange={e => setNewUser({ ...newUser, role: e.target.value })}
+                >
+                  <option value="student" className="bg-zinc-900">Student</option>
+                  <option value="dept_admin" className="bg-zinc-900">Department Admin</option>
+                </select>
+              </div>
+              {newUser.role === 'dept_admin' && (
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-zinc-300">Department</label>
+                  <select 
+                    className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500/50 text-white"
+                    value={newUser.department}
+                    onChange={e => setNewUser({ ...newUser, department: e.target.value })}
+                    required
+                  >
+                    <option value="" className="bg-zinc-900">Select Department</option>
+                    {departments.map((d: any) => (
+                      <option key={d._id} value={d._id} className="bg-zinc-900">{d.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              <div className="flex gap-3 pt-4">
+                <Button type="button" variant="outline" className="flex-1 border-white/[0.06] hover:bg-white/[0.02]" onClick={() => setShowAddUser(false)}>Cancel</Button>
+                <Button type="submit" className="flex-1">Create User</Button>
               </div>
             </form>
           </motion.div>
