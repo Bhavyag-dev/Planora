@@ -72,6 +72,8 @@ export const CollegeAdminDashboard = () => {
   const [userAssignments, setUserAssignments] = useState<Record<string, { role: string; department: string; specialization: string }>>({});
   const [savingUserId, setSavingUserId] = useState<string | null>(null);
 
+  const [editingDept, setEditingDept] = useState<any>(null);
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -128,6 +130,44 @@ export const CollegeAdminDashboard = () => {
       if (res.ok) {
         setShowAddDept(false);
         setNewDept({ name: '', description: '' });
+        fetchData();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleEditDept = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingDept) return;
+    try {
+      const res = await fetch(`/api/college-admin/departments/${editingDept._id}`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ name: editingDept.name, description: editingDept.description })
+      });
+      if (res.ok) {
+        setEditingDept(null);
+        fetchData();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteDept = async (deptId: string) => {
+    if (!confirm('Are you sure you want to delete this department?')) return;
+    try {
+      const res = await fetch(`/api/college-admin/departments/${deptId}`, {
+        method: 'DELETE',
+        headers: { 
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (res.ok) {
         fetchData();
       }
     } catch (err) {
@@ -329,9 +369,12 @@ export const CollegeAdminDashboard = () => {
   );
 
   const renderDepartments = () => (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Departments & Specializations</h2>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 border-b border-white/[0.04] p-6 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 className="text-xl font-bold">Departments & Specializations</h2>
+          <p className="text-xs text-zinc-400">Manage BBA, BTech, and other departments offered.</p>
+        </div>
         <div className="flex gap-2">
           <Button onClick={() => setShowAddDept(true)} variant="outline" className="gap-2">
             <Plus size={18} /> Add Department
@@ -355,7 +398,10 @@ export const CollegeAdminDashboard = () => {
                   <h4 className="font-medium">{dept.name}</h4>
                   <p className="text-sm text-zinc-400">{dept.description}</p>
                 </div>
-                <Button variant="ghost" size="sm">Manage</Button>
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="sm" onClick={() => setEditingDept(dept)}>Edit</Button>
+                  <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-500/10" onClick={() => handleDeleteDept(dept._id)}>Delete</Button>
+                </div>
               </div>
             ))}
           </div>
@@ -385,16 +431,16 @@ export const CollegeAdminDashboard = () => {
 
   const renderUsers = () => (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">College Users</h2>
+      <div className="flex flex-col gap-4 border-b border-white/[0.04] p-6 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 className="text-xl font-bold">College Users</h2>
+          <p className="text-xs text-zinc-400">Manage students and department-level administrators.</p>
+        </div>
         <div className="flex gap-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-            <Input className="pl-10 h-10 w-64" placeholder="Search users..." />
+            <Input className="pl-10 h-9 w-64 rounded-xl border-white/[0.06] bg-white/[0.03] text-xs focus-visible:ring-purple-500/50" placeholder="Search users..." />
           </div>
-          <Button variant="outline" className="gap-2">
-            <Filter size={18} /> Filter
-          </Button>
         </div>
       </div>
 
@@ -402,89 +448,86 @@ export const CollegeAdminDashboard = () => {
         <table className="w-full text-left text-sm">
           <thead className="bg-white/[0.05]/40 border-b border-white/[0.06]">
             <tr>
-              <th className="px-6 py-4 font-semibold">User</th>
-              <th className="px-6 py-4 font-semibold">Role</th>
-              <th className="px-6 py-4 font-semibold">Department</th>
-              <th className="px-6 py-4 font-semibold">Specialization</th>
-              <th className="px-6 py-4 font-semibold">Assign Admin Access</th>
+              <th className="px-6 py-4 font-semibold text-xs text-zinc-400 uppercase tracking-wider">User</th>
+              <th className="px-6 py-4 font-semibold text-xs text-zinc-400 uppercase tracking-wider">Role</th>
+              <th className="px-6 py-4 font-semibold text-xs text-zinc-400 uppercase tracking-wider">Department</th>
+              <th className="px-6 py-4 font-semibold text-xs text-zinc-400 uppercase tracking-wider">Admin Access</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-100">
-            {collegeUsers.map((u: any) => (
-              <tr key={u._id} className="hover:bg-white/[0.05]/40 transition-colors">
-                <td className="px-6 py-4">
-                  <div>
-                    <p className="font-medium">{u.name}</p>
-                    <p className="text-xs text-zinc-400">{u.email}</p>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <span className={cn(
-                    "inline-flex items-center rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider",
-                    u.role === 'college_admin' ? "bg-purple-100 text-purple-700" :
-                    u.role === 'dept_admin' ? "bg-blue-100 text-blue-700" :
-                    u.role === 'spec_admin' ? "bg-orange-100 text-orange-700" :
-                    "bg-white/[0.05] text-zinc-300"
-                  )}>
-                    {u.role.replace('_', ' ')}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-zinc-400">{u.department?.name || '-'}</td>
-                <td className="px-6 py-4 text-zinc-400">{u.specialization?.name || '-'}</td>
-                <td className="px-6 py-4">
-                  {u.role !== 'college_admin' ? (
-                    <div className="flex flex-wrap items-center gap-2">
-                      <select
-                        className="h-9 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2 text-xs"
-                        value={(userAssignments[u._id]?.role ?? u.role)}
-                        onChange={(e) => handleAssignmentDraftChange(u._id, { role: e.target.value })}
-                      >
-                        <option value="student">Student</option>
-                        <option value="dept_admin">Department Admin</option>
-                        <option value="spec_admin">Specialization Admin</option>
-                      </select>
-
-                      <select
-                        className="h-9 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2 text-xs"
-                        value={(userAssignments[u._id]?.department ?? u.department?._id ?? '')}
-                        onChange={(e) => handleAssignmentDraftChange(u._id, { department: e.target.value })}
-                        disabled={(userAssignments[u._id]?.role ?? u.role) === 'student'}
-                      >
-                        <option value="">Select Department</option>
-                        {departments.map((d: any) => (
-                          <option key={d._id} value={d._id}>{d.name}</option>
-                        ))}
-                      </select>
-
-                      {(userAssignments[u._id]?.role ?? u.role) === 'spec_admin' && (
-                        <select
-                          className="h-9 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2 text-xs"
-                          value={(userAssignments[u._id]?.specialization ?? u.specialization?._id ?? '')}
-                          onChange={(e) => handleAssignmentDraftChange(u._id, { specialization: e.target.value })}
-                        >
-                          <option value="">Select Field</option>
-                          {specializations
-                            .filter((s: any) => s.department?._id === (userAssignments[u._id]?.department ?? u.department?._id ?? ''))
-                            .map((s: any) => (
-                              <option key={s._id} value={s._id}>{s.name}</option>
-                            ))}
-                        </select>
-                      )}
-
-                      <Button
-                        size="sm"
-                        onClick={() => saveUserAssignment(u._id)}
-                        isLoading={savingUserId === u._id}
-                      >
-                        Save
-                      </Button>
+          <tbody className="divide-y divide-white/[0.04]">
+            {collegeUsers.map((u: any) => {
+              const draftRole = userAssignments[u._id]?.role ?? u.role;
+              const draftDept = userAssignments[u._id]?.department ?? u.department?._id ?? '';
+              const isAdmin = draftRole === 'dept_admin' || draftRole === 'spec_admin';
+              
+              return (
+                <tr key={u._id} className="group hover:bg-white/[0.05]/40 transition-colors">
+                  <td className="px-6 py-4">
+                    <div>
+                      <p className="font-medium">{u.name}</p>
+                      <p className="text-xs text-zinc-400">{u.email}</p>
                     </div>
-                  ) : (
-                    <span className="text-xs text-zinc-500">Primary college admin</span>
-                  )}
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={cn(
+                      "inline-flex items-center rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider",
+                      draftRole === 'college_admin' ? "bg-purple-100 text-purple-700" :
+                      draftRole === 'dept_admin' ? "bg-blue-100 text-blue-700" :
+                      draftRole === 'spec_admin' ? "bg-orange-100 text-orange-700" :
+                      "bg-white/[0.05] text-zinc-300"
+                    )}>
+                      {draftRole === 'dept_admin' ? 'Dept Admin' : draftRole.replace('_', ' ')}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-zinc-400">{u.department?.name || '-'}</td>
+                  <td className="px-6 py-4">
+                    {u.role !== 'college_admin' ? (
+                      <div className="flex flex-wrap items-center gap-2">
+                        {/* Admin Toggle */}
+                        <button
+                          onClick={() => handleAssignmentDraftChange(u._id, { role: isAdmin ? 'student' : 'dept_admin' })}
+                          className={cn(
+                            "relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50",
+                            isAdmin ? "bg-purple-500" : "bg-white/[0.08]"
+                          )}
+                        >
+                          <span className={cn(
+                            "inline-block h-3 w-3 transform rounded-full bg-white transition-transform",
+                            isAdmin ? "translate-x-5" : "translate-x-1"
+                          )} />
+                        </button>
+                        
+                        {isAdmin && (
+                          <select
+                            className="h-8 appearance-none rounded-lg border border-white/[0.06] bg-white/[0.03] px-3 text-xs font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50"
+                            value={draftDept}
+                            onChange={(e) => handleAssignmentDraftChange(u._id, { department: e.target.value })}
+                          >
+                            <option value="" className="bg-zinc-900 text-white">Select Department</option>
+                            {departments.map((d: any) => (
+                              <option key={d._id} value={d._id} className="bg-zinc-900 text-white">{d.name}</option>
+                            ))}
+                          </select>
+                        )}
+                        
+                        {(userAssignments[u._id]) && (
+                          <Button
+                            size="sm"
+                            className="h-8 px-3 text-xs"
+                            onClick={() => saveUserAssignment(u._id)}
+                            isLoading={savingUserId === u._id}
+                          >
+                            Save
+                          </Button>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-zinc-500">Primary Admin</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -493,10 +536,13 @@ export const CollegeAdminDashboard = () => {
 
   const renderEvents = () => (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">College Events</h2>
+      <div className="flex flex-col gap-4 border-b border-white/[0.04] p-6 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 className="text-xl font-bold">College Events</h2>
+          <p className="text-xs text-zinc-400">Manage and moderate all events within your institution.</p>
+        </div>
         <Button className="gap-2">
-          <Plus size={18} /> Create College Event
+          <Plus size={18} /> Create Event
         </Button>
       </div>
 
@@ -561,8 +607,11 @@ export const CollegeAdminDashboard = () => {
 
   const renderPayments = () => (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Financial Oversight</h2>
+      <div className="flex flex-col gap-4 border-b border-white/[0.04] p-6 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 className="text-xl font-bold">Financial Oversight</h2>
+          <p className="text-xs text-zinc-400">Track ticketing and registration payments.</p>
+        </div>
         <Button variant="outline" className="gap-2">
           <Download size={18} /> Export Report
         </Button>
@@ -737,14 +786,15 @@ export const CollegeAdminDashboard = () => {
 
       {/* Modals */}
       {showAddDept && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50 p-4 backdrop-blur-sm">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md rounded-2xl bg-white/[0.02] p-8 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4 backdrop-blur-md">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md rounded-2xl border border-white/[0.06] bg-[#09090b] p-8 shadow-2xl">
             <h2 className="text-2xl font-bold">Add Department</h2>
+            <p className="mt-1 text-sm text-zinc-400">Create a new department (e.g., BBA, BTech).</p>
             <form onSubmit={handleAddDept} className="mt-6 space-y-4">
-              <Input label="Department Name" value={newDept.name} onChange={e => setNewDept({ ...newDept, name: e.target.value })} required />
-              <Input label="Description" value={newDept.description} onChange={e => setNewDept({ ...newDept, description: e.target.value })} />
+              <Input label="Department Name" value={newDept.name} onChange={e => setNewDept({ ...newDept, name: e.target.value })} required className="bg-white/[0.03] border-white/[0.06]" />
+              <Input label="Description" value={newDept.description} onChange={e => setNewDept({ ...newDept, description: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
               <div className="flex gap-3 pt-4">
-                <Button type="button" variant="outline" className="flex-1" onClick={() => setShowAddDept(false)}>Cancel</Button>
+                <Button type="button" variant="outline" className="flex-1 border-white/[0.06] hover:bg-white/[0.02]" onClick={() => setShowAddDept(false)}>Cancel</Button>
                 <Button type="submit" className="flex-1">Create Department</Button>
               </div>
             </form>
@@ -752,29 +802,46 @@ export const CollegeAdminDashboard = () => {
         </div>
       )}
 
+      {editingDept && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4 backdrop-blur-md">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md rounded-2xl border border-white/[0.06] bg-[#09090b] p-8 shadow-2xl">
+            <h2 className="text-2xl font-bold">Edit Department</h2>
+            <form onSubmit={handleEditDept} className="mt-6 space-y-4">
+              <Input label="Department Name" value={editingDept.name} onChange={e => setEditingDept({ ...editingDept, name: e.target.value })} required className="bg-white/[0.03] border-white/[0.06]" />
+              <Input label="Description" value={editingDept.description} onChange={e => setEditingDept({ ...editingDept, description: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
+              <div className="flex gap-3 pt-4">
+                <Button type="button" variant="outline" className="flex-1 border-white/[0.06] hover:bg-white/[0.02]" onClick={() => setEditingDept(null)}>Cancel</Button>
+                <Button type="submit" className="flex-1">Save Changes</Button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
       {showAddSpec && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50 p-4 backdrop-blur-sm">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md rounded-2xl bg-white/[0.02] p-8 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4 backdrop-blur-md">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md rounded-2xl border border-white/[0.06] bg-[#09090b] p-8 shadow-2xl">
             <h2 className="text-2xl font-bold">Add Specialization</h2>
+            <p className="mt-1 text-sm text-zinc-400">Create a specialization under a department.</p>
             <form onSubmit={handleAddSpec} className="mt-6 space-y-4">
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-zinc-300">Department</label>
                 <select 
-                  className="w-full rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-sm outline-none focus:border-black"
+                  className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500/50"
                   value={newSpec.departmentId}
                   onChange={e => setNewSpec({ ...newSpec, departmentId: e.target.value })}
                   required
                 >
-                  <option value="">Select Department</option>
+                  <option value="" className="bg-zinc-900 text-white">Select Department</option>
                   {departments.map((d: any) => (
-                    <option key={d._id} value={d._id}>{d.name}</option>
+                    <option key={d._id} value={d._id} className="bg-zinc-900 text-white">{d.name}</option>
                   ))}
                 </select>
               </div>
-              <Input label="Specialization Name" value={newSpec.name} onChange={e => setNewSpec({ ...newSpec, name: e.target.value })} required />
-              <Input label="Description" value={newSpec.description} onChange={e => setNewSpec({ ...newSpec, description: e.target.value })} />
+              <Input label="Specialization Name" value={newSpec.name} onChange={e => setNewSpec({ ...newSpec, name: e.target.value })} required className="bg-white/[0.03] border-white/[0.06]" />
+              <Input label="Description" value={newSpec.description} onChange={e => setNewSpec({ ...newSpec, description: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
               <div className="flex gap-3 pt-4">
-                <Button type="button" variant="outline" className="flex-1" onClick={() => setShowAddSpec(false)}>Cancel</Button>
+                <Button type="button" variant="outline" className="flex-1 border-white/[0.06] hover:bg-white/[0.02]" onClick={() => setShowAddSpec(false)}>Cancel</Button>
                 <Button type="submit" className="flex-1">Create Specialization</Button>
               </div>
             </form>

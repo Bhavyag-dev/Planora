@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from './Button';
@@ -6,6 +7,18 @@ import { Calendar, User as UserIcon, LogOut, LayoutDashboard, Zap } from 'lucide
 export const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   if (!isAuthenticated) {
     return (
@@ -41,8 +54,30 @@ export const Navbar = () => {
         </div>
         
         <div className="flex items-center gap-4">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-xs font-bold text-white shadow-lg shadow-purple-500/20">
-            {user?.name.charAt(0)}
+          <div className="relative" ref={dropdownRef}>
+            <button 
+              onClick={() => setShowDropdown(!showDropdown)}
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-xs font-bold text-white shadow-lg shadow-purple-500/20 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-transform hover:scale-105"
+            >
+              {user?.name?.charAt(0) || 'U'}
+            </button>
+            
+            {showDropdown && user?.role === 'super_admin' && (
+              <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-xl bg-zinc-900 border border-white/10 shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden z-50">
+                <div className="p-1">
+                  <button
+                    onClick={() => {
+                      setShowDropdown(false);
+                      logout();
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-400 rounded-lg hover:bg-white/5 transition-colors"
+                  >
+                    <LogOut size={16} />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

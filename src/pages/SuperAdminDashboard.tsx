@@ -89,7 +89,6 @@ export const SuperAdminDashboard = () => {
   // User Management States
   const [users, setUsers] = useState([]);
   const [userSearch, setUserSearch] = useState('');
-  const [userRoleFilter, setUserRoleFilter] = useState('All');
   
   // Event Management States
   const [eventSearch, setEventSearch] = useState('');
@@ -327,10 +326,10 @@ export const SuperAdminDashboard = () => {
     return users.filter((u: any) => {
       const matchesSearch = u.name.toLowerCase().includes(userSearch.toLowerCase()) || 
                            u.email.toLowerCase().includes(userSearch.toLowerCase());
-      const matchesRole = userRoleFilter === 'All' || u.role === userRoleFilter;
+      const matchesRole = u.role === 'college_admin';
       return matchesSearch && matchesRole;
     });
-  }, [users, userSearch, userRoleFilter]);
+  }, [users, userSearch]);
 
   const filteredEvents = useMemo(() => {
     let result = events.filter((event: any) => {
@@ -618,10 +617,9 @@ export const SuperAdminDashboard = () => {
               <div className="flex items-center gap-2">
                 <div className="relative">
                   <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-                  <input 
-                    type="text" 
+                  <Input 
                     placeholder="Search institutions..." 
-                    className="h-9 rounded-lg border border-white/[0.06] pl-9 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                    className="h-9 w-full rounded-xl border-white/[0.06] bg-white/[0.03] pl-9 pr-4 text-xs focus-visible:ring-purple-500/50"
                   />
                 </div>
               </div>
@@ -728,43 +726,42 @@ export const SuperAdminDashboard = () => {
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="relative flex-1 min-w-[200px]">
                     <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-                    <input 
-                      type="text" 
+                    <Input 
                       placeholder="Search events or colleges..." 
-                      className="h-9 w-full rounded-lg border border-white/[0.06] pl-9 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                      className="h-9 w-full rounded-xl border-white/[0.06] bg-white/[0.03] pl-9 pr-4 text-xs focus-visible:ring-purple-500/50"
                       value={eventSearch}
                       onChange={(e) => setEventSearch(e.target.value)}
                     />
                   </div>
                   <select 
-                    className="h-9 rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 text-[10px] font-bold uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                    className="flex h-9 appearance-none rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50"
                     value={eventCategoryFilter || 'All'}
                     onChange={(e) => setEventCategoryFilter(e.target.value === 'All' ? '' : e.target.value)}
                   >
-                    <option value="All">All Categories</option>
+                    <option value="All" className="bg-zinc-900 text-white">All Categories</option>
                     {systemSettings?.eventCategories?.map((cat: string) => (
-                      <option key={cat} value={cat}>{cat}</option>
+                      <option key={cat} value={cat} className="bg-zinc-900 text-white">{cat}</option>
                     ))}
                   </select>
                   <select 
-                    className="h-9 rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 text-[10px] font-bold uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                    className="flex h-9 appearance-none rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50"
                     value={eventStatusFilter || 'All'}
                     onChange={(e) => setEventStatusFilter(e.target.value === 'All' ? '' : e.target.value)}
                   >
-                    <option value="All">All Status</option>
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
-                    <option value="flagged">Flagged</option>
-                    <option value="moderated">Moderated</option>
-                    <option value="cancelled">Cancelled</option>
+                    <option value="All" className="bg-zinc-900 text-white">All Status</option>
+                    <option value="draft" className="bg-zinc-900 text-white">Draft</option>
+                    <option value="published" className="bg-zinc-900 text-white">Published</option>
+                    <option value="flagged" className="bg-zinc-900 text-white">Flagged</option>
+                    <option value="moderated" className="bg-zinc-900 text-white">Moderated</option>
+                    <option value="cancelled" className="bg-zinc-900 text-white">Cancelled</option>
                   </select>
                   <select 
-                    className="h-9 rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 text-[10px] font-bold uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                    className="flex h-9 appearance-none rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50"
                     value={eventSortBy}
                     onChange={(e) => setEventSortBy(e.target.value as any)}
                   >
-                    <option value="date-asc">Date (Asc)</option>
-                    <option value="date-desc">Date (Desc)</option>
+                    <option value="date-asc" className="bg-zinc-900 text-white">Date (Asc)</option>
+                    <option value="date-desc" className="bg-zinc-900 text-white">Date (Desc)</option>
                   </select>
                 </div>
               </div>
@@ -803,10 +800,10 @@ export const SuperAdminDashboard = () => {
                             event.status === 'flagged' ? "text-red-600" : "text-zinc-400"
                           )}
                         >
-                          <option value="published">Published</option>
-                          <option value="flagged">Flagged</option>
-                          <option value="moderated">Moderated</option>
-                          <option value="cancelled">Cancelled</option>
+                          <option value="published" className="bg-zinc-900 text-white">Published</option>
+                          <option value="flagged" className="bg-zinc-900 text-white">Flagged</option>
+                          <option value="moderated" className="bg-zinc-900 text-white">Moderated</option>
+                          <option value="cancelled" className="bg-zinc-900 text-white">Cancelled</option>
                         </select>
                       </td>
                       <td className="px-6 py-4">
@@ -921,32 +918,24 @@ export const SuperAdminDashboard = () => {
             animate={{ opacity: 1, x: 0 }}
             className="space-y-6"
           >
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="flex flex-1 items-center gap-3">
-                <div className="relative flex-1 max-w-md">
-                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-                  <Input 
-                    placeholder="Search by name, email or UID..." 
-                    className="pl-10"
-                    value={userSearch}
-                    onChange={(e) => setUserSearch(e.target.value)}
-                  />
-                </div>
-                <select 
-                  className="h-10 rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
-                  value={userRoleFilter}
-                  onChange={(e) => setUserRoleFilter(e.target.value)}
-                >
-                  <option value="All">All Roles</option>
-                  <option value="super_admin">Super Admin</option>
-                  <option value="college_admin">College Admin</option>
-                  <option value="dept_admin">Dept Admin</option>
-                  <option value="student">Student</option>
-                </select>
-              </div>
-            </div>
-
             <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-sm overflow-hidden">
+              <div className="flex flex-col gap-4 border-b border-white/[0.04] p-6 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <h2 className="text-xl font-bold">College Administrators</h2>
+                  <p className="text-xs text-zinc-400">View and manage college-level admin accounts across the platform.</p>
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="relative flex-1 min-w-[240px]">
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                    <Input 
+                      placeholder="Search by name, email or UID..." 
+                      className="h-9 w-full rounded-xl border-white/[0.06] bg-white/[0.03] pl-9 pr-4 text-xs focus-visible:ring-purple-500/50"
+                      value={userSearch}
+                      onChange={(e) => setUserSearch(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead>
@@ -973,16 +962,9 @@ export const SuperAdminDashboard = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <select 
-                            className="bg-transparent text-[9px] font-bold uppercase tracking-wider text-zinc-400 focus:outline-none"
-                            value={u.role}
-                            onChange={(e) => handleUpdateRole(u._id, e.target.value)}
-                          >
-                            <option value="super_admin">Super Admin</option>
-                            <option value="college_admin">College Admin</option>
-                            <option value="dept_admin">Dept Admin</option>
-                            <option value="student">Student</option>
-                          </select>
+                          <span className="inline-flex items-center rounded-full bg-purple-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-purple-700">
+                            College Admin
+                          </span>
                         </td>
                         <td className="px-6 py-4">
                           <p className="text-xs font-medium text-zinc-300">{u.college?.name || 'Platform Level'}</p>

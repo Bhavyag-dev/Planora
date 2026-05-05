@@ -72,13 +72,25 @@ export const Sidebar = ({ className }: SidebarProps) => {
     { 
       title: 'Events', 
       icon: Calendar, 
+      path: '/college-admin?tab=events',
+      roles: ['college_admin']
+    },
+    { 
+      title: 'Events', 
+      icon: Calendar, 
       path: '/events',
-      roles: ['college_admin', 'dept_admin', 'student']
+      roles: ['dept_admin', 'student']
     },
     { 
       title: 'Departments', 
       icon: Building2, 
-      path: '/college-admin/departments',
+      path: '/college-admin?tab=departments',
+      roles: ['college_admin']
+    },
+    { 
+      title: 'Department Admins', 
+      icon: Users, 
+      path: '/college-admin?tab=users',
       roles: ['college_admin']
     },
     { 
@@ -216,7 +228,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
                 <p className="truncate text-xs text-zinc-500 capitalize">{user?.role.replace('_', ' ')}</p>
               </div>
             )}
-            {isOpen && (
+            {isOpen && user?.role !== 'super_admin' && (
               <button onClick={logout} className="text-zinc-500 hover:text-red-400 transition-colors">
                 <LogOut size={18} />
               </button>

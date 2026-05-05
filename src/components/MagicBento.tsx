@@ -65,6 +65,7 @@ interface ParticleCardProps {
   enableTilt?: boolean;
   clickEffect?: boolean;
   enableMagnetism?: boolean;
+  key?: React.Key;
 }
 
 const ParticleCard = ({

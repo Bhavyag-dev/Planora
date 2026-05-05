@@ -56,6 +56,36 @@ router.get('/departments', authMiddleware, isCollegeAdmin, async (req: AuthReque
   }
 });
 
+// Edit Department
+router.patch('/departments/:id', authMiddleware, isCollegeAdmin, async (req: AuthRequest, res) => {
+  try {
+    const { name, description } = req.body;
+    const department = await Department.findOne({ _id: req.params.id, college: req.user?.college });
+    if (!department) return res.status(404).json({ message: 'Department not found' });
+
+    if (name) department.name = name;
+    if (description !== undefined) department.description = description;
+
+    await department.save();
+    await logAudit(req.user?.id!, 'UPDATE_DEPARTMENT', 'COLLEGE', `Updated department ${department.name}`);
+    res.json(department);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Delete Department
+router.delete('/departments/:id', authMiddleware, isCollegeAdmin, async (req: AuthRequest, res) => {
+  try {
+    const department = await Department.findOneAndDelete({ _id: req.params.id, college: req.user?.college });
+    if (!department) return res.status(404).json({ message: 'Department not found' });
+    await logAudit(req.user?.id!, 'DELETE_DEPARTMENT', 'COLLEGE', `Deleted department ${department.name}`);
+    res.json({ message: 'Department deleted' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Create Specialization
 router.post('/specializations', authMiddleware, isCollegeAdmin, async (req: AuthRequest, res) => {
   try {
