@@ -120,6 +120,7 @@ export const CollegeAdminDashboard = () => {
 
   const handleAddDept = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newDept.name.trim()) return alert('Please enter a department name');
     try {
       const res = await fetch('/api/college-admin/departments', {
         method: 'POST',
@@ -166,6 +167,12 @@ export const CollegeAdminDashboard = () => {
 
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newUser.name.trim() || !newUser.email.trim() || !newUser.password.trim()) {
+      return alert('Please fill in all required fields (Name, Email, Password)');
+    }
+    if (newUser.role === 'dept_admin' && !newUser.department) {
+      return alert('Please select a department for the Department Admin');
+    }
     try {
       const res = await fetch('/api/college-admin/users', {
         method: 'POST',
@@ -211,6 +218,8 @@ export const CollegeAdminDashboard = () => {
 
   const handleAddSpec = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newSpec.departmentId) return alert('Please select a department');
+    if (!newSpec.name.trim()) return alert('Please enter a specialization name');
     try {
       const res = await fetch('/api/college-admin/specializations', {
         method: 'POST',
@@ -841,7 +850,7 @@ export const CollegeAdminDashboard = () => {
             <h2 className="text-2xl font-bold">Add Department</h2>
             <p className="mt-1 text-sm text-zinc-400">Create a new department (e.g., BBA, BTech).</p>
             <form onSubmit={handleAddDept} onKeyDown={(e) => e.key === 'Enter' && handleAddDept(e as any)} className="mt-6 space-y-4">
-              <Input label="Department Name" value={newDept.name} onChange={e => setNewDept({ ...newDept, name: e.target.value })} required className="bg-white/[0.03] border-white/[0.06]" />
+              <Input label="Department Name" value={newDept.name} onChange={e => setNewDept({ ...newDept, name: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
               <Input label="Description" value={newDept.description} onChange={e => setNewDept({ ...newDept, description: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
               <div className="flex gap-3 pt-4">
                 <Button type="button" variant="outline" className="flex-1 border-white/[0.06] hover:bg-white/[0.02]" onClick={() => setShowAddDept(false)}>Cancel</Button>
@@ -857,7 +866,7 @@ export const CollegeAdminDashboard = () => {
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md rounded-2xl border border-white/[0.06] bg-[#09090b] p-8 shadow-2xl">
             <h2 className="text-2xl font-bold">Edit Department</h2>
             <form onSubmit={handleEditDept} onKeyDown={(e) => e.key === 'Enter' && handleEditDept(e as any)} className="mt-6 space-y-4">
-              <Input label="Department Name" value={editingDept.name} onChange={e => setEditingDept({ ...editingDept, name: e.target.value })} required className="bg-white/[0.03] border-white/[0.06]" />
+              <Input label="Department Name" value={editingDept.name} onChange={e => setEditingDept({ ...editingDept, name: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
               <Input label="Description" value={editingDept.description} onChange={e => setEditingDept({ ...editingDept, description: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
               <div className="flex gap-3 pt-4">
                 <Button type="button" variant="outline" className="flex-1 border-white/[0.06] hover:bg-white/[0.02]" onClick={() => setEditingDept(null)}>Cancel</Button>
@@ -888,7 +897,7 @@ export const CollegeAdminDashboard = () => {
                   ))}
                 </select>
               </div>
-              <Input label="Specialization Name" value={newSpec.name} onChange={e => setNewSpec({ ...newSpec, name: e.target.value })} required className="bg-white/[0.03] border-white/[0.06]" />
+              <Input label="Specialization Name" value={newSpec.name} onChange={e => setNewSpec({ ...newSpec, name: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
               <Input label="Description" value={newSpec.description} onChange={e => setNewSpec({ ...newSpec, description: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
               <div className="flex gap-3 pt-4">
                 <Button type="button" variant="outline" className="flex-1 border-white/[0.06] hover:bg-white/[0.02]" onClick={() => setShowAddSpec(false)}>Cancel</Button>
@@ -905,9 +914,9 @@ export const CollegeAdminDashboard = () => {
             <h2 className="text-2xl font-bold">Add User</h2>
             <p className="mt-1 text-sm text-zinc-400">Create a new user or department admin.</p>
             <form onSubmit={handleAddUser} onKeyDown={(e) => e.key === 'Enter' && handleAddUser(e as any)} className="mt-6 space-y-4">
-              <Input label="Name" value={newUser.name} onChange={e => setNewUser({ ...newUser, name: e.target.value })} required className="bg-white/[0.03] border-white/[0.06]" />
-              <Input label="Email" type="email" value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} required className="bg-white/[0.03] border-white/[0.06]" />
-              <Input label="Password" type="password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} required className="bg-white/[0.03] border-white/[0.06]" />
+              <Input label="Name" value={newUser.name} onChange={e => setNewUser({ ...newUser, name: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
+              <Input label="Email" type="email" value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
+              <Input label="Password" type="password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-zinc-300">Role</label>
                 <select 
