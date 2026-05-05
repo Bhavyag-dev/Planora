@@ -5,6 +5,7 @@ import { Calendar, MapPin, Users, Search, Filter, Tag, LayoutDashboard, ArrowRig
 import { formatDate } from '../lib/utils';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
+import MagicBento from '../components/MagicBento';
 import { useAuth } from '../hooks/useAuth';
 
 interface Event {
@@ -192,70 +193,21 @@ export const Events = () => {
       </div>
 
       {/* Events Grid */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <AnimatePresence>
-          {filteredEvents.map((event, index) => (
-            <motion.div
-              layout
-              key={event._id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ delay: index * 0.05, duration: 0.4 }}
-              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/[0.06] bg-white/[0.02] shadow-2xl transition-all hover:bg-white/[0.04] hover:shadow-purple-500/5 hover:-translate-y-1"
-            >
-              <Link to={`/events/${event._id}`} className="absolute inset-0 z-10" />
-              
-              {/* Card Header (Category & Date) */}
-              <div className="p-6 pb-0">
-                <div className="flex items-center justify-between mb-4">
-                  <span className={`inline-flex items-center rounded-full bg-gradient-to-r px-3 py-1 text-[10px] font-bold uppercase tracking-widest border ${getCategoryColor(event.category || 'General')}`}>
-                    {event.category || 'General'}
-                  </span>
-                </div>
-                
-                <h3 className="text-xl font-bold text-white leading-tight group-hover:text-purple-300 transition-colors">
-                  {event.title}
-                </h3>
-                <p className="mt-3 line-clamp-2 text-sm text-zinc-400">
-                  {event.description}
-                </p>
-              </div>
-
-              {/* Card Footer Details */}
-              <div className="p-6 pt-6 mt-auto">
-                <div className="space-y-2 mb-6">
-                  <div className="flex items-center gap-2 text-sm text-zinc-300">
-                    <Calendar size={14} className="text-purple-400" />
-                    {formatDate(event.date)}
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-zinc-300">
-                    <MapPin size={14} className="text-pink-400" />
-                    <span className="truncate">{event.venue}</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between pt-4 border-t border-white/[0.06]">
-                  <div className="flex items-center gap-1.5 text-xs font-medium">
-                    <Users size={14} className="text-zinc-500" />
-                    {event.seatLimit - event.registeredCount <= 0 ? (
-                      <span className="text-red-400 flex items-center gap-1">
-                        Sold Out
-                      </span>
-                    ) : (
-                      <span className="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded text-[10px] uppercase tracking-wider">
-                        {event.seatLimit - event.registeredCount} Left
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-indigo-400 opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
-                    <ArrowRight size={18} />
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+      <div className="mt-8">
+        <MagicBento 
+          events={filteredEvents}
+          textAutoHide={true}
+          enableStars={true}
+          enableSpotlight={true}
+          enableBorderGlow={true}
+          enableTilt={false}
+          enableMagnetism={false}
+          clickEffect={true}
+          spotlightRadius={400}
+          particleCount={12}
+          glowColor="132, 0, 255"
+          disableAnimations={false}
+        />
       </div>
 
       {filteredEvents.length === 0 && (

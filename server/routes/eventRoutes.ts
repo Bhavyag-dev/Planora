@@ -6,15 +6,24 @@ import { sendCancellationEmail } from '../services/emailService';
 
 const router = express.Router();
 
-// Public: Get all events for a specific college
-router.get('/', authMiddleware, async (req: AuthRequest, res) => {
+// Public: Get all events for a specific college (or all if not logged in)
+router.get('/', async (req: AuthRequest, res) => {
   try {
-    const collegeId = req.user?.college;
-    if (!collegeId && req.user?.role !== 'super_admin' && req.user?.role !== 'admin') {
-      return res.json([]); // Return empty array instead of error
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    let query: any = {};
+    
+    if (token && token !== 'null') {
+      try {
+        const jwt = require('jsonwebtoken');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as any;
+        if (decoded.role !== 'super_admin' && decoded.role !== 'admin' && decoded.college) {
+           query.college = decoded.college;
+        }
+      } catch (err) {
+         // Ignore invalid token, just return all
+      }
     }
 
-    const query = (req.user?.role === 'super_admin' || req.user?.role === 'admin') ? {} : { college: collegeId };
     const events = await Event.find(query).sort({ date: 1 });
     res.json(events);
   } catch (err) {

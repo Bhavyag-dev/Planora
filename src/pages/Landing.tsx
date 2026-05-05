@@ -38,6 +38,7 @@ import {
 import { Link } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { HeroBackground } from '../components/HeroBackground';
+import Aurora from '../components/Aurora';
 
 /* ==========================================================================
    NAVBAR
@@ -223,8 +224,8 @@ const Navbar = () => {
 const Hero = () => {
   return (
     <section id="hero-section" className="relative flex h-screen flex-col items-center justify-center overflow-hidden" aria-label="Hero">
-      {/* Three.js Cinematic Background Canvas */}
-      <HeroBackground />
+      {/* Aurora Background Canvas */}
+      <Aurora colorStops={["#818cf8", "#a78bfa", "#f472b6"]} blend={0.5} amplitude={1.0} speed={0.5} />
 
       {/* Floating Glass Event Preview Cards (decorative, behind headline) */}
       <div className="pointer-events-none absolute inset-0 z-[1] hidden lg:block" aria-hidden="true">
@@ -307,12 +308,12 @@ const Hero = () => {
           </motion.span>
 
           {/* Headline */}
-          <h1 className="mt-10 text-5xl font-bold tracking-tight text-white md:text-7xl lg:text-[5.5rem] lg:leading-[1.05] drop-shadow-[0_0_60px_rgba(99,102,241,0.12)]">
+          <h1 className="mt-10 text-5xl tracking-tight text-white md:text-7xl lg:text-[5.5rem] lg:leading-[1.05] drop-shadow-[0_0_60px_rgba(99,102,241,0.12)]" style={{ fontFamily: "'Playfair Display', serif" }}>
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.7 }}
-              className="block"
+              className="block italic font-medium"
             >
               Discover Events
             </motion.span>
@@ -320,7 +321,7 @@ const Hero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.45, duration: 0.7 }}
-              className="block"
+              className="block italic font-medium"
             >
               Happening Across
             </motion.span>
@@ -328,7 +329,7 @@ const Hero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.7 }}
-              className="block"
+              className="block italic font-medium"
             >
               <span
                 className="bg-[length:200%_200%] bg-clip-text text-transparent"
@@ -394,60 +395,6 @@ const Hero = () => {
           </motion.div>
         </motion.div>
       </div>
-    </section>
-  );
-};
-
-/* ==========================================================================
-   SCROLLING DATE STRIP
-   ========================================================================== */
-
-const DateStrip = () => {
-  const [activeFilter, setActiveFilter] = useState('This Week');
-  const filters = ['Today', 'Tomorrow', 'This Week', 'This Month'];
-
-  return (
-    <section className="relative z-10 border-y border-white/[0.04] bg-zinc-950/80 backdrop-blur-xl" aria-label="Date filters">
-      {/* Gradient line on top */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
-
-      <div className="mx-auto max-w-7xl px-6 py-5">
-        <div className="flex items-center gap-6 overflow-x-auto no-scrollbar" style={{ scrollSnapType: 'x mandatory' }}>
-          <div className="flex-shrink-0 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-purple-400">
-            <Calendar size={14} />
-            <span>When</span>
-          </div>
-
-          <div className="flex gap-2">
-            {filters.map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-                className={`flex-shrink-0 rounded-xl px-5 py-2.5 text-sm font-medium transition-all duration-300 ${
-                  activeFilter === filter
-                    ? 'bg-gradient-to-r from-indigo-600/20 to-purple-600/20 text-white border border-indigo-500/30 shadow-[0_0_20px_rgba(99,102,241,0.15)]'
-                    : 'text-zinc-500 border border-transparent hover:text-zinc-300 hover:bg-white/[0.03]'
-                }`}
-                style={{ scrollSnapAlign: 'start' }}
-                aria-pressed={activeFilter === filter}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
-
-          <div className="ml-auto hidden items-center gap-2 text-xs text-zinc-600 md:flex">
-            <Clock size={12} />
-            <span>Updated live</span>
-            <span className="relative flex h-1.5 w-1.5 ml-1">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/20 to-transparent" />
     </section>
   );
 };
@@ -1296,9 +1243,6 @@ export const Landing = () => {
       <main>
         {/* <!-- Hero Section --> */}
         <Hero />
-
-        {/* <!-- Date Strip --> */}
-        <DateStrip />
 
         {/* <!-- Events --> */}
         <FeaturedEvents />
