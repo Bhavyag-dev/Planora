@@ -308,7 +308,7 @@ const Hero = () => {
           </motion.span>
 
           {/* Headline */}
-          <h1 className="mt-10 text-5xl tracking-tight text-white md:text-7xl lg:text-[5.5rem] lg:leading-[1.05] drop-shadow-[0_0_60px_rgba(99,102,241,0.12)]" style={{ fontFamily: "'Playfair Display', serif" }}>
+          <h1 className="mt-10 text-4xl tracking-tight text-white md:text-6xl lg:text-[4.5rem] lg:leading-[1.1] drop-shadow-[0_0_60px_rgba(99,102,241,0.12)]" style={{ fontFamily: "'Playfair Display', serif" }}>
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

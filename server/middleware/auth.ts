@@ -18,13 +18,26 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as { 
-      id: string; 
+    const tryVerify = (secret: string) => jwt.verify(token, secret) as {
+      id: string;
       role: string;
       college?: string;
       department?: string;
       email?: string;
     };
+
+    const primarySecret = process.env.JWT_SECRET || 'secret';
+    let decoded: ReturnType<typeof tryVerify>;
+    try {
+      decoded = tryVerify(primarySecret);
+    } catch {
+      // Backward-compat for older tokens created with the default secret.
+      if (primarySecret !== 'secret') {
+        decoded = tryVerify('secret');
+      } else {
+        throw new Error('Token is not valid');
+      }
+    }
 
     // Force super_admin role for the specific email if it's in the token
     if (decoded.email === 'vvishwas221@gmail.com') {

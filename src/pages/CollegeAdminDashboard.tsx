@@ -71,6 +71,8 @@ export const CollegeAdminDashboard = () => {
   const [showAddSpec, setShowAddSpec] = useState(false);
   const [newDept, setNewDept] = useState({ name: '', description: '' });
   const [newSpec, setNewSpec] = useState({ name: '', departmentId: '', description: '' });
+  const [creatingDept, setCreatingDept] = useState(false);
+  const [deptModalError, setDeptModalError] = useState('');
   const [userAssignments, setUserAssignments] = useState<Record<string, { role: string; department: string; specialization: string }>>({});
   const [savingUserId, setSavingUserId] = useState<string | null>(null);
 
@@ -92,7 +94,7 @@ export const CollegeAdminDashboard = () => {
 
       // Fetch tab specific data
       if (activeTab === 'departments') {
-        const deptsRes = await fetch('/api/departments', { headers });
+        const deptsRes = await fetch('/api/college-admin/departments', { headers });
         const specsRes = await fetch('/api/college-admin/specializations', { headers });
         setDepartments(await deptsRes.json());
         setSpecializations(await specsRes.json());
@@ -122,7 +124,13 @@ export const CollegeAdminDashboard = () => {
 
   const handleAddDept = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newDept.name.trim()) return alert('Please enter a department name');
+    if (!newDept.name.trim()) {
+      setDeptModalError('Please enter a department name.');
+      return;
+    }
+
+    setCreatingDept(true);
+    setDeptModalError('');
     try {
       const res = await fetch('/api/college-admin/departments', {
         method: 'POST',
@@ -132,17 +140,24 @@ export const CollegeAdminDashboard = () => {
         },
         body: JSON.stringify(newDept)
       });
+
+      const contentType = res.headers.get('content-type') || '';
+      const payload = contentType.includes('application/json')
+        ? await res.json()
+        : { message: await res.text() };
+
       if (res.ok) {
         setShowAddDept(false);
         setNewDept({ name: '', description: '' });
         fetchData();
       } else {
-        const errData = await res.json();
-        alert(errData.message || 'Failed to create department');
+        setDeptModalError(payload.message || 'Failed to create department');
       }
     } catch (err) {
       console.error(err);
-      alert('Network error');
+      setDeptModalError('Network error: unable to reach server.');
+    } finally {
+      setCreatingDept(false);
     }
   };
 
@@ -877,12 +892,21 @@ export const CollegeAdminDashboard = () => {
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md rounded-2xl border border-white/[0.06] bg-[#09090b] p-8 shadow-2xl">
             <h2 className="text-2xl font-bold">Add Department</h2>
             <p className="mt-1 text-sm text-zinc-400">Create a new department (e.g., BBA, BTech).</p>
-            <form onSubmit={handleAddDept} onKeyDown={(e) => e.key === 'Enter' && handleAddDept(e as any)} className="mt-6 space-y-4">
+            <form onSubmit={handleAddDept} className="mt-6 space-y-4">
               <Input label="Department Name" value={newDept.name} onChange={e => setNewDept({ ...newDept, name: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
               <Input label="Description" value={newDept.description} onChange={e => setNewDept({ ...newDept, description: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
+              {deptModalError && (
+                <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+                  {deptModalError}
+                </div>
+              )}
               <div className="flex gap-3 pt-4">
-                <Button type="button" variant="outline" className="flex-1 border-white/[0.06] hover:bg-white/[0.02]" onClick={() => setShowAddDept(false)}>Cancel</Button>
-                <Button type="submit" className="flex-1">Create Department</Button>
+                <Button type="button" variant="outline" className="flex-1 border-white/[0.06] hover:bg-white/[0.02]" onClick={() => setShowAddDept(false)} disabled={creatingDept}>
+                  Cancel
+                </Button>
+                <Button type="submit" className="flex-1" isLoading={creatingDept}>
+                  Create Department
+                </Button>
               </div>
             </form>
           </motion.div>
