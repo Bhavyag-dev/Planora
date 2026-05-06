@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -40,11 +40,13 @@ import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { useAuth } from '../hooks/useAuth';
 import { cn } from '../lib/utils';
+import { BentoCardGrid, ParticleCard, GlobalSpotlight } from '../components/MagicBento';
 
 export const CollegeAdminDashboard = () => {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'overview';
+  const gridRef = useRef<HTMLDivElement>(null);
 
   const [departments, setDepartments] = useState([]);
   const [specializations, setSpecializations] = useState([]);
@@ -74,7 +76,7 @@ export const CollegeAdminDashboard = () => {
 
   const [editingDept, setEditingDept] = useState<any>(null);
   const [showAddUser, setShowAddUser] = useState(false);
-  const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'student', department: '' });
+  const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'dept_admin', department: '', specialization: '' });
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -170,8 +172,11 @@ export const CollegeAdminDashboard = () => {
     if (!newUser.name.trim() || !newUser.email.trim() || !newUser.password.trim()) {
       return alert('Please fill in all required fields (Name, Email, Password)');
     }
-    if (newUser.role === 'dept_admin' && !newUser.department) {
-      return alert('Please select a department for the Department Admin');
+    if ((newUser.role === 'dept_admin' || newUser.role === 'spec_admin') && !newUser.department) {
+      return alert('Please select a department for the admin.');
+    }
+    if (newUser.role === 'spec_admin' && !newUser.specialization) {
+      return alert('Please select a specialization/field for the specialization admin.');
     }
     try {
       const res = await fetch('/api/college-admin/users', {
@@ -184,7 +189,7 @@ export const CollegeAdminDashboard = () => {
       });
       if (res.ok) {
         setShowAddUser(false);
-        setNewUser({ name: '', email: '', password: '', role: 'student', department: '' });
+        setNewUser({ name: '', email: '', password: '', role: 'dept_admin', department: '', specialization: '' });
         fetchData();
       } else {
         const error = await res.json();
@@ -344,74 +349,97 @@ export const CollegeAdminDashboard = () => {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
   const renderOverview = () => (
-    <div className="space-y-8">
-      {/* Stats Grid */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="space-y-8 relative">
+      <GlobalSpotlight gridRef={gridRef} spotlightRadius={400} glowColor="132, 0, 255" />
+      <BentoCardGrid gridRef={gridRef}>
+        {/* Stats Grid */}
         {[
           { title: 'Departments', value: stats.totalDepts, icon: Building2, color: 'text-blue-600' },
           { title: 'Total Students', value: stats.totalStudents, icon: Users, color: 'text-purple-600' },
           { title: 'Global Events', value: stats.totalEvents, icon: Calendar, color: 'text-emerald-600' },
           { title: 'Total Registrations', value: stats.totalRegistrations, icon: TrendingUp, color: 'text-orange-600' },
-        ].map((stat) => (
-          <div key={stat.title} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 shadow-sm">
-            <div className="flex items-center gap-4">
+        ].map((stat, i) => (
+          <ParticleCard 
+            key={stat.title} 
+            className="magic-bento-card magic-bento-card--border-glow" 
+            style={{ 
+              '--glow-color': '132, 0, 255', 
+              gridColumn: window.innerWidth > 1024 ? 'span 1' : undefined,
+              gridRow: window.innerWidth > 1024 ? 'span 1' : undefined
+            } as React.CSSProperties}
+          >
+            <div className="flex items-center gap-4 magic-bento-card__content z-20">
               <div className="rounded-xl bg-white/[0.05]/40 p-3">
                 <stat.icon className={cn("h-6 w-6", stat.color)} />
               </div>
               <div>
                 <p className="text-sm font-medium text-zinc-400">{stat.title}</p>
-                <h3 className="text-2xl font-bold">{stat.value}</h3>
+                <h3 className="text-2xl font-bold text-white">{stat.value}</h3>
               </div>
             </div>
-          </div>
+          </ParticleCard>
         ))}
-      </div>
 
-      <div className="grid gap-8 lg:grid-cols-2">
         {/* Department Distribution */}
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 shadow-sm">
-          <h3 className="mb-6 text-lg font-semibold">Department Distribution</h3>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={deptStats}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="_id" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="count" fill="#18181b" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+        <ParticleCard 
+          className="magic-bento-card magic-bento-card--border-glow" 
+          style={{ 
+            '--glow-color': '132, 0, 255',
+            gridColumn: window.innerWidth > 1024 ? 'span 2' : undefined
+          } as React.CSSProperties}
+        >
+          <div className="magic-bento-card__content h-full w-full z-20 flex flex-col justify-start">
+            <h3 className="mb-6 text-lg font-semibold magic-bento-card__title">Department Distribution</h3>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={deptStats}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.1)" />
+                  <XAxis dataKey="_id" stroke="rgba(255,255,255,0.5)" />
+                  <YAxis stroke="rgba(255,255,255,0.5)" />
+                  <Tooltip contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', borderColor: 'rgba(255,255,255,0.1)' }} />
+                  <Bar dataKey="count" fill="rgba(132,0,255,0.8)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-        </div>
+        </ParticleCard>
 
         {/* Venue Analytics */}
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 shadow-sm">
-          <h3 className="mb-6 text-lg font-semibold">Venue Utilization</h3>
-          <div className="grid gap-4">
-            {venueStats.map((venue: any) => (
-              <div key={venue._id} className="rounded-xl border border-white/[0.04] p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <MapPin size={16} className="text-zinc-400" />
-                    <span className="font-medium">{venue._id}</span>
+        <ParticleCard 
+          className="magic-bento-card magic-bento-card--border-glow" 
+          style={{ 
+            '--glow-color': '132, 0, 255',
+            gridColumn: window.innerWidth > 1024 ? 'span 2' : undefined
+          } as React.CSSProperties}
+        >
+          <div className="magic-bento-card__content h-full w-full z-20 flex flex-col justify-start">
+            <h3 className="mb-6 text-lg font-semibold magic-bento-card__title">Venue Utilization</h3>
+            <div className="grid gap-4 w-full">
+              {venueStats.map((venue: any) => (
+                <div key={venue._id} className="rounded-xl border border-white/[0.04] p-4 bg-white/[0.02]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <MapPin size={16} className="text-zinc-400" />
+                      <span className="font-medium text-white">{venue._id}</span>
+                    </div>
+                    <span className="text-sm text-zinc-400">{venue.count} Events</span>
                   </div>
-                  <span className="text-sm text-zinc-400">{venue.count} Events</span>
+                  <div className="mt-3 h-2 w-full rounded-full bg-white/[0.05]">
+                    <div 
+                      className="h-full rounded-full bg-purple-500 transition-all" 
+                      style={{ width: `${Math.min(100, (venue.registered / venue.totalSeats) * 100)}%` }}
+                    />
+                  </div>
+                  <div className="mt-2 flex justify-between text-[10px] text-zinc-400">
+                    <span>{venue.registered} / {venue.totalSeats} seats filled</span>
+                    <span>{Math.round((venue.registered / venue.totalSeats) * 100) || 0}% occupancy</span>
+                  </div>
                 </div>
-                <div className="mt-3 h-2 w-full rounded-full bg-white/[0.05]">
-                  <div 
-                    className="h-full rounded-full bg-white transition-all" 
-                    style={{ width: `${Math.min(100, (venue.registered / venue.totalSeats) * 100)}%` }}
-                  />
-                </div>
-                <div className="mt-2 flex justify-between text-[10px] text-zinc-400">
-                  <span>{venue.registered} / {venue.totalSeats} seats filled</span>
-                  <span>{Math.round((venue.registered / venue.totalSeats) * 100) || 0}% occupancy</span>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </div>
+        </ParticleCard>
+      </BentoCardGrid>
     </div>
   );
 
@@ -427,7 +455,7 @@ export const CollegeAdminDashboard = () => {
             <Plus size={18} /> Add Department
           </Button>
           <Button onClick={() => {
-            setNewUser({ name: '', email: '', password: '', role: 'dept_admin', department: '' });
+            setNewUser({ name: '', email: '', password: '', role: 'dept_admin', department: '', specialization: '' });
             setShowAddUser(true);
           }} variant="outline" className="gap-2 border-purple-500/30 text-purple-400 hover:bg-purple-500/10">
             <Plus size={18} /> Add Admin
@@ -453,7 +481,7 @@ export const CollegeAdminDashboard = () => {
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" className="border-purple-500/30 text-purple-400 hover:bg-purple-500/10" onClick={() => {
-                    setNewUser({ name: '', email: '', password: '', role: 'dept_admin', department: dept._id });
+                    setNewUser({ name: '', email: '', password: '', role: 'dept_admin', department: dept._id, specialization: '' });
                     setShowAddUser(true);
                   }}>
                     <Plus size={14} className="mr-1" /> Add Admin
@@ -911,8 +939,8 @@ export const CollegeAdminDashboard = () => {
       {showAddUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4 backdrop-blur-md">
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md rounded-2xl border border-white/[0.06] bg-[#09090b] p-8 shadow-2xl">
-            <h2 className="text-2xl font-bold">Add User</h2>
-            <p className="mt-1 text-sm text-zinc-400">Create a new user or department admin.</p>
+            <h2 className="text-2xl font-bold">Create Sub Admin</h2>
+            <p className="mt-1 text-sm text-zinc-400">Create department/field admins for your college.</p>
             <form onSubmit={handleAddUser} onKeyDown={(e) => e.key === 'Enter' && handleAddUser(e as any)} className="mt-6 space-y-4">
               <Input label="Name" value={newUser.name} onChange={e => setNewUser({ ...newUser, name: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
               <Input label="Email" type="email" value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
@@ -922,19 +950,19 @@ export const CollegeAdminDashboard = () => {
                 <select 
                   className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500/50 text-white"
                   value={newUser.role}
-                  onChange={e => setNewUser({ ...newUser, role: e.target.value })}
+                  onChange={e => setNewUser({ ...newUser, role: e.target.value, specialization: e.target.value === 'dept_admin' ? '' : newUser.specialization })}
                 >
-                  <option value="student" className="bg-zinc-900">Student</option>
                   <option value="dept_admin" className="bg-zinc-900">Department Admin</option>
+                  <option value="spec_admin" className="bg-zinc-900">Field Admin (Specialization)</option>
                 </select>
               </div>
-              {newUser.role === 'dept_admin' && (
+              {(newUser.role === 'dept_admin' || newUser.role === 'spec_admin') && (
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium text-zinc-300">Department</label>
                   <select 
                     className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500/50 text-white"
                     value={newUser.department}
-                    onChange={e => setNewUser({ ...newUser, department: e.target.value })}
+                    onChange={e => setNewUser({ ...newUser, department: e.target.value, specialization: '' })}
                     required
                   >
                     <option value="" className="bg-zinc-900">Select Department</option>
@@ -944,9 +972,29 @@ export const CollegeAdminDashboard = () => {
                   </select>
                 </div>
               )}
+
+              {newUser.role === 'spec_admin' && (
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-zinc-300">Specialization / Field</label>
+                  <select 
+                    className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500/50 text-white"
+                    value={newUser.specialization}
+                    onChange={e => setNewUser({ ...newUser, specialization: e.target.value })}
+                    required
+                    disabled={!newUser.department}
+                  >
+                    <option value="" className="bg-zinc-900">Select Field</option>
+                    {specializations
+                      .filter((s: any) => s.department?._id === newUser.department)
+                      .map((s: any) => (
+                        <option key={s._id} value={s._id} className="bg-zinc-900">{s.name}</option>
+                      ))}
+                  </select>
+                </div>
+              )}
               <div className="flex gap-3 pt-4">
                 <Button type="button" variant="outline" className="flex-1 border-white/[0.06] hover:bg-white/[0.02]" onClick={() => setShowAddUser(false)}>Cancel</Button>
-                <Button type="submit" className="flex-1">Create User</Button>
+                <Button type="submit" className="flex-1">Create Admin</Button>
               </div>
             </form>
           </motion.div>

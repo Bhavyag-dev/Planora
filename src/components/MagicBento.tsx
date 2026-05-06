@@ -68,7 +68,7 @@ interface ParticleCardProps {
   key?: React.Key;
 }
 
-const ParticleCard = ({
+export const ParticleCard = ({
   children,
   className = '',
   disableAnimations = false,
@@ -305,7 +305,7 @@ const ParticleCard = ({
   );
 };
 
-const GlobalSpotlight = ({
+export const GlobalSpotlight = ({
   gridRef,
   disableAnimations = false,
   enabled = true,
@@ -437,7 +437,7 @@ const GlobalSpotlight = ({
   return null;
 };
 
-const BentoCardGrid = ({ children, gridRef }: any) => (
+export const BentoCardGrid = ({ children, gridRef }: any) => (
   <div className="card-grid bento-section" ref={gridRef}>
     {children}
   </div>

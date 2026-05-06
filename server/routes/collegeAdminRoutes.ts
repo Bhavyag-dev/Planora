@@ -134,19 +134,47 @@ router.get('/users', authMiddleware, isCollegeAdmin, async (req: AuthRequest, re
 // Create a new user (e.g. Department Admin) in the college
 router.post('/users', authMiddleware, isCollegeAdmin, async (req: AuthRequest, res) => {
   try {
-    const { name, email, password, role, department } = req.body;
+    const { name, email, password, role, department, specialization } = req.body;
+    
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'Name, email, and password are required' });
+    }
+    
+    const allowedRoles = ['student', 'dept_admin', 'spec_admin'];
+    const desiredRole = role || 'student';
+    if (!allowedRoles.includes(desiredRole)) {
+      return res.status(400).json({ message: 'Invalid role for college user creation' });
+    }
     
     // Check if user exists
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: 'User with this email already exists' });
 
+    let departmentId: any = undefined;
+    let specializationId: any = undefined;
+
+    if (desiredRole === 'dept_admin' || desiredRole === 'spec_admin') {
+      if (!department) return res.status(400).json({ message: 'Department is required for admin roles' });
+      const dept = await Department.findOne({ _id: department, college: req.user?.college });
+      if (!dept) return res.status(400).json({ message: 'Invalid department for this college' });
+      departmentId = dept._id;
+    }
+
+    if (desiredRole === 'spec_admin') {
+      if (!specialization) return res.status(400).json({ message: 'Specialization is required for specialization admin' });
+      const spec = await Specialization.findOne({ _id: specialization, college: req.user?.college, department: departmentId });
+      if (!spec) return res.status(400).json({ message: 'Invalid specialization for this department' });
+      specializationId = spec._id;
+    }
+
     const user = new User({
       name,
       email,
       password,
-      role: role || 'student',
+      role: desiredRole,
       college: req.user?.college,
-      department: department || undefined
+      department: departmentId,
+      specialization: specializationId
     });
     
     await user.save();
