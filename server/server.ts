@@ -14,6 +14,7 @@ import collegeRoutes from './routes/collegeRoutes';
 import departmentRoutes from './routes/departmentRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
 import collegeAdminRoutes from './routes/collegeAdminRoutes';
+import themeRoutes from './routes/themeRoutes';
 import { Event } from './models/Event';
 import { Registration } from './models/Registration';
 import { sendReminderEmail } from './services/emailService';
@@ -50,6 +51,7 @@ async function startServer() {
   app.use('/api/departments', departmentRoutes);
   app.use('/api/analytics', analyticsRoutes);
   app.use('/api/college-admin', collegeAdminRoutes);
+  app.use('/api/theme', themeRoutes);
 
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Server is running' });

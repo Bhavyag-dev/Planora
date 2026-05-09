@@ -19,25 +19,31 @@ async function seed() {
     await mongoose.connect(MONGODB_URI);
     console.log('Connected to MongoDB');
 
-    const superAdminEmail = 'vvishwas221@gmail.com';
+    const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || 'vvishwas221@gmail.com';
+    const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD || 'Admin@123';
     const existingAdmin = await User.findOne({ email: superAdminEmail });
 
     if (existingAdmin) {
-      console.log('User already exists, updating role to super_admin...');
+      console.log('User already exists, enforcing super_admin + resetting password...');
       existingAdmin.role = 'super_admin';
+      // Reset password so login always works after running seed.
+      // This will be hashed by the User pre-save hook.
+      existingAdmin.password = superAdminPassword;
       await existingAdmin.save();
-      console.log('Super Admin role updated successfully');
+      console.log('Super Admin updated successfully');
+      console.log(`Email: ${superAdminEmail}`);
+      console.log(`Password: ${superAdminPassword}`);
     } else {
       const admin = new User({
         name: 'Super Admin',
         email: superAdminEmail,
-        password: 'Admin@123', // Default password
+        password: superAdminPassword, // Default password (or env override)
         role: 'super_admin'
       });
       await admin.save();
       console.log('Super Admin created successfully');
-      console.log('Email: vvishwas221@gmail.com');
-      console.log('Password: Admin@123');
+      console.log(`Email: ${superAdminEmail}`);
+      console.log(`Password: ${superAdminPassword}`);
     }
 
     await mongoose.disconnect();

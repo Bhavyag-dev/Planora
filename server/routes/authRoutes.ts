@@ -28,22 +28,48 @@ const logAudit = async (userId: string, action: string, module: string, details:
   }
 };
 
+const normalizeEmailDomain = (email: string) => {
+  const parts = String(email || '').trim().toLowerCase().split('@');
+  return parts.length === 2 ? parts[1] : '';
+};
+
+const findCollegeByDomain = async (domain: string) => {
+  if (!domain) return null;
+
+  // Exact match first
+  let college = await College.findOne({ domain: new RegExp(`^${domain}$`, 'i') });
+  if (college) return college;
+
+  // If email is from subdomain (e.g. student.cs.jecrc.edu.in), try parent domains
+  const segments = domain.split('.');
+  for (let i = 1; i < segments.length - 1; i += 1) {
+    const parent = segments.slice(i).join('.');
+    // Avoid tiny suffixes
+    if (parent.split('.').length < 2) continue;
+    college = await College.findOne({ domain: new RegExp(`^${parent}$`, 'i') });
+    if (college) return college;
+  }
+
+  return null;
+};
+
 
 router.post('/signup', async (req, res) => {
   try {
     if (!ensureDatabaseConnected(res)) return;
 
     const { name, email, password } = req.body;
-    const existingUser = await User.findOne({ email });
+    const normalizedEmail = String(email || '').trim().toLowerCase();
+    const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) return res.status(400).json({ message: 'User already exists' });
 
     // Extract domain from email
-    const domain = email.split('@')[1];
+    const domain = normalizeEmailDomain(email);
     if (!domain || !domain.endsWith('.edu')) {
       // For demo purposes, we might allow other domains if they are registered colleges
     }
 
-    const college = await College.findOne({ domain });
+    const college = await findCollegeByDomain(domain);
     
     // Super Admin check
     let role = 'student';
@@ -57,7 +83,7 @@ router.post('/signup', async (req, res) => {
 
     const user = new User({ 
       name, 
-      email, 
+      email: normalizedEmail, 
       password, 
       role,
       college: college?._id 
@@ -90,7 +116,7 @@ router.post('/login', async (req, res) => {
     if (!ensureDatabaseConnected(res)) return;
 
     const { email, password } = req.body;
-    const user = await User.findOne({ email }).populate('college');
+    const user = await User.findOne({ email: String(email || '').trim().toLowerCase() }).populate('college');
     if (!user) return res.status(400).json({ message: 'Invalid credentials' });
 
     const isMatch = await (user as any).comparePassword(password);
@@ -100,6 +126,16 @@ router.post('/login', async (req, res) => {
     if (user.email === 'vvishwas221@gmail.com' && user.role !== 'super_admin') {
       user.role = 'super_admin';
       await user.save();
+    }
+
+    // Auto-map student to college by email domain if missing
+    if (user.role === 'student' && !user.college && user.email) {
+      const domain = normalizeEmailDomain(user.email);
+      const college = await findCollegeByDomain(domain);
+      if (college) {
+        user.college = college._id as any;
+        await user.save();
+      }
     }
 
     const token = jwt.sign(

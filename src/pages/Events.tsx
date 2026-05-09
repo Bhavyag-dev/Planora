@@ -1,8 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
-import { Calendar, MapPin, Users, Search, Filter, Tag, LayoutDashboard, ArrowRight } from 'lucide-react';
-import { formatDate } from '../lib/utils';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'motion/react';
+import { Users, Search, Filter, Tag, LayoutDashboard, Sparkles, CalendarDays } from 'lucide-react';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import MagicBento from '../components/MagicBento';
@@ -24,18 +23,7 @@ export const Events = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  useEffect(() => {
-    if (user) {
-      if (user.role === 'super_admin' || user.role === 'admin') {
-        navigate('/super-admin');
-      } else if (user.role === 'college_admin') {
-        navigate('/college-admin');
-      } else if (user.role === 'dept_admin') {
-        navigate('/dept-admin');
-      }
-    }
-  }, [user, navigate]);
+  // NOTE: Events is a global discover page and should not redirect users away.
   
   // Filter states
   const [search, setSearch] = useState('');
@@ -91,15 +79,9 @@ export const Events = () => {
     return result;
   }, [events, search, category, sortBy, showOnlyAvailable]);
 
-  // Color mapping for categories
-  const getCategoryColor = (cat: string) => {
-    const colors: Record<string, string> = {
-      'Tech': 'from-indigo-500/20 to-cyan-500/20 text-indigo-400 border-indigo-500/30',
-      'Cultural': 'from-purple-500/20 to-pink-500/20 text-purple-400 border-purple-500/30',
-      'Sports': 'from-amber-500/20 to-orange-500/20 text-amber-400 border-amber-500/30',
-    };
-    return colors[cat] || 'from-zinc-500/20 to-zinc-400/20 text-zinc-300 border-zinc-500/30';
-  };
+  const totalEvents = events.length;
+  const availableEvents = events.filter((e) => e.registeredCount < e.seatLimit).length;
+  const upcomingEvents = events.filter((e) => new Date(e.date).getTime() >= Date.now()).length;
 
   if (loading) return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center">
@@ -110,14 +92,44 @@ export const Events = () => {
 
   return (
     <div className="space-y-10 pb-12">
+      <div className="relative overflow-hidden rounded-3xl border border-white/[0.06] bg-white/[0.02] p-6 md:p-8 shadow-2xl backdrop-blur-xl">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(99,102,241,0.12),transparent_55%)]" aria-hidden="true" />
+        <div className="absolute -right-20 top-8 h-44 w-44 rounded-full bg-purple-500/10 blur-3xl" aria-hidden="true" />
+        <div className="relative flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.02] px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+              <Sparkles size={12} className="text-purple-400" />
+              Discover Layer
+            </div>
+            <h1 className="mt-3 text-4xl font-bold tracking-tight text-white">
+              Discover <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Events</span>
+            </h1>
+            <p className="mt-2 text-zinc-400">Find and register for the best activities on campus.</p>
+          </div>
+
+          <div className="grid w-full gap-3 sm:grid-cols-3 md:w-auto md:min-w-[360px]">
+            <div className="rounded-2xl border border-white/[0.06] bg-black/20 p-3">
+              <p className="text-[10px] uppercase tracking-widest text-zinc-500">Total</p>
+              <p className="mt-1 text-xl font-bold text-white">{totalEvents}</p>
+            </div>
+            <div className="rounded-2xl border border-white/[0.06] bg-black/20 p-3">
+              <p className="text-[10px] uppercase tracking-widest text-zinc-500">Available</p>
+              <p className="mt-1 text-xl font-bold text-emerald-400">{availableEvents}</p>
+            </div>
+            <div className="rounded-2xl border border-white/[0.06] bg-black/20 p-3">
+              <p className="text-[10px] uppercase tracking-widest text-zinc-500">Upcoming</p>
+              <p className="mt-1 text-xl font-bold text-indigo-300">{upcomingEvents}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Header section with gradient line */}
       <div className="relative pb-6 border-b border-white/[0.06] flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="absolute bottom-0 left-0 h-px w-1/3 bg-gradient-to-r from-indigo-500 via-purple-500 to-transparent" />
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight text-white mb-2">
-            Discover <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Events</span>
-          </h1>
-          <p className="text-zinc-400">Find and register for the best activities on campus</p>
+        <div className="flex items-center gap-2 text-zinc-400">
+          <CalendarDays size={16} />
+          <p className="text-sm">Smart filters to help you find the right event faster.</p>
         </div>
         
         {(user?.role === 'super_admin' || user?.role === 'admin' || user?.role === 'college_admin' || user?.role === 'dept_admin') && (
