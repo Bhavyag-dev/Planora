@@ -36,8 +36,8 @@ export const Sidebar = ({ className }: SidebarProps) => {
       icon: LayoutDashboard, 
       path: user?.role === 'super_admin' || user?.role === 'admin' ? '/super-admin?tab=overview' : 
             user?.role === 'college_admin' ? '/college-admin' : 
-            user?.role === 'dept_admin' ? '/dept-admin' : '/events',
-      roles: ['super_admin', 'college_admin', 'dept_admin', 'admin']
+            user?.role === 'dept_admin' || user?.role === 'spec_admin' ? '/department-admin' : '/events',
+      roles: ['super_admin', 'college_admin', 'dept_admin', 'spec_admin', 'admin']
     },
     { 
       title: 'Colleges', 
@@ -79,7 +79,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
       title: 'Events', 
       icon: Calendar, 
       path: '/events',
-      roles: ['dept_admin', 'student']
+      roles: ['student']
     },
     { 
       title: 'Departments', 
@@ -93,6 +93,12 @@ export const Sidebar = ({ className }: SidebarProps) => {
       path: '/college-admin?tab=users',
       roles: ['college_admin']
     },
+    {
+      title: 'Theme Studio',
+      icon: Settings,
+      path: '/college-admin?tab=theme',
+      roles: ['college_admin']
+    },
     { 
       title: 'My Registrations', 
       icon: Users, 
@@ -103,7 +109,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
       title: 'Check-in', 
       icon: QrCode, 
       path: '/check-in',
-      roles: ['super_admin', 'admin', 'college_admin', 'dept_admin']
+      roles: ['super_admin', 'admin', 'college_admin', 'dept_admin', 'spec_admin']
     },
     { 
       title: 'Platform Settings', 
@@ -115,7 +121,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
       title: 'Settings', 
       icon: Settings, 
       path: '/settings',
-      roles: ['college_admin', 'dept_admin', 'student']
+      roles: ['college_admin', 'dept_admin', 'spec_admin', 'student']
     },
   ];
 

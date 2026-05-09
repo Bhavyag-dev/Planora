@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 const eventSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
+  coverImage: { type: String, default: '' },
+  galleryImages: { type: [String], default: [] },
   date: { type: Date, required: true },
   venue: { type: String, required: true },
   category: { type: String, required: true, default: 'General' },

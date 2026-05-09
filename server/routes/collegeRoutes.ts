@@ -6,6 +6,14 @@ import { authMiddleware, adminMiddleware } from '../middleware/auth';
 
 const router = express.Router();
 
+const toSlug = (value: string) =>
+  (value || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+
 // Super Admin: Create a new college and its initial admin
 router.post('/', authMiddleware, async (req: any, res) => {
   if (req.user.role !== 'super_admin' && req.user.role !== 'admin') {
@@ -13,7 +21,7 @@ router.post('/', authMiddleware, async (req: any, res) => {
   }
 
   try {
-    const { name, domain, logo, address, adminName, adminEmail, adminPassword } = req.body;
+    const { name, domain, logo, address, slug, adminName, adminEmail, adminPassword } = req.body;
     
     // Check if college domain exists
     const existingCollege = await College.findOne({ domain });
@@ -25,8 +33,12 @@ router.post('/', authMiddleware, async (req: any, res) => {
       if (existingUser) return res.status(400).json({ message: 'Admin email already in use' });
     }
 
+    const normalizedSlug = toSlug(slug || name);
+    const existingSlug = await College.findOne({ slug: normalizedSlug });
+    if (existingSlug) return res.status(400).json({ message: 'College slug already exists' });
+
     // Create College
-    const college = new College({ name, domain, logo, address });
+    const college = new College({ name, slug: normalizedSlug, domain, logo, address });
     await college.save();
 
     // Create Admin if provided
@@ -56,6 +68,24 @@ router.post('/', authMiddleware, async (req: any, res) => {
     });
   } catch (err) {
     console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Public: Get college profile by slug + published events
+router.get('/slug/:slug', async (req, res) => {
+  try {
+    const slug = toSlug(req.params.slug);
+    const college = await College.findOne({ slug }).lean();
+    if (!college) return res.status(404).json({ message: 'College not found' });
+
+    const { Event } = await import('../models/Event');
+    const events = await Event.find({ college: college._id, status: 'published' })
+      .sort({ date: 1 })
+      .limit(30);
+
+    res.json({ college, events });
+  } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
 });

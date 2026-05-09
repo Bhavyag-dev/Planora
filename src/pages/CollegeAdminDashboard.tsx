@@ -41,6 +41,7 @@ import { Input } from '../components/Input';
 import { useAuth } from '../hooks/useAuth';
 import { cn } from '../lib/utils';
 import { BentoCardGrid, ParticleCard, GlobalSpotlight } from '../components/MagicBento';
+import { analyzeWebsiteTheme as analyzeWebsiteThemeFromUrl } from '../lib/themeAnalyzer';
 
 export const CollegeAdminDashboard = () => {
   const { user } = useAuth();
@@ -54,6 +55,11 @@ export const CollegeAdminDashboard = () => {
   const [collegeEvents, setCollegeEvents] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [collegeSettings, setCollegeSettings] = useState<any>(null);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [analyzeUrl, setAnalyzeUrl] = useState('');
+  const [analyzeLoading, setAnalyzeLoading] = useState(false);
+  const [analyzeError, setAnalyzeError] = useState('');
+  const [analyzeResult, setAnalyzeResult] = useState<any>(null);
   
   const [stats, setStats] = useState({
     totalDepts: 0,
@@ -78,10 +84,40 @@ export const CollegeAdminDashboard = () => {
   const [showAddUser, setShowAddUser] = useState(false);
   const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'dept_admin', department: '', specialization: '' });
 
+  const [showAddEvent, setShowAddEvent] = useState(false);
+  const [creatingEvent, setCreatingEvent] = useState(false);
+  const [newEvent, setNewEvent] = useState({
+    title: '',
+    description: '',
+    date: '',
+    venue: '',
+    coverImage: '',
+    galleryImages: [] as string[],
+    category: 'General',
+    seatLimit: 50,
+    status: 'published',
+    departmentId: '',
+  });
+
+  const filesToDataUrls = async (files: FileList | null) => {
+    if (!files || files.length === 0) return [] as string[];
+    const toDataUrl = (file: File) =>
+      new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ''));
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+      });
+    return Promise.all(Array.from(files).map((f) => toDataUrl(f)));
+  };
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const headers = { 'Authorization': `Bearer ${localStorage.getItem('token')}` };
+      const settingsRes = await fetch('/api/analytics/settings', { headers });
+      const settingsData = await settingsRes.json().catch(() => null);
+      if (settingsData?.eventCategories) setCategories(settingsData.eventCategories);
       
       // Fetch stats
       const statsRes = await fetch('/api/analytics/college-admin', { headers });
@@ -102,10 +138,12 @@ export const CollegeAdminDashboard = () => {
       } else if (activeTab === 'events') {
         const eventsRes = await fetch('/api/college-admin/events', { headers });
         setCollegeEvents(await eventsRes.json());
+        const deptsRes = await fetch('/api/departments', { headers }).catch(() => null);
+        if (deptsRes?.ok) setDepartments(await deptsRes.json());
       } else if (activeTab === 'payments') {
         const transRes = await fetch('/api/college-admin/transactions', { headers });
         setTransactions(await transRes.json());
-      } else if (activeTab === 'settings') {
+      } else if (activeTab === 'settings' || activeTab === 'theme') {
         const settingsRes = await fetch('/api/college-admin/settings', { headers });
         setCollegeSettings(await settingsRes.json());
       }
@@ -280,6 +318,73 @@ export const CollegeAdminDashboard = () => {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleCreateEvent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreatingEvent(true);
+    try {
+      const res = await fetch('/api/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          title: newEvent.title,
+          description: newEvent.description,
+          coverImage: newEvent.coverImage,
+          galleryImages: newEvent.galleryImages,
+          date: newEvent.date,
+          venue: newEvent.venue,
+          category: newEvent.category,
+          seatLimit: newEvent.seatLimit,
+          status: newEvent.status,
+          departmentId: newEvent.departmentId || undefined,
+        }),
+      });
+
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(payload?.message || 'Failed to create event');
+        return;
+      }
+
+      setShowAddEvent(false);
+      setNewEvent({ title: '', description: '', date: '', venue: '', coverImage: '', galleryImages: [], category: 'General', seatLimit: 50, status: 'published', departmentId: '' });
+      await fetchData();
+    } catch (err) {
+      console.error(err);
+      alert('Network error');
+    } finally {
+      setCreatingEvent(false);
+    }
+  };
+
+  const analyzeWebsiteTheme = async () => {
+    if (!analyzeUrl.trim()) return;
+    setAnalyzeLoading(true);
+    setAnalyzeError('');
+    setAnalyzeResult(null);
+    try {
+      const data = await analyzeWebsiteThemeFromUrl(analyzeUrl.trim());
+      setAnalyzeResult(data);
+      // Pre-fill draft theme
+      if (data?.suggested) {
+        setCollegeSettings((prev: any) => ({
+          ...(prev || {}),
+          theme: {
+            ...(prev?.theme || {}),
+            ...data.suggested,
+            updatedAt: new Date().toISOString(),
+          },
+        }));
+      }
+    } catch (err: any) {
+      setAnalyzeError(err?.message || 'Network error');
+    } finally {
+      setAnalyzeLoading(false);
     }
   };
 
@@ -618,6 +723,49 @@ export const CollegeAdminDashboard = () => {
           </tbody>
         </table>
       </div>
+
+      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-sm overflow-hidden">
+        <div className="border-b border-white/[0.04] p-6">
+          <h3 className="text-lg font-bold">Registered Students (Your College)</h3>
+          <p className="text-xs text-zinc-400">Students with your college email/domain are auto-mapped here on signup/login.</p>
+        </div>
+        <table className="w-full text-left text-sm">
+          <thead className="bg-white/[0.05]/40 border-b border-white/[0.06]">
+            <tr>
+              <th className="px-6 py-4 font-semibold text-xs text-zinc-400 uppercase tracking-wider">Student</th>
+              <th className="px-6 py-4 font-semibold text-xs text-zinc-400 uppercase tracking-wider">Email Domain</th>
+              <th className="px-6 py-4 font-semibold text-xs text-zinc-400 uppercase tracking-wider">Department</th>
+              <th className="px-6 py-4 font-semibold text-xs text-zinc-400 uppercase tracking-wider">Joined</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-white/[0.04]">
+            {collegeUsers
+              .filter((u: any) => u.role === 'student')
+              .map((u: any) => (
+                <tr key={u._id} className="hover:bg-white/[0.05]/40 transition-colors">
+                  <td className="px-6 py-4">
+                    <div>
+                      <p className="font-medium">{u.name}</p>
+                      <p className="text-xs text-zinc-400">{u.email}</p>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-zinc-400 text-xs">
+                    {String(u.email || '').split('@')[1] || '-'}
+                  </td>
+                  <td className="px-6 py-4 text-zinc-400 text-xs">{u.department?.name || 'Not assigned'}</td>
+                  <td className="px-6 py-4 text-zinc-400 text-xs">{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '-'}</td>
+                </tr>
+              ))}
+            {collegeUsers.filter((u: any) => u.role === 'student').length === 0 && (
+              <tr>
+                <td colSpan={4} className="px-6 py-10 text-center text-zinc-500">
+                  No students mapped yet.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 
@@ -628,7 +776,7 @@ export const CollegeAdminDashboard = () => {
           <h2 className="text-xl font-bold">College Events</h2>
           <p className="text-xs text-zinc-400">Manage and moderate all events within your institution.</p>
         </div>
-        <Button className="gap-2">
+        <Button className="gap-2" onClick={() => setShowAddEvent(true)}>
           <Plus size={18} /> Create Event
         </Button>
       </div>
@@ -636,6 +784,9 @@ export const CollegeAdminDashboard = () => {
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {collegeEvents.map((event: any) => (
           <div key={event._id} className="group relative rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 shadow-sm transition-all hover:shadow-md">
+            {event.coverImage && (
+              <img src={event.coverImage} alt={event.title} className="mb-4 h-40 w-full rounded-xl border border-white/[0.08] object-cover" />
+            )}
             <div className="flex items-start justify-between">
               <div className={cn(
                 "rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider",
@@ -689,6 +840,134 @@ export const CollegeAdminDashboard = () => {
           </div>
         ))}
       </div>
+
+      {showAddEvent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4 backdrop-blur-md">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-2xl rounded-2xl border border-white/[0.06] bg-[#09090b] p-8 shadow-2xl"
+          >
+            <h2 className="text-2xl font-bold">Create Event</h2>
+            <p className="mt-1 text-sm text-zinc-400">Create an event inside your college ecosystem.</p>
+            <form onSubmit={handleCreateEvent} className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <Input label="Title" value={newEvent.title} onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })} required />
+              </div>
+              <div className="sm:col-span-2 space-y-1.5">
+                <label className="text-sm font-medium text-zinc-300">Description</label>
+                <textarea
+                  className="w-full rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500/40"
+                  rows={4}
+                  value={newEvent.description}
+                  onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
+                  required
+                />
+              </div>
+              <Input label="Date & Time" type="datetime-local" value={newEvent.date} onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })} required />
+              <Input label="Venue" value={newEvent.venue} onChange={(e) => setNewEvent({ ...newEvent, venue: e.target.value })} required />
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="text-sm font-medium text-zinc-300">Cover Image (Upload)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2 text-sm"
+                  onChange={async (e) => {
+                    const urls = await filesToDataUrls(e.target.files);
+                    if (urls[0]) setNewEvent({ ...newEvent, coverImage: urls[0] });
+                  }}
+                />
+                {newEvent.coverImage && <img src={newEvent.coverImage} className="h-28 w-full rounded-lg border border-white/[0.08] object-cover" />}
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="text-sm font-medium text-zinc-300">Gallery Images (Upload multiple)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2 text-sm"
+                  onChange={async (e) => {
+                    const urls = await filesToDataUrls(e.target.files);
+                    if (urls.length) setNewEvent({ ...newEvent, galleryImages: [...newEvent.galleryImages, ...urls].slice(0, 8) });
+                  }}
+                />
+                {newEvent.galleryImages.length > 0 && (
+                  <div className="grid grid-cols-4 gap-2">
+                    {newEvent.galleryImages.map((img, idx) => (
+                      <img key={`${img}-${idx}`} src={img} className="h-16 w-full rounded-lg border border-white/[0.08] object-cover" />
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-zinc-300">Category</label>
+                <select
+                  className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:ring-2 focus:ring-purple-500/50"
+                  value={newEvent.category}
+                  onChange={(e) => setNewEvent({ ...newEvent, category: e.target.value })}
+                >
+                  {(categories.length ? categories : ['General', 'Technical', 'Cultural', 'Sports']).map((c) => (
+                    <option key={c} value={c} className="bg-zinc-900 text-white">{c}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-zinc-300">Department (optional)</label>
+                <select
+                  className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:ring-2 focus:ring-purple-500/50"
+                  value={newEvent.departmentId}
+                  onChange={(e) => setNewEvent({ ...newEvent, departmentId: e.target.value })}
+                >
+                  <option value="" className="bg-zinc-900 text-white">College-wide</option>
+                  {departments.map((d: any) => (
+                    <option key={d._id} value={d._id} className="bg-zinc-900 text-white">{d.name}</option>
+                  ))}
+                </select>
+              </div>
+              <Input label="Seat Limit" type="number" value={newEvent.seatLimit} onChange={(e) => setNewEvent({ ...newEvent, seatLimit: parseInt(e.target.value || '0', 10) || 0 })} required />
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-zinc-300">Status</label>
+                <select
+                  className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:ring-2 focus:ring-purple-500/50"
+                  value={newEvent.status}
+                  onChange={(e) => setNewEvent({ ...newEvent, status: e.target.value })}
+                >
+                  <option value="draft" className="bg-zinc-900 text-white">Draft</option>
+                  <option value="published" className="bg-zinc-900 text-white">Published</option>
+                </select>
+              </div>
+              <div className="sm:col-span-2 flex gap-3 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    setShowAddEvent(false);
+                    setNewEvent({
+                      title: '',
+                      description: '',
+                      date: '',
+                      venue: '',
+                      coverImage: '',
+                      galleryImages: [],
+                      category: 'General',
+                      seatLimit: 50,
+                      status: 'published',
+                      departmentId: '',
+                    });
+                  }}
+                  disabled={creatingEvent}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" className="flex-1" isLoading={creatingEvent}>
+                  Create Event
+                </Button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 
@@ -763,10 +1042,37 @@ export const CollegeAdminDashboard = () => {
               value={collegeSettings?.name || ''} 
               onChange={(e) => setCollegeSettings({...collegeSettings, name: e.target.value})}
             />
+            <Input
+              label="College Slug (public URL)"
+              value={collegeSettings?.slug || ''}
+              onChange={(e) => setCollegeSettings({ ...collegeSettings, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
+              placeholder="jecrc-university"
+            />
             <Input 
               label="Domain" 
               value={collegeSettings?.domain || ''} 
               disabled 
+            />
+            <Input
+              label="Website URL"
+              value={collegeSettings?.socialLinks?.website || ''}
+              onChange={(e) =>
+                setCollegeSettings({
+                  ...collegeSettings,
+                  socialLinks: { ...(collegeSettings?.socialLinks || {}), website: e.target.value },
+                })
+              }
+              placeholder="https://yourcollege.edu"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-zinc-300">College About</label>
+            <textarea
+              rows={4}
+              className="w-full rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500/40"
+              value={collegeSettings?.about || ''}
+              onChange={(e) => setCollegeSettings({ ...collegeSettings, about: e.target.value })}
             />
           </div>
           
@@ -776,6 +1082,18 @@ export const CollegeAdminDashboard = () => {
               value={collegeSettings?.logo || ''} 
               onChange={(e) => setCollegeSettings({...collegeSettings, logo: e.target.value})}
             />
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-zinc-300">Upload Logo</label>
+              <input
+                type="file"
+                accept="image/*"
+                className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2 text-sm"
+                onChange={async (e) => {
+                  const urls = await filesToDataUrls(e.target.files);
+                  if (urls[0]) setCollegeSettings({ ...collegeSettings, logo: urls[0] });
+                }}
+              />
+            </div>
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl border border-white/[0.06] bg-white/[0.05]/40 flex items-center justify-center overflow-hidden">
                 {collegeSettings?.logo ? (
@@ -788,8 +1106,175 @@ export const CollegeAdminDashboard = () => {
             </div>
           </div>
 
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input
+              label="Instagram URL"
+              value={collegeSettings?.socialLinks?.instagram || ''}
+              onChange={(e) =>
+                setCollegeSettings({
+                  ...collegeSettings,
+                  socialLinks: { ...(collegeSettings?.socialLinks || {}), instagram: e.target.value },
+                })
+              }
+              placeholder="https://instagram.com/yourcollege"
+            />
+            <Input
+              label="YouTube URL"
+              value={collegeSettings?.socialLinks?.youtube || ''}
+              onChange={(e) =>
+                setCollegeSettings({
+                  ...collegeSettings,
+                  socialLinks: { ...(collegeSettings?.socialLinks || {}), youtube: e.target.value },
+                })
+              }
+              placeholder="https://youtube.com/@yourcollege"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-zinc-300">Story Highlights (upload images)</label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2 text-sm"
+              onChange={async (e) => {
+                const urls = await filesToDataUrls(e.target.files);
+                if (!urls.length) return;
+                setCollegeSettings({
+                  ...collegeSettings,
+                  storyHighlights: [...(collegeSettings?.storyHighlights || []), ...urls].slice(0, 12),
+                });
+              }}
+            />
+            {Array.isArray(collegeSettings?.storyHighlights) && collegeSettings.storyHighlights.length > 0 && (
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {collegeSettings.storyHighlights.map((img: string, idx: number) => (
+                  <img key={`${img}-${idx}`} src={img} className="h-16 w-16 rounded-xl border border-white/[0.08] object-cover" />
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-zinc-300">Campus Gallery (upload images)</label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2 text-sm"
+              onChange={async (e) => {
+                const urls = await filesToDataUrls(e.target.files);
+                if (!urls.length) return;
+                setCollegeSettings({
+                  ...collegeSettings,
+                  galleryImages: [...(collegeSettings?.galleryImages || []), ...urls].slice(0, 24),
+                });
+              }}
+            />
+            {Array.isArray(collegeSettings?.galleryImages) && collegeSettings.galleryImages.length > 0 && (
+              <div className="grid grid-cols-4 gap-2">
+                {collegeSettings.galleryImages.slice(0, 12).map((img: string, idx: number) => (
+                  <img key={`${img}-${idx}`} src={img} className="h-20 w-full rounded-xl border border-white/[0.08] object-cover" />
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="pt-4">
             <Button onClick={() => updateCollegeSettings(collegeSettings)}>Save Branding Changes</Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8 shadow-sm">
+        <h3 className="text-lg font-bold">College Theme</h3>
+        <p className="text-sm text-zinc-400">Set primary/secondary colors and optionally analyze your official website.</p>
+
+        <div className="mt-6 space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input
+              label="Primary Color (hex)"
+              value={collegeSettings?.theme?.primaryColor || ''}
+              onChange={(e) => setCollegeSettings({ ...collegeSettings, theme: { ...(collegeSettings?.theme || {}), primaryColor: e.target.value } })}
+            />
+            <Input
+              label="Secondary Color (hex)"
+              value={collegeSettings?.theme?.secondaryColor || ''}
+              onChange={(e) => setCollegeSettings({ ...collegeSettings, theme: { ...(collegeSettings?.theme || {}), secondaryColor: e.target.value } })}
+            />
+            <Input
+              label="Favicon URL"
+              value={collegeSettings?.theme?.favicon || ''}
+              onChange={(e) => setCollegeSettings({ ...collegeSettings, theme: { ...(collegeSettings?.theme || {}), favicon: e.target.value } })}
+            />
+            <Input
+              label="Hero Banner URL"
+              value={collegeSettings?.theme?.heroBanner || ''}
+              onChange={(e) => setCollegeSettings({ ...collegeSettings, theme: { ...(collegeSettings?.theme || {}), heroBanner: e.target.value } })}
+            />
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-zinc-300">Header Style</label>
+              <select
+                className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:ring-2 focus:ring-purple-500/50"
+                value={collegeSettings?.theme?.headerStyle || 'glass'}
+                onChange={(e) => setCollegeSettings({ ...collegeSettings, theme: { ...(collegeSettings?.theme || {}), headerStyle: e.target.value } })}
+              >
+                <option value="glass" className="bg-zinc-900 text-white">Glass (Modern)</option>
+                <option value="classic" className="bg-zinc-900 text-white">Classic (Gradient)</option>
+                <option value="minimal" className="bg-zinc-900 text-white">Minimal (Clean)</option>
+              </select>
+            </div>
+            <Input
+              label="Typography (CSS font-family)"
+              value={collegeSettings?.theme?.typography || ''}
+              onChange={(e) => setCollegeSettings({ ...collegeSettings, theme: { ...(collegeSettings?.theme || {}), typography: e.target.value } })}
+              placeholder="Inter, Poppins, ui-sans-serif"
+            />
+            <Input
+              label="Hero Title"
+              value={collegeSettings?.theme?.heroTitle || ''}
+              onChange={(e) => setCollegeSettings({ ...collegeSettings, theme: { ...(collegeSettings?.theme || {}), heroTitle: e.target.value } })}
+              placeholder="Welcome to JECRC University"
+            />
+            <Input
+              label="Hero Subtitle"
+              value={collegeSettings?.theme?.heroSubtitle || ''}
+              onChange={(e) => setCollegeSettings({ ...collegeSettings, theme: { ...(collegeSettings?.theme || {}), heroSubtitle: e.target.value } })}
+              placeholder="Innovation, culture, and campus life in one place"
+            />
+          </div>
+
+          <div className="rounded-2xl border border-white/[0.06] bg-black/20 p-5">
+            <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">Auto theme from website</p>
+            <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
+              <div className="flex-1">
+                <Input label="Official Website URL" value={analyzeUrl} onChange={(e) => setAnalyzeUrl(e.target.value)} placeholder="https://jecrcu.edu.in" />
+              </div>
+              <Button onClick={analyzeWebsiteTheme} isLoading={analyzeLoading} className="shrink-0">
+                Analyze & Suggest
+              </Button>
+            </div>
+            {analyzeError && <p className="mt-3 text-sm text-red-400">{analyzeError}</p>}
+            {analyzeResult?.palette?.length ? (
+              <div className="mt-4">
+                <p className="text-xs text-zinc-400">Palette detected:</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {analyzeResult.palette.slice(0, 8).map((c: string) => (
+                    <div key={c} className="flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.02] px-3 py-1 text-xs text-zinc-300">
+                      <span className="h-3 w-3 rounded-full" style={{ background: c }} />
+                      {c}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="pt-2">
+            <Button onClick={() => updateCollegeSettings({ theme: { ...(collegeSettings?.theme || {}), updatedAt: new Date().toISOString() } })}>
+              Save Theme
+            </Button>
           </div>
         </div>
       </div>
@@ -829,6 +1314,8 @@ export const CollegeAdminDashboard = () => {
     </div>
   );
 
+  const renderTheme = () => renderSettings();
+
   if (loading && !collegeSettings) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
@@ -867,6 +1354,7 @@ export const CollegeAdminDashboard = () => {
           {activeTab === 'users' && renderUsers()}
           {activeTab === 'events' && renderEvents()}
           {activeTab === 'payments' && renderPayments()}
+          {activeTab === 'theme' && renderTheme()}
           {activeTab === 'settings' && renderSettings()}
         </motion.div>
       </AnimatePresence>
