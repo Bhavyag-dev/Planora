@@ -50,10 +50,12 @@ router.post('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 
   try {
-    const { title, description, date, venue, category, seatLimit, departmentId, status } = req.body;
+    const { title, description, coverImage, galleryImages, date, venue, category, seatLimit, departmentId, status } = req.body;
     const event = new Event({
       title,
       description,
+      coverImage: coverImage || '',
+      galleryImages: Array.isArray(galleryImages) ? galleryImages.slice(0, 12) : [],
       date,
       venue,
       category,

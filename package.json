@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "seed": "tsx server/seed.ts",
+    "seed:demo": "tsx server/seed-demo.ts",
     "lint": "tsc --noEmit",
     "start": "tsx server/server.ts"
   },

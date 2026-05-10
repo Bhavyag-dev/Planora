@@ -10,6 +10,8 @@ interface Event {
   _id: string;
   title: string;
   description: string;
+  coverImage?: string;
+  galleryImages?: string[];
   date: string;
   venue: string;
   category?: string;
@@ -110,6 +112,9 @@ export const EventDetails = () => {
       <div className="grid gap-8 md:grid-cols-3">
         {/* LEFT: Event Info */}
         <div className="md:col-span-2 space-y-6">
+          {event.coverImage && (
+            <img src={event.coverImage} alt={event.title} className="h-72 w-full rounded-3xl border border-white/[0.08] object-cover" />
+          )}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -143,6 +148,16 @@ export const EventDetails = () => {
               {event.description}
             </p>
           </div>
+          {Array.isArray(event.galleryImages) && event.galleryImages.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold text-white">Event Gallery</h3>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {event.galleryImages.slice(0, 6).map((img, idx) => (
+                  <img key={`${img}-${idx}`} src={img} className="h-44 w-full rounded-2xl border border-white/[0.08] object-cover" />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* RIGHT: Registration Card */}
