@@ -84,11 +84,22 @@ export const HeroBackground = () => {
     const h = container.clientHeight;
     S.isMobile = w < CONFIG.PERF.MOBILE_BREAKPOINT;
 
-    const renderer = new THREE.WebGLRenderer({
-      antialias: !S.isMobile,
-      alpha: true,
-      powerPreference: 'high-performance',
-    });
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        antialias: !S.isMobile,
+        alpha: true,
+        powerPreference: 'high-performance',
+      });
+    } catch {
+      console.warn('[HeroBackground] WebGL unavailable; skipping 3D background.');
+      return;
+    }
+    if (!renderer.getContext()) {
+      renderer.dispose();
+      console.warn('[HeroBackground] WebGL context missing; skipping 3D background.');
+      return;
+    }
     renderer.setSize(w, h);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, CONFIG.PERF.MAX_DPR));
     renderer.setClearColor(0x000000, 0);
