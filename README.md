@@ -1,16 +1,12 @@
-This contains everything you need to run your app locally.
-
-View your app in AI Studio: https://ai.studio/apps/a35199ba-9aad-4036-9130-004a4a2879f4
-
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
 # Campusevents
-A website to know about all your events
+
+A website to know about all your events.
+
+## Run locally
+
+**Prerequisites:** Node.js
+
+1. Install dependencies: `npm install`
+2. Configure your environment (for example `.env` for the database and other server settings).
+3. Start the API: `npm run dev:server`
+4. Start the frontend: `npm run dev` and open [http://localhost:5173](http://localhost:5173)
