@@ -28,10 +28,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const storedUser = getStoredUser();
 
     if (storedToken && storedUser) {
-      // Backward-compat super-admin override (to be removed when backend RBAC is finalized)
-      if (storedUser.email === 'vvishwas221@gmail.com') {
-        storedUser.role = 'super_admin';
-      }
       setToken(storedToken);
       setUser(storedUser);
       setStatus('authenticated');
@@ -95,4 +91,3 @@ export function useAuth() {
     isAuthenticated: ctx.status === 'authenticated',
   };
 }
-

@@ -4,9 +4,9 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import path from 'path';
 import cron from 'node-cron';
-import { createServer as createViteServer } from 'vite';
 import type { Server } from 'node:http';
 import dns from 'node:dns';
+import { fileURLToPath } from 'node:url';
 import authRoutes from './routes/authRoutes';
 import eventRoutes from './routes/eventRoutes';
 import registrationRoutes from './routes/registrationRoutes';
@@ -19,8 +19,8 @@ import { Event } from './models/Event';
 import { Registration } from './models/Registration';
 import { sendReminderEmail } from './services/emailService';
 
-// Load environment variables
-dotenv.config();
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(currentDir, '../../.env') });
 
 // Force DNS resolvers (helps with MongoDB SRV lookup on some networks)
 dns.setServers(['8.8.8.8', '8.8.4.4']);
@@ -28,9 +28,18 @@ dns.setServers(['8.8.8.8', '8.8.4.4']);
 async function startServer() {
   const app = express();
   const PORT = Number(process.env.PORT) || 8080;
+  const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
   // Middleware
-  app.use(cors());
+  app.use(cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error('Origin is not allowed by CORS'));
+    },
+  }));
   app.use(express.json());
 
   // MongoDB Connection
@@ -95,32 +104,9 @@ async function startServer() {
     }
   });
 
-  // Frontend serving strategy:
-  // - production: serve built `dist`
-  // - dev: either use Vite middleware (when VITE_MIDDLEWARE=true) or run frontend separately via `vite`
-  if (process.env.NODE_ENV === 'production') {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
-  } else if (process.env.VITE_MIDDLEWARE === 'true') {
-    const vite = await createViteServer({
-      server: {
-        middlewareMode: true,
-        allowedHosts: true,
-      },
-      appType: 'spa',
-    });
-    app.use(vite.middlewares);
-  } else {
-    app.get('/', (_req, res) => {
-      res
-        .status(200)
-        .type('text/plain')
-        .send('Backend is running. Start the frontend with `npm run dev`.');
-    });
-  }
+  app.get('/', (_req, res) => {
+    res.status(200).type('text/plain').send('Campus Events API is running.');
+  });
 
   const server: Server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);

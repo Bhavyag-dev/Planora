@@ -26,21 +26,12 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
       email?: string;
     };
 
-    const primarySecret = process.env.JWT_SECRET || 'secret';
-    let decoded: ReturnType<typeof tryVerify>;
-    try {
-      decoded = tryVerify(primarySecret);
-    } catch {
-      // Backward-compat for older tokens created with the default secret.
-      if (primarySecret !== 'secret') {
-        decoded = tryVerify('secret');
-      } else {
-        throw new Error('Token is not valid');
-      }
-    }
+    const primarySecret = process.env.JWT_SECRET;
+    if (!primarySecret) throw new Error('JWT_SECRET is not configured');
+    const decoded = tryVerify(primarySecret);
 
     // Force super_admin role for the specific email if it's in the token
-    if (decoded.email === 'vvishwas221@gmail.com') {
+    if (decoded.email === process.env.SUPER_ADMIN_EMAIL) {
       decoded.role = 'super_admin';
     }
     

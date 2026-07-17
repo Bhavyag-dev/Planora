@@ -2,11 +2,13 @@ import mongoose from 'mongoose';
 import { User } from './models/User';
 import dotenv from 'dotenv';
 import dns from 'dns';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 // Fix for mongodb+srv ENOTFOUND / ESERVFAIL DNS errors on certain ISPs
 dns.setServers(['8.8.8.8', '8.8.4.4']);
 
-dotenv.config();
+dotenv.config({ path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../.env') });
 
 async function seed() {
   try {
@@ -19,8 +21,11 @@ async function seed() {
     await mongoose.connect(MONGODB_URI);
     console.log('Connected to MongoDB');
 
-    const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || 'vvishwas221@gmail.com';
-    const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD || 'Admin@123';
+    const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
+    const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;
+    if (!superAdminEmail || !superAdminPassword) {
+      throw new Error('SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD are required');
+    }
     const existingAdmin = await User.findOne({ email: superAdminEmail });
 
     if (existingAdmin) {

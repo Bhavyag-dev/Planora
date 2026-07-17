@@ -15,7 +15,8 @@ router.get('/', async (req: AuthRequest, res) => {
     if (token && token !== 'null') {
       try {
         const jwt = require('jsonwebtoken');
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as any;
+        if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET is not configured');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
         if (decoded.role !== 'super_admin' && decoded.role !== 'admin' && decoded.college) {
            query.college = decoded.college;
         }

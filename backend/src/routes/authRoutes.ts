@@ -73,7 +73,7 @@ router.post('/signup', async (req, res) => {
     
     // Super Admin check
     let role = 'student';
-    if (email === 'vvishwas221@gmail.com') {
+    if (normalizedEmail === process.env.SUPER_ADMIN_EMAIL) {
       role = 'super_admin';
     } else if (!college && domain.endsWith('.edu')) {
       // If it's a new .edu domain, maybe we don't auto-assign college
@@ -92,7 +92,7 @@ router.post('/signup', async (req, res) => {
 
     const token = jwt.sign(
       { id: user._id, role: user.role, college: user.college, email: user.email }, 
-      process.env.JWT_SECRET || 'secret', 
+      process.env.JWT_SECRET!, 
       { expiresIn: '7d' }
     );
     res.status(201).json({ 
@@ -123,7 +123,7 @@ router.post('/login', async (req, res) => {
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
     // Auto-promote super admin if email matches
-    if (user.email === 'vvishwas221@gmail.com' && user.role !== 'super_admin') {
+    if (user.email === process.env.SUPER_ADMIN_EMAIL && user.role !== 'super_admin') {
       user.role = 'super_admin';
       await user.save();
     }
@@ -140,7 +140,7 @@ router.post('/login', async (req, res) => {
 
     const token = jwt.sign(
       { id: user._id, role: user.role, college: user.college?._id, email: user.email }, 
-      process.env.JWT_SECRET || 'secret', 
+      process.env.JWT_SECRET!, 
       { expiresIn: '7d' }
     );
     res.json({ 
@@ -205,7 +205,7 @@ router.post('/impersonate', authMiddleware, async (req: AuthRequest, res) => {
 
     const token = jwt.sign(
       { id: user._id, role: user.role, college: user.college, email: user.email, impersonatedBy: req.user.id }, 
-      process.env.JWT_SECRET || 'secret', 
+      process.env.JWT_SECRET!, 
       { expiresIn: '1h' }
     );
 
@@ -266,6 +266,5 @@ router.patch('/update-profile', authMiddleware, async (req: AuthRequest, res) =>
 });
 
 export default router;
-
 
 

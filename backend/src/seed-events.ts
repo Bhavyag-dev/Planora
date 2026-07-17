@@ -2,9 +2,11 @@ import mongoose from 'mongoose';
 import { Event } from './models/Event';
 import dotenv from 'dotenv';
 import dns from 'dns';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 dns.setServers(['8.8.8.8', '8.8.4.4']);
-dotenv.config();
+dotenv.config({ path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../.env') });
 
 async function seedEvents() {
   try {

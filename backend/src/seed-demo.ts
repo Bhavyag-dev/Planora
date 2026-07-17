@@ -1,12 +1,14 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import dns from 'node:dns';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { College } from './models/College';
 import { User } from './models/User';
 import { Event } from './models/Event';
 
 dns.setServers(['8.8.8.8', '8.8.4.4']);
-dotenv.config();
+dotenv.config({ path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../.env') });
 
 const demoColleges = [
   {
@@ -93,7 +95,8 @@ const demoColleges = [
 
 async function upsertCollegeAdmin(collegeId: mongoose.Types.ObjectId, collegeName: string, domain: string) {
   const email = `admin@${domain}`;
-  const password = 'Admin@123';
+  const password = process.env.DEMO_ADMIN_PASSWORD;
+  if (!password) throw new Error('DEMO_ADMIN_PASSWORD is required to seed demo accounts');
 
   const existing = await User.findOne({ email });
   if (existing) {
@@ -117,7 +120,8 @@ async function upsertCollegeAdmin(collegeId: mongoose.Types.ObjectId, collegeNam
 
 async function upsertStudent(collegeId: mongoose.Types.ObjectId, domain: string) {
   const email = `student@${domain}`;
-  const password = 'Student@123';
+  const password = process.env.DEMO_STUDENT_PASSWORD;
+  if (!password) throw new Error('DEMO_STUDENT_PASSWORD is required to seed demo accounts');
 
   const existing = await User.findOne({ email });
   if (existing) {
@@ -241,8 +245,8 @@ async function run() {
       await upsertEvent(college._id as mongoose.Types.ObjectId, admin._id as mongoose.Types.ObjectId, c.slug, i);
 
       console.log(`Seeded college: ${c.name} (${c.slug})`);
-      console.log(`  Admin login: admin@${c.domain} / Admin@123`);
-      console.log(`  Student login: student@${c.domain} / Student@123`);
+      console.log(`  Admin login: admin@${c.domain}`);
+      console.log(`  Student login: student@${c.domain}`);
     }
 
     await mongoose.disconnect();
@@ -254,4 +258,3 @@ async function run() {
 }
 
 run();
-
