@@ -3,63 +3,63 @@ import dotenv from 'dotenv';
 import dns from 'node:dns';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { College } from './models/College';
+import { Organization } from './models/Organization';
 import { User } from './models/User';
 import { Event } from './models/Event';
 
 dns.setServers(['8.8.8.8', '8.8.4.4']);
 dotenv.config({ path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../.env') });
 
-const demoColleges = [
+const demoOrganizations = [
   {
-    name: 'JECRC University',
-    slug: 'jecrc-university',
+    name: 'JECRC Events Group',
+    slug: 'jecrc-events',
     domain: 'jecrcu.edu.in',
     address: 'Jaipur, Rajasthan',
-    about: 'A leading university focused on innovation, entrepreneurship, and campus life.',
+    about: 'A leading group focused on innovation, entrepreneurship, and professional conferences.',
     socialLinks: {
-      instagram: 'https://instagram.com/jecrcuniversity',
-      youtube: 'https://youtube.com/@jecrcuniversity',
-      website: 'https://www.jecrcuniversity.edu.in',
+      instagram: 'https://instagram.com/jecrcevents',
+      youtube: 'https://youtube.com/@jecrcevents',
+      website: 'https://www.jecrcu.edu.in',
     },
     theme: {
       primaryColor: '#6d28d9',
       secondaryColor: '#ec4899',
       headerStyle: 'glass',
-      heroTitle: 'Welcome to JECRC University',
-      heroSubtitle: 'Explore tech, culture, sports, and student life in one smart campus experience.',
+      heroTitle: 'Welcome to JECRC Events Hub',
+      heroSubtitle: 'Explore conferences, networking, workshops, and team life in one simple platform.',
       heroBanner: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1600&q=80',
     },
   },
   {
-    name: 'ABC Institute of Technology',
-    slug: 'abc-institute',
+    name: 'ABC Corporate Network',
+    slug: 'abc-network',
     domain: 'abc.edu.in',
     address: 'Noida, Uttar Pradesh',
-    about: 'A modern tech-first institute with strong student communities and industry collaboration.',
+    about: 'A modern corporate network with strong developer communities and industry collaboration.',
     socialLinks: {
-      instagram: 'https://instagram.com/abcinstitute',
-      linkedin: 'https://linkedin.com/school/abcinstitute',
+      instagram: 'https://instagram.com/abcnetwork',
+      linkedin: 'https://linkedin.com/company/abcnetwork',
       website: 'https://abc.edu.in',
     },
     theme: {
       primaryColor: '#0ea5e9',
       secondaryColor: '#14b8a6',
       headerStyle: 'classic',
-      heroTitle: 'ABC Institute Campus Hub',
-      heroSubtitle: 'Workshops, hackathons, fests, and opportunities curated for every learner.',
+      heroTitle: 'ABC Network Hub',
+      heroSubtitle: 'Workshops, hackathons, meetups, and opportunities curated for every learner.',
       heroBanner: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1600&q=80',
     },
   },
   {
-    name: 'Global School of Design',
-    slug: 'global-design-school',
+    name: 'Global Design Collective',
+    slug: 'global-design',
     domain: 'gsd.edu.in',
     address: 'Bengaluru, Karnataka',
-    about: 'A design-driven campus known for creative showcases, exhibitions, and interdisciplinary events.',
+    about: 'A design-driven collective known for creative showcases, exhibitions, and interdisciplinary events.',
     socialLinks: {
-      instagram: 'https://instagram.com/gsdindia',
-      facebook: 'https://facebook.com/gsdindia',
+      instagram: 'https://instagram.com/gsddesign',
+      facebook: 'https://facebook.com/gsddesign',
       website: 'https://gsd.edu.in',
     },
     theme: {
@@ -67,85 +67,85 @@ const demoColleges = [
       secondaryColor: '#f43f5e',
       headerStyle: 'minimal',
       heroTitle: 'Create. Collaborate. Celebrate.',
-      heroSubtitle: 'From design showcases to creator meetups, discover what is next on campus.',
+      heroSubtitle: 'From design showcases to creator meetups, discover what is next in design.',
       heroBanner: 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=1600&q=80',
     },
   },
   {
-    name: 'North Valley College',
-    slug: 'north-valley-college',
+    name: 'North Valley Association',
+    slug: 'north-valley',
     domain: 'nvc.edu.in',
     address: 'Pune, Maharashtra',
-    about: 'A student-centric college with active clubs, sports culture, and strong community participation.',
+    about: 'A community-centric association with active clubs, sports culture, and strong civic participation.',
     socialLinks: {
-      instagram: 'https://instagram.com/nvcampus',
-      youtube: 'https://youtube.com/@nvcampus',
+      instagram: 'https://instagram.com/northvalley',
+      youtube: 'https://youtube.com/@northvalley',
       website: 'https://nvc.edu.in',
     },
     theme: {
       primaryColor: '#22c55e',
       secondaryColor: '#3b82f6',
       headerStyle: 'glass',
-      heroTitle: 'North Valley Campus Life',
-      heroSubtitle: 'Join events, competitions, and student-led communities across the college.',
+      heroTitle: 'North Valley Events & Meetups',
+      heroSubtitle: 'Join local events, competitions, and member-led communities.',
       heroBanner: 'https://images.unsplash.com/photo-1519452575417-564c1401ecc0?auto=format&fit=crop&w=1600&q=80',
     },
   },
 ];
 
-async function upsertCollegeAdmin(collegeId: mongoose.Types.ObjectId, collegeName: string, domain: string) {
+async function upsertOrgAdmin(organizationId: mongoose.Types.ObjectId, orgName: string, domain: string) {
   const email = `admin@${domain}`;
   const password = process.env.DEMO_ADMIN_PASSWORD;
   if (!password) throw new Error('DEMO_ADMIN_PASSWORD is required to seed demo accounts');
 
   const existing = await User.findOne({ email });
   if (existing) {
-    existing.role = 'college_admin';
-    existing.college = collegeId;
+    existing.role = 'org_admin';
+    existing.organization = organizationId;
     existing.password = password;
     await existing.save();
     return existing;
   }
 
   const admin = new User({
-    name: `${collegeName} Admin`,
+    name: `${orgName} Admin`,
     email,
     password,
-    role: 'college_admin',
-    college: collegeId,
+    role: 'org_admin',
+    organization: organizationId,
   });
   await admin.save();
   return admin;
 }
 
-async function upsertStudent(collegeId: mongoose.Types.ObjectId, domain: string) {
-  const email = `student@${domain}`;
+async function upsertUser(organizationId: mongoose.Types.ObjectId, domain: string) {
+  const email = `user@${domain}`;
   const password = process.env.DEMO_STUDENT_PASSWORD;
   if (!password) throw new Error('DEMO_STUDENT_PASSWORD is required to seed demo accounts');
 
   const existing = await User.findOne({ email });
   if (existing) {
-    existing.role = 'student';
-    existing.college = collegeId;
+    existing.role = 'user';
+    existing.organization = organizationId;
     existing.password = password;
     await existing.save();
     return existing;
   }
 
-  const student = new User({
-    name: 'Demo Student',
+  const user = new User({
+    name: 'Demo User',
     email,
     password,
-    role: 'student',
-    college: collegeId,
+    role: 'user',
+    organization: organizationId,
   });
-  await student.save();
-  return student;
+  await user.save();
+  return user;
 }
 
-async function upsertEvent(collegeId: mongoose.Types.ObjectId, organizerId: mongoose.Types.ObjectId, collegeSlug: string, idx: number) {
-  const title = `${collegeSlug.toUpperCase()} Campus Fest ${idx + 1}`;
-  const existing = await Event.findOne({ title, college: collegeId });
+async function upsertEvent(organizationId: mongoose.Types.ObjectId, organizerId: mongoose.Types.ObjectId, orgSlug: string, idx: number) {
+  const title = `${orgSlug.toUpperCase()} Event Fest ${idx + 1}`;
+  const existing = await Event.findOne({ title, organization: organizationId });
   if (existing) {
     existing.status = 'published';
     existing.coverImage = `https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1400&q=80&sig=${idx + 11}`;
@@ -161,7 +161,7 @@ async function upsertEvent(collegeId: mongoose.Types.ObjectId, organizerId: mong
   const event = new Event({
     title,
     description:
-      'A premium campus event experience with speaker sessions, competitions, workshops, and networking activities.',
+      'A premium event experience with speaker sessions, competitions, workshops, and networking activities.',
     coverImage: `https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1400&q=80&sig=${idx + 11}`,
     galleryImages: [
       `https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80&sig=${idx + 21}`,
@@ -170,11 +170,11 @@ async function upsertEvent(collegeId: mongoose.Types.ObjectId, organizerId: mong
     ],
     date: new Date(Date.now() + (idx + 3) * 24 * 60 * 60 * 1000),
     venue: 'Main Auditorium',
-    category: idx % 2 === 0 ? 'Technical' : 'Cultural',
+    category: idx % 2 === 0 ? 'Meetup' : 'Workshop',
     seatLimit: 250,
     status: 'published',
     organizer: organizerId,
-    college: collegeId,
+    organization: organizationId,
   });
   await event.save();
   return event;
@@ -190,42 +190,42 @@ async function run() {
     await mongoose.connect(uri);
     console.log('Connected to MongoDB');
 
-    for (let i = 0; i < demoColleges.length; i += 1) {
-      const c = demoColleges[i];
+    for (let i = 0; i < demoOrganizations.length; i += 1) {
+      const c = demoOrganizations[i];
 
-      const existingCollege = await College.findOne({ $or: [{ domain: c.domain }, { slug: c.slug }] });
-      let college: any;
-      if (existingCollege) {
-        existingCollege.name = c.name;
-        existingCollege.slug = c.slug;
-        existingCollege.domain = c.domain;
-        existingCollege.address = c.address;
-        existingCollege.about = c.about;
-        existingCollege.socialLinks = {
+      const existingOrg = await Organization.findOne({ $or: [{ domain: c.domain }, { slug: c.slug }] });
+      let organization: any;
+      if (existingOrg) {
+        existingOrg.name = c.name;
+        existingOrg.slug = c.slug;
+        existingOrg.domain = c.domain;
+        existingOrg.address = c.address;
+        existingOrg.about = c.about;
+        existingOrg.socialLinks = {
           instagram: c.socialLinks.instagram || '',
           facebook: c.socialLinks.facebook || '',
           linkedin: c.socialLinks.linkedin || '',
           youtube: c.socialLinks.youtube || '',
           website: c.socialLinks.website || '',
         } as any;
-        existingCollege.theme = {
-          ...(existingCollege.theme || {}),
+        existingOrg.theme = {
+          ...(existingOrg.theme || {}),
           ...(c.theme || {}),
           updatedAt: new Date(),
         } as any;
-        existingCollege.storyHighlights = [
+        existingOrg.storyHighlights = [
           `https://images.unsplash.com/photo-1519074002996-a69e7ac46a42?auto=format&fit=crop&w=500&q=80&sig=${i + 1}`,
           `https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=500&q=80&sig=${i + 101}`,
         ];
-        existingCollege.galleryImages = [
+        existingOrg.galleryImages = [
           `https://images.unsplash.com/photo-1462536943532-57a629f6cc60?auto=format&fit=crop&w=1000&q=80&sig=${i + 201}`,
           `https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=80&sig=${i + 301}`,
           `https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=80&sig=${i + 401}`,
         ];
-        await existingCollege.save();
-        college = existingCollege;
+        await existingOrg.save();
+        organization = existingOrg;
       } else {
-        college = new College({
+        organization = new Organization({
           ...c,
           storyHighlights: [
             `https://images.unsplash.com/photo-1519074002996-a69e7ac46a42?auto=format&fit=crop&w=500&q=80&sig=${i + 1}`,
@@ -237,16 +237,16 @@ async function run() {
             `https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=80&sig=${i + 401}`,
           ],
         });
-        await college.save();
+        await organization.save();
       }
 
-      const admin = await upsertCollegeAdmin(college._id as mongoose.Types.ObjectId, c.name, c.domain);
-      await upsertStudent(college._id as mongoose.Types.ObjectId, c.domain);
-      await upsertEvent(college._id as mongoose.Types.ObjectId, admin._id as mongoose.Types.ObjectId, c.slug, i);
+      const admin = await upsertOrgAdmin(organization._id as mongoose.Types.ObjectId, c.name, c.domain);
+      await upsertUser(organization._id as mongoose.Types.ObjectId, c.domain);
+      await upsertEvent(organization._id as mongoose.Types.ObjectId, admin._id as mongoose.Types.ObjectId, c.slug, i);
 
-      console.log(`Seeded college: ${c.name} (${c.slug})`);
+      console.log(`Seeded organization: ${c.name} (${c.slug})`);
       console.log(`  Admin login: admin@${c.domain}`);
-      console.log(`  Student login: student@${c.domain}`);
+      console.log(`  User login: user@${c.domain}`);
     }
 
     await mongoose.disconnect();

@@ -28,7 +28,7 @@ async function seedEvents() {
         status: 'published',
         createdBy: new mongoose.Types.ObjectId(),
         organizer: new mongoose.Types.ObjectId(),
-        college: new mongoose.Types.ObjectId()
+        organization: new mongoose.Types.ObjectId()
       },
       {
         title: 'Annual Cultural Fest: Resonance',
@@ -41,7 +41,7 @@ async function seedEvents() {
         status: 'published',
         createdBy: new mongoose.Types.ObjectId(),
         organizer: new mongoose.Types.ObjectId(),
-        college: new mongoose.Types.ObjectId()
+        organization: new mongoose.Types.ObjectId()
       },
       {
         title: 'Inter-College Basketball Tournament',
@@ -54,7 +54,7 @@ async function seedEvents() {
         status: 'published',
         createdBy: new mongoose.Types.ObjectId(),
         organizer: new mongoose.Types.ObjectId(),
-        college: new mongoose.Types.ObjectId()
+        organization: new mongoose.Types.ObjectId()
       },
       {
         title: 'Introduction to Machine Learning',
@@ -67,7 +67,7 @@ async function seedEvents() {
         status: 'published',
         createdBy: new mongoose.Types.ObjectId(),
         organizer: new mongoose.Types.ObjectId(),
-        college: new mongoose.Types.ObjectId()
+        organization: new mongoose.Types.ObjectId()
       }
     ];
 
