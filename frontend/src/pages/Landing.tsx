@@ -8,7 +8,12 @@ import {
   Calendar, 
   MapPin, 
   Sparkles, 
-  CheckCircle2
+  CheckCircle2,
+  Menu,
+  X,
+  Coffee,
+  Twitter,
+  Instagram
 } from 'lucide-react';
 
 export function Landing() {
@@ -18,6 +23,8 @@ export function Landing() {
   const [langDropdown, setLangDropdown] = useState(false);
   const [planningDropdown, setPlanningDropdown] = useState(false);
   const [categoryDropdown, setCategoryDropdown] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrollRatio, setScrollRatio] = useState(0);
 
   // Fetch events from API
   useEffect(() => {
@@ -36,6 +43,24 @@ export function Landing() {
       }
     };
     fetchEvents();
+  }, []);
+
+  // Track scroll position to collapse footer contents onto Planora watermark at the absolute bottom
+  useEffect(() => {
+    const handleScroll = () => {
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (docHeight <= 0) return;
+      const scrolled = window.scrollY;
+      const triggerStart = docHeight - 350; // starts collapse in the last 350px
+      if (scrolled > triggerStart) {
+        const ratio = (scrolled - triggerStart) / 350;
+        setScrollRatio(Math.min(1, Math.max(0, ratio)));
+      } else {
+        setScrollRatio(0);
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const galleryImages = [
@@ -66,9 +91,10 @@ export function Landing() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#fbfbfb] text-neutral-900 font-sans antialiased selection:bg-neutral-200">
-      {/* Navbar */}
-      <header className="sticky top-0 z-50 bg-[#fbfbfb]/85 backdrop-blur-md border-b border-neutral-100/60 transition-all duration-300">
+    <div className="min-h-screen bg-[#fbfbfb] text-neutral-900 font-sans antialiased selection:bg-neutral-200 overflow-x-hidden">
+      
+      {/* Non-sticky, Collapsible Navbar */}
+      <header className="relative w-full z-50 bg-[#fbfbfb] border-b border-neutral-100/60">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
@@ -77,7 +103,7 @@ export function Landing() {
             </span>
           </Link>
 
-          {/* Nav Links */}
+          {/* Desktop Nav Links */}
           <nav className="hidden items-center gap-8 md:flex">
             <Link to="/" className="text-[13px] font-medium text-neutral-600 hover:text-neutral-950 transition-colors">
               Home
@@ -95,7 +121,7 @@ export function Landing() {
                 Planning <ChevronDown size={14} className={`transition-transform duration-200 ${planningDropdown ? 'rotate-180' : ''}`} />
               </button>
               {planningDropdown && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 rounded-xl border border-neutral-100 bg-white p-2 shadow-lg ring-1 ring-black/5 animate-in fade-in slide-in-from-top-1 duration-200">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 rounded-xl border border-neutral-100 bg-white p-2 shadow-lg ring-1 ring-black/5 animate-in fade-in duration-200 z-50">
                   <Link to="/events" className="block rounded-lg px-3 py-2 text-[13px] text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
                     Browse All Events
                   </Link>
@@ -118,7 +144,7 @@ export function Landing() {
                 Categories <ChevronDown size={14} className={`transition-transform duration-200 ${categoryDropdown ? 'rotate-180' : ''}`} />
               </button>
               {categoryDropdown && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 rounded-xl border border-neutral-100 bg-white p-2 shadow-lg ring-1 ring-black/5 animate-in fade-in slide-in-from-top-1 duration-200">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 rounded-xl border border-neutral-100 bg-white p-2 shadow-lg ring-1 ring-black/5 animate-in fade-in duration-200 z-50">
                   <Link to="/events?cat=Technical" className="block rounded-lg px-3 py-2 text-[13px] text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
                     Technical & Talks
                   </Link>
@@ -140,8 +166,8 @@ export function Landing() {
             </a>
           </nav>
 
-          {/* Right Menu */}
-          <div className="flex items-center gap-4">
+          {/* Desktop Right Side */}
+          <div className="hidden items-center gap-4 md:flex">
             {/* Language Selector */}
             <div className="relative">
               <button 
@@ -181,7 +207,59 @@ export function Landing() {
               </div>
             )}
           </div>
+
+          {/* Mobile Hamburguer Toggle */}
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="rounded-lg p-2 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none md:hidden"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
+
+        {/* Collapsible Mobile Menu panel */}
+        {mobileMenuOpen && (
+          <div className="border-t border-neutral-100 bg-[#fbfbfb] px-6 py-4 space-y-4 animate-in slide-in-from-top duration-300 md:hidden">
+            <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-neutral-700 hover:text-neutral-950">
+              Home
+            </Link>
+            <Link to="/events" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-neutral-700 hover:text-neutral-950">
+              Browse Events
+            </Link>
+            <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-neutral-700 hover:text-neutral-950">
+              Pricing
+            </a>
+            <a href="#faqs" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-neutral-700 hover:text-neutral-950">
+              FAQs
+            </a>
+            
+            <div className="border-t border-neutral-100 pt-4 flex flex-col gap-3">
+              {isAuthenticated && user ? (
+                <Link
+                  to={user.role === 'super_admin' || user.role === 'admin' ? '/super-admin' : user.role === 'org_admin' ? '/org-admin' : '/dashboard'}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full rounded-full bg-neutral-950 text-center py-2.5 text-xs font-semibold text-white"
+                >
+                  Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="w-full text-center py-2 text-sm font-semibold text-neutral-700">
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full rounded-full bg-neutral-950 text-center py-2.5 text-xs font-semibold text-white"
+                  >
+                    Register
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}
@@ -241,28 +319,98 @@ export function Landing() {
         </div>
       </section>
 
-      {/* Event Gallery Showcase */}
-      <section className="w-full px-6 pt-16 pb-12 overflow-hidden">
-        <div className="mx-auto max-w-7xl">
-          <div className="flex overflow-x-auto gap-6 pb-6 snap-x no-scrollbar">
-            {galleryImages.map((img, i) => (
-              <div 
-                key={i} 
-                className="flex-shrink-0 w-72 h-96 rounded-[2rem] overflow-hidden snap-center shadow-sm border border-neutral-100 group cursor-pointer"
-              >
-                <img 
-                  src={img.url} 
-                  alt={img.alt} 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                />
+      {/* Fold 2: Unforgettable Event Panel Layout (Reference Image 2) */}
+      <section className="mx-auto max-w-7xl px-6 py-20">
+        <div className="grid gap-12 lg:grid-cols-12 items-center">
+          {/* Left Text details */}
+          <div className="lg:col-span-5 space-y-6">
+            <h2 className="text-4xl font-extrabold text-neutral-900 leading-[1.1] tracking-tight font-display sm:text-5xl">
+              Together, let's<br />
+              make this event<br />
+              unforgettable!<br />
+              with <span className="text-neutral-400 font-normal">ultimate planning experience!</span>
+            </h2>
+            <p className="text-[14px] leading-relaxed text-neutral-500 font-sans">
+              Our passion for creating colorful and energetic events means every single meetup, workshop, and conference is a masterpiece of fun. Get ready for a workspace filled with vivid memories and vibrant celebrations.
+            </p>
+            <Link 
+              to="/signup" 
+              className="inline-flex items-center gap-2 rounded-full bg-neutral-950 px-6 py-3 text-xs font-semibold text-white hover:bg-neutral-800 transition-colors shadow-sm"
+            >
+              Learn more <ArrowRight size={14} />
+            </Link>
+          </div>
+
+          {/* Right Floating Dashboard Visual Layer (Dark Panel with Overlays) */}
+          <div className="lg:col-span-7 relative">
+            {/* Dark background panel */}
+            <div className="w-full h-[400px] rounded-[2.5rem] bg-neutral-950 relative overflow-hidden flex flex-col justify-end p-8 shadow-xl">
+              {/* Decorative radial lighting */}
+              <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-white/[0.03] blur-3xl" />
+              
+              <div className="flex items-center justify-between text-xs text-neutral-500 select-none z-10">
+                <span className="font-semibold text-neutral-300">Upcoming events &nbsp; <span className="text-white">2 / 30</span></span>
+                <div className="flex gap-1.5">
+                  <div className="h-1.5 w-1.5 rounded-full bg-white/30" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-white/30" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-white/30" />
+                </div>
               </div>
-            ))}
+            </div>
+
+            {/* Overlapping progress track card (Left float) */}
+            <div className="absolute top-1/2 -translate-y-1/2 -left-4 sm:-left-8 w-72 rounded-3xl border border-neutral-100 bg-[#e7f0e9]/90 p-5 shadow-2xl backdrop-blur-md z-20 transition-transform hover:-translate-y-[52%] duration-300">
+              <div className="flex items-center justify-between">
+                {/* Horizontal dot timeline indicator */}
+                <div className="flex items-center gap-1.5">
+                  <div className="h-2 w-2 rounded-full bg-neutral-400" />
+                  <div className="h-2 w-2 rounded-full bg-neutral-400" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-emerald-600 flex items-center justify-center text-[7px] text-white">✓</div>
+                  <div className="h-2 w-2 rounded-full bg-neutral-200" />
+                  <div className="h-2 w-2 rounded-full bg-neutral-200" />
+                </div>
+                <Link to="/signup" className="rounded-full bg-white border border-neutral-200/60 px-3 py-1.5 text-[10px] font-bold text-neutral-800 hover:bg-neutral-50 shadow-sm transition-colors">
+                  Join ›
+                </Link>
+              </div>
+
+              {/* Mapped faces */}
+              <div className="flex items-center -space-x-1.5 mt-6">
+                <div className="h-6 w-6 rounded-full border-2 border-white bg-[#d1d5db] bg-[url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80')] bg-cover" />
+                <div className="h-6 w-6 rounded-full border-2 border-white bg-[#9ca3af] bg-[url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=80')] bg-cover" />
+                <div className="h-6 w-6 rounded-full border-2 border-white bg-[#e5e7eb] bg-[url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&q=80')] bg-cover" />
+              </div>
+
+              <div className="mt-4">
+                <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Plan starts Dec 26, 2026</span>
+                <h4 className="text-xl font-extrabold text-neutral-900 leading-tight mt-1">Design Workshop with Expert Team ☡</h4>
+              </div>
+            </div>
+
+            {/* Overlapping Image Card 1 (Center float) */}
+            <div className="absolute right-36 top-6 w-44 aspect-[3/4] rounded-3xl overflow-hidden shadow-2xl border border-white/10 z-20 hidden sm:block rotate-[-2deg] transition-all hover:scale-103 hover:rotate-[0deg] duration-300">
+              <img 
+                src="https://images.unsplash.com/photo-1501446529957-6226bd447c46?auto=format&fit=crop&w=400&q=80" 
+                alt="event thumbnail" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            {/* Overlapping Image Card 2 (Right float) */}
+            <div className="absolute -right-4 top-16 w-44 aspect-[3/4] rounded-3xl overflow-hidden shadow-2xl border border-white/10 z-20 rotate-[3deg] transition-all hover:scale-103 hover:rotate-[0deg] duration-300">
+              <img 
+                src="https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=400&q=80" 
+                alt="event thumbnail" 
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
         </div>
       </section>
 
       {/* Dynamic Live Events Section */}
-      <section className="mx-auto max-w-7xl px-6 py-16">
+      <section className="mx-auto max-w-7xl px-6 py-16 border-t border-neutral-100/60">
         <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-neutral-100/80 pb-6">
           <div>
             <div className="inline-flex items-center gap-1 text-[11px] font-bold text-neutral-400 uppercase tracking-widest mb-1.5">
@@ -354,47 +502,6 @@ export function Landing() {
         )}
       </section>
 
-      {/* Features / Marketing Pitch */}
-      <section className="mx-auto max-w-7xl px-6 py-16 border-t border-neutral-100/80">
-        <div className="grid gap-12 lg:grid-cols-3">
-          <div className="flex gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-neutral-950 text-white font-bold animate-pulse">
-              1
-            </div>
-            <div>
-              <h3 className="text-[15px] font-bold text-neutral-900">Vibrant Event Workspaces</h3>
-              <p className="text-xs text-neutral-400 leading-relaxed mt-1">
-                Customize your organization profile with custom details, logos, cover headers, and active gallery highlights.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-neutral-950 text-white font-bold animate-pulse">
-              2
-            </div>
-            <div>
-              <h3 className="text-[15px] font-bold text-neutral-900">Instant QR Access</h3>
-              <p className="text-xs text-neutral-400 leading-relaxed mt-1">
-                Generate secure QR codes for registrants to scan for instant check-in auditing at the event gates.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-neutral-950 text-white font-bold animate-pulse">
-              3
-            </div>
-            <div>
-              <h3 className="text-[15px] font-bold text-neutral-900">Flexible Paid Tickets</h3>
-              <p className="text-xs text-neutral-400 leading-relaxed mt-1">
-                Collect ticket payments directly with Stripe payouts and track real-time workspace sales.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Pricing / FAQs target anchors for navigation */}
       <section id="pricing" className="mx-auto max-w-7xl px-6 py-16 border-t border-neutral-100/80 bg-white rounded-[2rem] my-12 shadow-sm border border-neutral-100">
         <div className="text-center max-w-2xl mx-auto">
@@ -430,19 +537,118 @@ export function Landing() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-neutral-950 text-neutral-400 py-12">
-        <div className="mx-auto max-w-7xl px-6 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div>
-            <span className="text-lg font-extrabold text-white font-display">Planora</span>
-            <p className="text-xs text-neutral-500 mt-1">© {new Date().getFullYear()} Planora. All rights reserved.</p>
+      {/* Premium Footer with scroll-ratio collapse effect and PLANORA brand watermark */}
+      <footer className="relative bg-[#fbfbfb] border-t border-neutral-100 pt-20 pb-12 overflow-hidden z-10">
+        
+        <div 
+          className="mx-auto max-w-7xl px-6 relative z-10 space-y-12"
+          style={{ 
+            transform: `translateY(${scrollRatio * 24}px)`, 
+            transition: 'transform 0.08s ease-out' 
+          }}
+        >
+          {/* Quote / Testimonial row */}
+          <div className="flex flex-col md:flex-row items-center justify-between gap-10 max-w-5xl mx-auto">
+            {/* Quote block */}
+            <div className="flex-1 space-y-3 text-left">
+              <span className="text-[11px] font-bold font-mono text-neutral-300 uppercase tracking-widest select-none">
+                Planora Experience
+              </span>
+              <p className="text-base sm:text-[17px] font-medium text-neutral-800 leading-relaxed font-sans">
+                " With our combined expertise and passion for organization, we promise to deliver an event that's <span className="text-neutral-400 font-normal">not just an event</span>, a vibrant memory etched in the minds of your audience. "
+              </p>
+              <div className="flex items-center gap-2 pt-2">
+                <img 
+                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" 
+                  alt="Trisha" 
+                  className="h-8 w-8 rounded-full object-cover border border-neutral-200/50 shadow-sm"
+                />
+                <div>
+                  <h5 className="text-[11px] font-bold text-neutral-900 leading-none">Trisha Woodward</h5>
+                  <p className="text-[9px] text-neutral-400">Co-founder at Planora</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Overlapping/side-by-side floating card images placed completely above Planora watermark */}
+            <div className="flex gap-4 items-center shrink-0">
+              <div className="w-28 aspect-square rounded-2xl overflow-hidden shadow-md border border-neutral-200/50 rotate-[-4deg]">
+                <img 
+                  src="https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=200&q=80" 
+                  alt="thumb" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="w-24 aspect-[4/3] rounded-2xl overflow-hidden shadow-md border border-neutral-200/50 rotate-[4deg]">
+                <img 
+                  src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=200&q=80" 
+                  alt="thumb" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
           </div>
-          <div className="flex gap-6 text-xs font-semibold">
-            <Link to="/events" className="hover:text-white transition-colors">Explore Events</Link>
-            <Link to="/signup" className="hover:text-white transition-colors">Start Hosting</Link>
-            <Link to="/" className="hover:text-white transition-colors">Terms of Service</Link>
+
+          {/* Footer bottom controls: menus, coffee, social, copyright */}
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8 pt-10 border-t border-neutral-100/80 max-w-5xl mx-auto">
+            <div className="flex flex-col md:items-start gap-4">
+              {/* Menu Links */}
+              <div className="flex gap-6 text-xs font-semibold text-neutral-800">
+                <a href="#about" className="hover:text-neutral-500 transition-colors font-display">About us &nbsp;→</a>
+                <a href="#blog" className="hover:text-neutral-500 transition-colors font-display">Blog &nbsp;→</a>
+                <a href="#contact" className="hover:text-neutral-500 transition-colors font-display">Contact us &nbsp;→</a>
+              </div>
+              
+              <p className="text-[11px] text-neutral-400 max-w-sm leading-relaxed font-sans">
+                Destination for flawless events. From luxurious workspace conferences to playful meetups, we guarantee a wave of excitement at every turn.
+              </p>
+
+              {/* Social Circles */}
+              <div className="flex gap-2">
+                {[
+                  { icon: Twitter, url: 'https://twitter.com/planora' },
+                  { icon: Instagram, url: 'https://instagram.com/planora' },
+                  { icon: Globe, url: 'https://planora.events' }
+                ].map((social, idx) => (
+                  <a 
+                    key={idx}
+                    href={social.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200/80 bg-white text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 transition-all shadow-sm"
+                  >
+                    <social.icon size={13} />
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Coffee and copyright */}
+            <div className="flex flex-col items-center md:items-end gap-3 text-right">
+              {/* Buy us a coffee pill button */}
+              <a 
+                href="https://buymeacoffee.com/planora"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-5 py-2.5 text-xs font-bold text-neutral-800 hover:bg-neutral-50 shadow-sm transition-all pointer-events-auto"
+              >
+                <Coffee size={14} className="text-amber-600" />
+                <span>Buy us a coffee</span>
+              </a>
+              <p className="text-[11px] text-neutral-400 mt-2 font-sans">
+                © {new Date().getFullYear()} Planora. All rights reserved.
+              </p>
+            </div>
           </div>
         </div>
+
+        {/* Stretched and Squeezed Planora watermark positioned completely at the bottom with zero text/image overlaps */}
+        <div className="mt-16 w-full text-center select-none pointer-events-none z-0">
+          <span className="inline-block font-display font-black text-[13.5vw] tracking-[-0.08em] text-[#ececee]/70 uppercase leading-none transform scale-x-[1.3] origin-center">
+            Planora
+          </span>
+        </div>
+
       </footer>
     </div>
   );
