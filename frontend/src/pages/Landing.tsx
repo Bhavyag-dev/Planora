@@ -281,8 +281,18 @@ export function Landing() {
 
       {/* Hero Section */}
       <section className="relative flex flex-col items-center justify-center pt-28 pb-16 text-center px-6 overflow-hidden">
+        {/* Background Image asset (uploaded pixel art scene) */}
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
+          <img 
+            src="/morning.png" 
+            alt="Event Background" 
+            className="w-full h-full object-cover opacity-[0.95] filter saturate-[1.1] contrast-[1.02]" 
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#fbfbfb]/10 via-transparent to-[#fbfbfb]/80" />
+        </div>
+
         {/* Central Badge */}
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-200/80 bg-white px-4 py-1.5 text-[11px] font-semibold text-neutral-700 shadow-sm hover:border-neutral-300 transition-colors duration-300 select-none">
+        <div className="relative z-10 mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-200/80 bg-white px-4 py-1.5 text-[11px] font-semibold text-neutral-700 shadow-sm hover:border-neutral-300 transition-colors duration-300 select-none">
           <span>⚡</span>
           <span className="text-neutral-400">→</span>
           <span className="flex items-center gap-1">
@@ -293,20 +303,26 @@ export function Landing() {
           <span>🔍</span>
         </div>
 
-        {/* Heading */}
-        <h1 className="max-w-5xl text-5xl font-extrabold tracking-tight text-neutral-950 leading-[1.08] sm:text-6xl md:text-7xl lg:text-[5.4rem] font-display">
+        {/* Heading with text-shadow glow for maximum readability against background */}
+        <h1 
+          style={{ textShadow: '0 2px 16px rgba(255, 255, 255, 0.95), 0 4px 40px rgba(255, 255, 255, 0.85)' }}
+          className="relative z-10 max-w-5xl text-5xl font-extrabold tracking-tight text-neutral-950 leading-[1.08] sm:text-6xl md:text-7xl lg:text-[5.4rem] font-display"
+        >
           Radiant Events,<br />
           Seamless Organization Easy!
         </h1>
 
         {/* Subtitle */}
-        <p className="mt-8 max-w-2xl text-[15px] font-medium text-neutral-500 leading-relaxed font-sans">
+        <p 
+          style={{ textShadow: '0 2px 10px rgba(255, 255, 255, 0.95)' }}
+          className="relative z-10 mt-8 max-w-2xl text-[15px] font-semibold text-neutral-850 leading-relaxed font-sans"
+        >
           Dive into the ultimate event management experience with Planora.<br />
           We specialize in helping workspaces and communities create vibrant, unforgettable happenings.
         </p>
 
         {/* CTA Button */}
-        <div className="mt-10 flex flex-col items-center gap-3">
+        <div className="relative z-10 mt-10 flex flex-col items-center gap-3">
           <Link
             to="/events"
             className="group inline-flex items-center gap-2 rounded-full bg-neutral-950 px-7 py-4 text-sm font-semibold text-white hover:bg-neutral-800 transition-colors duration-200 shadow-md"
@@ -663,7 +679,7 @@ export function Landing() {
             className="inline-block font-display font-black text-[13.5vw] tracking-[0.06em] text-[#ececee]/80 uppercase leading-none transform scale-x-[1.05] origin-center"
           >
             Planora
-          </span>
+          </motion.span>
         </div>
       </div>
 
