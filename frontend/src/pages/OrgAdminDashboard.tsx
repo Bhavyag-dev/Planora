@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -9,18 +9,13 @@ import {
   MapPin, 
   TrendingUp, 
   CreditCard, 
-  Settings, 
-  ShieldCheck, 
+  Settings as SettingsIcon, 
   Search, 
-  Filter, 
   CheckCircle2, 
-  XCircle, 
-  AlertCircle,
-  Download,
-  Mail,
-  PieChart,
-  Layers,
-  Target
+  X,
+  Globe,
+  Upload,
+  Trophy
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -29,63 +24,40 @@ import {
   YAxis, 
   CartesianGrid, 
   Tooltip, 
-  ResponsiveContainer, 
-  LineChart, 
-  Line, 
-  PieChart as RePieChart, 
-  Pie, 
-  Cell 
+  ResponsiveContainer 
 } from 'recharts';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { useAuth } from '../hooks/useAuth';
 import { cn } from '../lib/utils';
-import { BentoCardGrid, ParticleCard, GlobalSpotlight } from '../components/MagicBento';
-import { analyzeWebsiteTheme as analyzeWebsiteThemeFromUrl } from '../lib/themeAnalyzer';
 
-export const CollegeAdminDashboard = () => {
+export const OrgAdminDashboard = () => {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'overview';
-  const gridRef = useRef<HTMLDivElement>(null);
 
-  const [departments, setDepartments] = useState([]);
-  const [specializations, setSpecializations] = useState([]);
-  const [collegeUsers, setCollegeUsers] = useState([]);
-  const [collegeEvents, setCollegeEvents] = useState([]);
-  const [transactions, setTransactions] = useState([]);
-  const [collegeSettings, setCollegeSettings] = useState<any>(null);
+  const [orgUsers, setOrgUsers] = useState<any[]>([]);
+  const [orgEvents, setOrgEvents] = useState<any[]>([]);
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [orgSettings, setOrgSettings] = useState<any>(null);
   const [categories, setCategories] = useState<string[]>([]);
-  const [analyzeUrl, setAnalyzeUrl] = useState('');
-  const [analyzeLoading, setAnalyzeLoading] = useState(false);
-  const [analyzeError, setAnalyzeError] = useState('');
-  const [analyzeResult, setAnalyzeResult] = useState<any>(null);
   
   const [stats, setStats] = useState({
-    totalDepts: 0,
-    totalStudents: 0,
+    totalUsers: 0,
     totalEvents: 0,
     totalRegistrations: 0,
     totalRevenue: 0
   });
   
-  const [deptStats, setDeptStats] = useState([]);
-  const [venueStats, setVenueStats] = useState([]);
-  
+  const [venueStats, setVenueStats] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAddDept, setShowAddDept] = useState(false);
-  const [showAddSpec, setShowAddSpec] = useState(false);
-  const [newDept, setNewDept] = useState({ name: '', description: '' });
-  const [newSpec, setNewSpec] = useState({ name: '', departmentId: '', description: '' });
-  const [creatingDept, setCreatingDept] = useState(false);
-  const [deptModalError, setDeptModalError] = useState('');
-  const [userAssignments, setUserAssignments] = useState<Record<string, { role: string; department: string; specialization: string }>>({});
-  const [savingUserId, setSavingUserId] = useState<string | null>(null);
-
-  const [editingDept, setEditingDept] = useState<any>(null);
+  
+  // User Management
   const [showAddUser, setShowAddUser] = useState(false);
-  const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'dept_admin', department: '', specialization: '' });
-
+  const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'user' });
+  const [creatingUser, setCreatingUser] = useState(false);
+  
+  // Event Management
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [creatingEvent, setCreatingEvent] = useState(false);
   const [newEvent, setNewEvent] = useState({
@@ -97,8 +69,7 @@ export const CollegeAdminDashboard = () => {
     galleryImages: [] as string[],
     category: 'General',
     seatLimit: 50,
-    status: 'published',
-    departmentId: '',
+    status: 'published'
   });
 
   const filesToDataUrls = async (files: FileList | null) => {
@@ -117,37 +88,31 @@ export const CollegeAdminDashboard = () => {
     setLoading(true);
     try {
       const headers = { 'Authorization': `Bearer ${localStorage.getItem('token')}` };
-      const settingsRes = await fetch('/api/analytics/settings', { headers });
-      const settingsData = await settingsRes.json().catch(() => null);
-      if (settingsData?.eventCategories) setCategories(settingsData.eventCategories);
+      
+      // Fetch platform settings for categories
+      const sysSettingsRes = await fetch('/api/analytics/settings', { headers });
+      const sysSettingsData = await sysSettingsRes.json().catch(() => null);
+      if (sysSettingsData?.eventCategories) setCategories(sysSettingsData.eventCategories);
       
       // Fetch stats
-      const statsRes = await fetch('/api/analytics/college-admin', { headers });
+      const statsRes = await fetch('/api/analytics/org-stats', { headers });
       const statsData = await statsRes.json();
-      setStats(statsData.stats);
-      setDeptStats(statsData.deptStats);
-      setVenueStats(statsData.venueStats);
+      if (statsData.stats) setStats(statsData.stats);
+      if (statsData.venueStats) setVenueStats(statsData.venueStats);
 
       // Fetch tab specific data
-      if (activeTab === 'departments') {
-        const deptsRes = await fetch('/api/college-admin/departments', { headers });
-        const specsRes = await fetch('/api/college-admin/specializations', { headers });
-        setDepartments(await deptsRes.json());
-        setSpecializations(await specsRes.json());
-      } else if (activeTab === 'users') {
-        const usersRes = await fetch('/api/college-admin/users', { headers });
-        setCollegeUsers(await usersRes.json());
+      if (activeTab === 'users') {
+        const usersRes = await fetch('/api/org-admin/users', { headers });
+        setOrgUsers(await usersRes.json());
       } else if (activeTab === 'events') {
-        const eventsRes = await fetch('/api/college-admin/events', { headers });
-        setCollegeEvents(await eventsRes.json());
-        const deptsRes = await fetch('/api/departments', { headers }).catch(() => null);
-        if (deptsRes?.ok) setDepartments(await deptsRes.json());
+        const eventsRes = await fetch('/api/org-admin/events', { headers });
+        setOrgEvents(await eventsRes.json());
       } else if (activeTab === 'payments') {
-        const transRes = await fetch('/api/college-admin/transactions', { headers });
+        const transRes = await fetch('/api/org-admin/transactions', { headers });
         setTransactions(await transRes.json());
-      } else if (activeTab === 'settings' || activeTab === 'theme') {
-        const settingsRes = await fetch('/api/college-admin/settings', { headers });
-        setCollegeSettings(await settingsRes.json());
+      } else if (activeTab === 'settings') {
+        const settingsRes = await fetch('/api/org-admin/settings', { headers });
+        setOrgSettings(await settingsRes.json());
       }
     } catch (err) {
       console.error('Failed to fetch dashboard data:', err);
@@ -160,79 +125,11 @@ export const CollegeAdminDashboard = () => {
     fetchData();
   }, [fetchData]);
 
-  const handleAddDept = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newDept.name.trim()) {
-      setDeptModalError('Please enter a department name.');
-      return;
-    }
-
-    setCreatingDept(true);
-    setDeptModalError('');
-    try {
-      const res = await fetch('/api/college-admin/departments', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(newDept)
-      });
-
-      const contentType = res.headers.get('content-type') || '';
-      const payload = contentType.includes('application/json')
-        ? await res.json()
-        : { message: await res.text() };
-
-      if (res.ok) {
-        setShowAddDept(false);
-        setNewDept({ name: '', description: '' });
-        fetchData();
-      } else {
-        setDeptModalError(payload.message || 'Failed to create department');
-      }
-    } catch (err) {
-      console.error(err);
-      setDeptModalError('Network error: unable to reach server.');
-    } finally {
-      setCreatingDept(false);
-    }
-  };
-
-  const handleEditDept = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingDept) return;
-    try {
-      const res = await fetch(`/api/college-admin/departments/${editingDept._id}`, {
-        method: 'PATCH',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ name: editingDept.name, description: editingDept.description })
-      });
-      if (res.ok) {
-        setEditingDept(null);
-        fetchData();
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newUser.name.trim() || !newUser.email.trim() || !newUser.password.trim()) {
-      return alert('Please fill in all required fields (Name, Email, Password)');
-    }
-    if ((newUser.role === 'dept_admin' || newUser.role === 'spec_admin') && !newUser.department) {
-      return alert('Please select a department for the admin.');
-    }
-    if (newUser.role === 'spec_admin' && !newUser.specialization) {
-      return alert('Please select a specialization/field for the specialization admin.');
-    }
+    setCreatingUser(true);
     try {
-      const res = await fetch('/api/college-admin/users', {
+      const res = await fetch('/api/org-admin/users', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -242,7 +139,7 @@ export const CollegeAdminDashboard = () => {
       });
       if (res.ok) {
         setShowAddUser(false);
-        setNewUser({ name: '', email: '', password: '', role: 'dept_admin', department: '', specialization: '' });
+        setNewUser({ name: '', email: '', password: '', role: 'user' });
         fetchData();
       } else {
         const error = await res.json();
@@ -250,60 +147,32 @@ export const CollegeAdminDashboard = () => {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setCreatingUser(false);
     }
   };
 
-  const handleDeleteDept = async (deptId: string) => {
-    if (!confirm('Are you sure you want to delete this department?')) return;
+  const handleUpdateUserRole = async (userId: string, newRole: string) => {
     try {
-      const res = await fetch(`/api/college-admin/departments/${deptId}`, {
-        method: 'DELETE',
-        headers: { 
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (res.ok) {
-        fetchData();
-      } else {
-        const errData = await res.json();
-        alert(errData.message || 'Failed to delete department');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Network error');
-    }
-  };
-
-  const handleAddSpec = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newSpec.departmentId) return alert('Please select a department');
-    if (!newSpec.name.trim()) return alert('Please enter a specialization name');
-    try {
-      const res = await fetch('/api/college-admin/specializations', {
-        method: 'POST',
-        headers: { 
+      const res = await fetch(`/api/org-admin/users/${userId}`, {
+        method: 'PATCH',
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify(newSpec)
+        body: JSON.stringify({ role: newRole })
       });
       if (res.ok) {
-        setShowAddSpec(false);
-        setNewSpec({ name: '', departmentId: '', description: '' });
         fetchData();
-      } else {
-        const errData = await res.json();
-        alert(errData.message || 'Failed to create specialization');
       }
     } catch (err) {
       console.error(err);
-      alert('Network error');
     }
   };
 
   const updateEventStatus = async (eventId: string, status: string) => {
     try {
-      const res = await fetch(`/api/college-admin/events/${eventId}/status`, {
+      const res = await fetch(`/api/org-admin/events/${eventId}/status`, {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',
@@ -317,9 +186,9 @@ export const CollegeAdminDashboard = () => {
     }
   };
 
-  const updateCollegeSettings = async (updates: any) => {
+  const updateOrgSettings = async (updates: any) => {
     try {
-      const res = await fetch('/api/college-admin/settings', {
+      const res = await fetch('/api/org-admin/settings', {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',
@@ -329,7 +198,8 @@ export const CollegeAdminDashboard = () => {
       });
       if (res.ok) {
         const updated = await res.json();
-        setCollegeSettings(updated);
+        setOrgSettings(updated);
+        alert('Settings updated successfully.');
       }
     } catch (err) {
       console.error(err);
@@ -346,18 +216,7 @@ export const CollegeAdminDashboard = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
-        body: JSON.stringify({
-          title: newEvent.title,
-          description: newEvent.description,
-          coverImage: newEvent.coverImage,
-          galleryImages: newEvent.galleryImages,
-          date: newEvent.date,
-          venue: newEvent.venue,
-          category: newEvent.category,
-          seatLimit: newEvent.seatLimit,
-          status: newEvent.status,
-          departmentId: newEvent.departmentId || undefined,
-        }),
+        body: JSON.stringify(newEvent),
       });
 
       const payload = await res.json().catch(() => ({}));
@@ -367,7 +226,7 @@ export const CollegeAdminDashboard = () => {
       }
 
       setShowAddEvent(false);
-      setNewEvent({ title: '', description: '', date: '', venue: '', coverImage: '', galleryImages: [], category: 'General', seatLimit: 50, status: 'published', departmentId: '' });
+      setNewEvent({ title: '', description: '', date: '', venue: '', coverImage: '', galleryImages: [], category: 'General', seatLimit: 50, status: 'published' });
       await fetchData();
     } catch (err) {
       console.error(err);
@@ -377,257 +236,70 @@ export const CollegeAdminDashboard = () => {
     }
   };
 
-  const analyzeWebsiteTheme = async () => {
-    if (!analyzeUrl.trim()) return;
-    setAnalyzeLoading(true);
-    setAnalyzeError('');
-    setAnalyzeResult(null);
-    try {
-      const data = await analyzeWebsiteThemeFromUrl(analyzeUrl.trim());
-      setAnalyzeResult(data);
-      // Pre-fill draft theme
-      if (data?.suggested) {
-        setCollegeSettings((prev: any) => ({
-          ...(prev || {}),
-          theme: {
-            ...(prev?.theme || {}),
-            ...data.suggested,
-            updatedAt: new Date().toISOString(),
-          },
-        }));
-      }
-    } catch (err: any) {
-      setAnalyzeError(err?.message || 'Network error');
-    } finally {
-      setAnalyzeLoading(false);
-    }
-  };
-
-  const handleAssignmentDraftChange = (userId: string, updates: Partial<{ role: string; department: string; specialization: string }>) => {
-    setUserAssignments(prev => {
-      const current = prev[userId] || { role: '', department: '', specialization: '' };
-      const next = { ...current, ...updates };
-
-      if (updates.role === 'student') {
-        next.department = '';
-        next.specialization = '';
-      }
-      if (updates.role === 'dept_admin') {
-        next.specialization = '';
-      }
-      if (updates.department !== undefined && updates.department !== current.department) {
-        next.specialization = '';
-      }
-
-      return { ...prev, [userId]: next };
-    });
-  };
-
-  const saveUserAssignment = async (userId: string) => {
-    const assignment = userAssignments[userId];
-    if (!assignment) return;
-
-    if (assignment.role === 'dept_admin' && !assignment.department) {
-      alert('Please select a department for the department admin.');
-      return;
-    }
-    if (assignment.role === 'spec_admin' && (!assignment.department || !assignment.specialization)) {
-      alert('Please select both department and specialization for specialization admin.');
-      return;
-    }
-
-    setSavingUserId(userId);
-    try {
-      const res = await fetch(`/api/college-admin/users/${userId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          role: assignment.role,
-          department: assignment.department || null,
-          specialization: assignment.specialization || null
-        })
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ message: 'Failed to update user assignment' }));
-        alert(err.message || 'Failed to update user assignment');
-        return;
-      }
-
-      await fetchData();
-    } catch (err) {
-      console.error(err);
-      alert('Unable to update user assignment right now.');
-    } finally {
-      setSavingUserId(null);
-    }
-  };
-
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+  if (loading && activeTab === 'overview') {
+    return (
+      <div className="flex h-[80vh] items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-white/[0.06] border-t-black" />
+      </div>
+    );
+  }
 
   const renderOverview = () => (
-    <div className="space-y-8 relative">
-      <GlobalSpotlight gridRef={gridRef} spotlightRadius={400} glowColor="132, 0, 255" />
-      <BentoCardGrid gridRef={gridRef}>
-        {/* Stats Grid */}
+    <div className="space-y-8">
+      {/* Stats Grid */}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { title: 'Departments', value: stats.totalDepts, icon: Building2, color: 'text-blue-600' },
-          { title: 'Total Students', value: stats.totalStudents, icon: Users, color: 'text-purple-600' },
-          { title: 'Global Events', value: stats.totalEvents, icon: Calendar, color: 'text-emerald-600' },
-          { title: 'Total Registrations', value: stats.totalRegistrations, icon: TrendingUp, color: 'text-orange-600' },
+          { title: 'Workspace Users', value: stats.totalUsers, icon: Users, color: 'text-purple-500' },
+          { title: 'Total Events', value: stats.totalEvents, icon: Calendar, color: 'text-indigo-500' },
+          { title: 'Total RSVPs', value: stats.totalRegistrations, icon: Trophy, color: 'text-emerald-500' },
+          { title: 'Revenue Generated', value: `₹${stats.totalRevenue || 0}`, icon: CreditCard, color: 'text-orange-500' }
         ].map((stat, i) => (
-          <ParticleCard 
-            key={stat.title} 
-            className="magic-bento-card magic-bento-card--border-glow" 
-            style={{ 
-              '--glow-color': '132, 0, 255', 
-              gridColumn: window.innerWidth > 1024 ? 'span 1' : undefined,
-              gridRow: window.innerWidth > 1024 ? 'span 1' : undefined
-            } as React.CSSProperties}
-          >
-            <div className="flex items-center gap-4 magic-bento-card__content z-20">
-              <div className="rounded-xl bg-white/[0.05]/40 p-3">
+          <div key={i} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
+            <div className="flex items-center gap-4">
+              <div className="rounded-xl bg-white/10 p-3">
                 <stat.icon className={cn("h-6 w-6", stat.color)} />
               </div>
               <div>
-                <p className="text-sm font-medium text-zinc-400">{stat.title}</p>
-                <h3 className="text-2xl font-bold text-white">{stat.value}</h3>
+                <p className="text-xs font-semibold text-zinc-400 uppercase">{stat.title}</p>
+                <h3 className="text-2xl font-bold text-white mt-0.5">{stat.value}</h3>
               </div>
             </div>
-          </ParticleCard>
+          </div>
         ))}
-
-        {/* Department Distribution */}
-        <ParticleCard 
-          className="magic-bento-card magic-bento-card--border-glow" 
-          style={{ 
-            '--glow-color': '132, 0, 255',
-            gridColumn: window.innerWidth > 1024 ? 'span 2' : undefined
-          } as React.CSSProperties}
-        >
-          <div className="magic-bento-card__content h-full w-full z-20 flex flex-col justify-start">
-            <h3 className="mb-6 text-lg font-semibold magic-bento-card__title">Department Distribution</h3>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={deptStats}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.1)" />
-                  <XAxis dataKey="_id" stroke="rgba(255,255,255,0.5)" />
-                  <YAxis stroke="rgba(255,255,255,0.5)" />
-                  <Tooltip contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', borderColor: 'rgba(255,255,255,0.1)' }} />
-                  <Bar dataKey="count" fill="rgba(132,0,255,0.8)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </ParticleCard>
-
-        {/* Venue Analytics */}
-        <ParticleCard 
-          className="magic-bento-card magic-bento-card--border-glow" 
-          style={{ 
-            '--glow-color': '132, 0, 255',
-            gridColumn: window.innerWidth > 1024 ? 'span 2' : undefined
-          } as React.CSSProperties}
-        >
-          <div className="magic-bento-card__content h-full w-full z-20 flex flex-col justify-start">
-            <h3 className="mb-6 text-lg font-semibold magic-bento-card__title">Venue Utilization</h3>
-            <div className="grid gap-4 w-full">
-              {venueStats.map((venue: any) => (
-                <div key={venue._id} className="rounded-xl border border-white/[0.04] p-4 bg-white/[0.02]">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <MapPin size={16} className="text-zinc-400" />
-                      <span className="font-medium text-white">{venue._id}</span>
-                    </div>
-                    <span className="text-sm text-zinc-400">{venue.count} Events</span>
-                  </div>
-                  <div className="mt-3 h-2 w-full rounded-full bg-white/[0.05]">
-                    <div 
-                      className="h-full rounded-full bg-purple-500 transition-all" 
-                      style={{ width: `${Math.min(100, (venue.registered / venue.totalSeats) * 100)}%` }}
-                    />
-                  </div>
-                  <div className="mt-2 flex justify-between text-[10px] text-zinc-400">
-                    <span>{venue.registered} / {venue.totalSeats} seats filled</span>
-                    <span>{Math.round((venue.registered / venue.totalSeats) * 100) || 0}% occupancy</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </ParticleCard>
-      </BentoCardGrid>
-    </div>
-  );
-
-  const renderDepartments = () => (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 border-b border-white/[0.04] p-6 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2 className="text-xl font-bold">Departments & Specializations</h2>
-          <p className="text-xs text-zinc-400">Manage BBA, BTech, and other departments offered.</p>
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={() => setShowAddDept(true)} variant="outline" className="gap-2">
-            <Plus size={18} /> Add Department
-          </Button>
-          <Button onClick={() => {
-            setNewUser({ name: '', email: '', password: '', role: 'dept_admin', department: '', specialization: '' });
-            setShowAddUser(true);
-          }} variant="outline" className="gap-2 border-purple-500/30 text-purple-400 hover:bg-purple-500/10">
-            <Plus size={18} /> Add Admin
-          </Button>
-          <Button onClick={() => setShowAddSpec(true)} className="gap-2">
-            <Plus size={18} /> Add Specialization
-          </Button>
-        </div>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-2">
-        {/* Departments List */}
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-sm">
-          <div className="border-b border-white/[0.04] p-6">
-            <h3 className="font-semibold">Departments</h3>
-          </div>
-          <div className="divide-y divide-zinc-100">
-            {departments.map((dept: any) => (
-              <div key={dept._id} className="flex items-center justify-between p-6">
-                <div>
-                  <h4 className="font-medium">{dept.name}</h4>
-                  <p className="text-sm text-zinc-400">{dept.description}</p>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="border-purple-500/30 text-purple-400 hover:bg-purple-500/10" onClick={() => {
-                    setNewUser({ name: '', email: '', password: '', role: 'dept_admin', department: dept._id, specialization: '' });
-                    setShowAddUser(true);
-                  }}>
-                    <Plus size={14} className="mr-1" /> Add Admin
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => setEditingDept(dept)}>Edit</Button>
-                  <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-500/10" onClick={() => handleDeleteDept(dept._id)}>Delete</Button>
-                </div>
-              </div>
-            ))}
+      {/* Venue Util */}
+      <div className="grid gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
+          <h3 className="text-lg font-semibold text-white mb-6">Venue Insights</h3>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={venueStats}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333" />
+                <XAxis dataKey="name" stroke="#888" />
+                <YAxis stroke="#888" />
+                <Tooltip contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46' }} />
+                <Bar dataKey="count" fill="#818cf8" radius={[4, 4, 0, 0]} name="Events Count" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Specializations List */}
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-sm">
-          <div className="border-b border-white/[0.04] p-6">
-            <h3 className="font-semibold">Specializations</h3>
-          </div>
-          <div className="divide-y divide-zinc-100">
-            {specializations.map((spec: any) => (
-              <div key={spec._id} className="flex items-center justify-between p-6">
-                <div>
-                  <h4 className="font-medium">{spec.name}</h4>
-                  <p className="text-xs text-zinc-400 uppercase tracking-wider">{spec.department?.name}</p>
-                  <p className="mt-1 text-sm text-zinc-400">{spec.description}</p>
+        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 space-y-6">
+          <h3 className="text-lg font-semibold text-white">Occupancy Metrics</h3>
+          <div className="space-y-4">
+            {venueStats.map((venue: any, idx: number) => (
+              <div key={idx} className="space-y-1">
+                <div className="flex items-center justify-between text-xs font-medium text-zinc-300">
+                  <span>{venue.name}</span>
+                  <span>{venue.registered} / {venue.capacity} RSVPs</span>
                 </div>
-                <Button variant="ghost" size="sm">Manage</Button>
+                <div className="h-2 w-full rounded-full bg-zinc-800 overflow-hidden">
+                  <div 
+                    className="h-full bg-indigo-500 rounded-full" 
+                    style={{ width: `${Math.min(100, (venue.registered / (venue.capacity || 1)) * 100)}%` }}
+                  />
+                </div>
               </div>
             ))}
           </div>
@@ -638,404 +310,60 @@ export const CollegeAdminDashboard = () => {
 
   const renderUsers = () => (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 border-b border-white/[0.04] p-6 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 border-b border-white/[0.04] pb-6 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-xl font-bold">Department Admins</h2>
-          <p className="text-xs text-zinc-400">View and manage administrators across all departments.</p>
+          <h2 className="text-xl font-bold">Workspace Members</h2>
+          <p className="text-xs text-zinc-400">Manage admin roles and registered users mapping to your workspace.</p>
         </div>
-        <div className="flex gap-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-            <Input className="pl-10 h-9 w-64 rounded-xl border-white/[0.06] bg-white/[0.03] text-xs focus-visible:ring-purple-500/50" placeholder="Search admins..." />
-          </div>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-sm overflow-hidden">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-white/[0.05]/40 border-b border-white/[0.06]">
-            <tr>
-              <th className="px-6 py-4 font-semibold text-xs text-zinc-400 uppercase tracking-wider">User</th>
-              <th className="px-6 py-4 font-semibold text-xs text-zinc-400 uppercase tracking-wider">Role</th>
-              <th className="px-6 py-4 font-semibold text-xs text-zinc-400 uppercase tracking-wider">Department</th>
-              <th className="px-6 py-4 font-semibold text-xs text-zinc-400 uppercase tracking-wider">Admin Access</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/[0.04]">
-            {collegeUsers.filter(u => u.role === 'dept_admin' || u.role === 'spec_admin').map((u: any) => {
-              const draftRole = userAssignments[u._id]?.role ?? u.role;
-              const draftDept = userAssignments[u._id]?.department ?? u.department?._id ?? '';
-              const isAdmin = draftRole === 'dept_admin' || draftRole === 'spec_admin';
-              
-              return (
-                <tr key={u._id} className="group hover:bg-white/[0.05]/40 transition-colors">
-                  <td className="px-6 py-4">
-                    <div>
-                      <p className="font-medium">{u.name}</p>
-                      <p className="text-xs text-zinc-400">{u.email}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={cn(
-                      "inline-flex items-center rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider",
-                      draftRole === 'college_admin' ? "bg-purple-100 text-purple-700" :
-                      draftRole === 'dept_admin' ? "bg-blue-100 text-blue-700" :
-                      draftRole === 'spec_admin' ? "bg-orange-100 text-orange-700" :
-                      "bg-white/[0.05] text-zinc-300"
-                    )}>
-                      {draftRole === 'dept_admin' ? 'Dept Admin' : draftRole.replace('_', ' ')}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-zinc-400">{u.department?.name || '-'}</td>
-                  <td className="px-6 py-4">
-                    {u.role !== 'college_admin' ? (
-                      <div className="flex flex-wrap items-center gap-2">
-                        {/* Admin Toggle */}
-                        <button
-                          onClick={() => handleAssignmentDraftChange(u._id, { role: isAdmin ? 'student' : 'dept_admin' })}
-                          className={cn(
-                            "relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50",
-                            isAdmin ? "bg-purple-500" : "bg-white/[0.08]"
-                          )}
-                        >
-                          <span className={cn(
-                            "inline-block h-3 w-3 transform rounded-full bg-white transition-transform",
-                            isAdmin ? "translate-x-5" : "translate-x-1"
-                          )} />
-                        </button>
-                        
-                        {isAdmin && (
-                          <select
-                            className="h-8 appearance-none rounded-lg border border-white/[0.06] bg-white/[0.03] px-3 text-xs font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50"
-                            value={draftDept}
-                            onChange={(e) => handleAssignmentDraftChange(u._id, { department: e.target.value })}
-                          >
-                            <option value="" className="bg-zinc-900 text-white">Select Department</option>
-                            {departments.map((d: any) => (
-                              <option key={d._id} value={d._id} className="bg-zinc-900 text-white">{d.name}</option>
-                            ))}
-                          </select>
-                        )}
-                        
-                        {(userAssignments[u._id]) && (
-                          <Button
-                            size="sm"
-                            className="h-8 px-3 text-xs"
-                            onClick={() => saveUserAssignment(u._id)}
-                            isLoading={savingUserId === u._id}
-                          >
-                            Save
-                          </Button>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="text-xs text-zinc-500">Primary Admin</span>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-sm overflow-hidden">
-        <div className="border-b border-white/[0.04] p-6">
-          <h3 className="text-lg font-bold">Registered Students (Your College)</h3>
-          <p className="text-xs text-zinc-400">Students with your college email/domain are auto-mapped here on signup/login.</p>
-        </div>
-        <table className="w-full text-left text-sm">
-          <thead className="bg-white/[0.05]/40 border-b border-white/[0.06]">
-            <tr>
-              <th className="px-6 py-4 font-semibold text-xs text-zinc-400 uppercase tracking-wider">Student</th>
-              <th className="px-6 py-4 font-semibold text-xs text-zinc-400 uppercase tracking-wider">Email Domain</th>
-              <th className="px-6 py-4 font-semibold text-xs text-zinc-400 uppercase tracking-wider">Department</th>
-              <th className="px-6 py-4 font-semibold text-xs text-zinc-400 uppercase tracking-wider">Joined</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/[0.04]">
-            {collegeUsers
-              .filter((u: any) => u.role === 'student')
-              .map((u: any) => (
-                <tr key={u._id} className="hover:bg-white/[0.05]/40 transition-colors">
-                  <td className="px-6 py-4">
-                    <div>
-                      <p className="font-medium">{u.name}</p>
-                      <p className="text-xs text-zinc-400">{u.email}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-zinc-400 text-xs">
-                    {String(u.email || '').split('@')[1] || '-'}
-                  </td>
-                  <td className="px-6 py-4 text-zinc-400 text-xs">{u.department?.name || 'Not assigned'}</td>
-                  <td className="px-6 py-4 text-zinc-400 text-xs">{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '-'}</td>
-                </tr>
-              ))}
-            {collegeUsers.filter((u: any) => u.role === 'student').length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-6 py-10 text-center text-zinc-500">
-                  No students mapped yet.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-
-  const renderEvents = () => (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 border-b border-white/[0.04] p-6 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2 className="text-xl font-bold">College Events</h2>
-          <p className="text-xs text-zinc-400">Manage and moderate all events within your institution.</p>
-        </div>
-        <Button className="gap-2" onClick={() => setShowAddEvent(true)}>
-          <Plus size={18} /> Create Event
+        <Button onClick={() => setShowAddUser(true)} className="gap-2 bg-white text-black hover:bg-zinc-200">
+          <Plus size={16} /> Add Member
         </Button>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {collegeEvents.map((event: any) => (
-          <div key={event._id} className="group relative rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 shadow-sm transition-all hover:shadow-md">
-            {event.coverImage && (
-              <img src={event.coverImage} alt={event.title} className="mb-4 h-40 w-full rounded-xl border border-white/[0.08] object-cover" />
-            )}
-            <div className="flex items-start justify-between">
-              <div className={cn(
-                "rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider",
-                event.status === 'published' ? "bg-emerald-100 text-emerald-700" :
-                event.status === 'pending' ? "bg-orange-100 text-orange-700" :
-                "bg-white/[0.05] text-zinc-300"
-              )}>
-                {event.status}
-              </div>
-              <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                {event.status === 'pending' && (
-                  <button 
-                    onClick={() => updateEventStatus(event._id, 'published')}
-                    className="rounded-lg bg-emerald-50 p-2 text-emerald-600 hover:bg-emerald-100"
-                  >
-                    <CheckCircle2 size={16} />
-                  </button>
-                )}
-                <button 
-                  onClick={() => updateEventStatus(event._id, 'moderated')}
-                  className="rounded-lg bg-white/[0.05]/40 p-2 text-zinc-400 hover:bg-white/[0.05]"
-                >
-                  <ShieldCheck size={16} />
-                </button>
-              </div>
-            </div>
-            
-            <h3 className="mt-4 font-bold text-white">{event.title}</h3>
-            <p className="mt-1 text-xs text-zinc-400 line-clamp-2">{event.description}</p>
-            
-            <div className="mt-4 flex items-center gap-4 text-xs text-zinc-400">
-              <div className="flex items-center gap-1">
-                <Calendar size={14} />
-                {new Date(event.date).toLocaleDateString()}
-              </div>
-              <div className="flex items-center gap-1">
-                <Users size={14} />
-                {event.registeredCount} / {event.seatLimit}
-              </div>
-            </div>
-
-            <div className="mt-4 border-t border-white/[0.04] pt-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="h-6 w-6 rounded-full bg-white/[0.05] flex items-center justify-center text-[10px] font-bold">
-                  {event.organizer?.name?.charAt(0)}
-                </div>
-                <span className="text-[10px] font-medium text-zinc-400">{event.organizer?.name}</span>
-              </div>
-              <span className="text-[10px] font-bold text-zinc-400 uppercase">{event.department?.name || 'College'}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {showAddEvent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4 backdrop-blur-md">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-2xl rounded-2xl border border-white/[0.06] bg-[#09090b] p-8 shadow-2xl"
-          >
-            <h2 className="text-2xl font-bold">Create Event</h2>
-            <p className="mt-1 text-sm text-zinc-400">Create an event inside your college ecosystem.</p>
-            <form onSubmit={handleCreateEvent} className="mt-6 grid gap-4 sm:grid-cols-2">
-              <div className="sm:col-span-2">
-                <Input label="Title" value={newEvent.title} onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })} required />
-              </div>
-              <div className="sm:col-span-2 space-y-1.5">
-                <label className="text-sm font-medium text-zinc-300">Description</label>
-                <textarea
-                  className="w-full rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500/40"
-                  rows={4}
-                  value={newEvent.description}
-                  onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
-                  required
-                />
-              </div>
-              <Input label="Date & Time" type="datetime-local" value={newEvent.date} onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })} required />
-              <Input label="Venue" value={newEvent.venue} onChange={(e) => setNewEvent({ ...newEvent, venue: e.target.value })} required />
-              <div className="space-y-1.5 sm:col-span-2">
-                <label className="text-sm font-medium text-zinc-300">Cover Image (Upload)</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2 text-sm"
-                  onChange={async (e) => {
-                    const urls = await filesToDataUrls(e.target.files);
-                    if (urls[0]) setNewEvent({ ...newEvent, coverImage: urls[0] });
-                  }}
-                />
-                {newEvent.coverImage && <img src={newEvent.coverImage} className="h-28 w-full rounded-lg border border-white/[0.08] object-cover" />}
-              </div>
-              <div className="space-y-1.5 sm:col-span-2">
-                <label className="text-sm font-medium text-zinc-300">Gallery Images (Upload multiple)</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2 text-sm"
-                  onChange={async (e) => {
-                    const urls = await filesToDataUrls(e.target.files);
-                    if (urls.length) setNewEvent({ ...newEvent, galleryImages: [...newEvent.galleryImages, ...urls].slice(0, 8) });
-                  }}
-                />
-                {newEvent.galleryImages.length > 0 && (
-                  <div className="grid grid-cols-4 gap-2">
-                    {newEvent.galleryImages.map((img, idx) => (
-                      <img key={`${img}-${idx}`} src={img} className="h-16 w-full rounded-lg border border-white/[0.08] object-cover" />
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-zinc-300">Category</label>
-                <select
-                  className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:ring-2 focus:ring-purple-500/50"
-                  value={newEvent.category}
-                  onChange={(e) => setNewEvent({ ...newEvent, category: e.target.value })}
-                >
-                  {(categories.length ? categories : ['General', 'Technical', 'Cultural', 'Sports']).map((c) => (
-                    <option key={c} value={c} className="bg-zinc-900 text-white">{c}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-zinc-300">Department (optional)</label>
-                <select
-                  className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:ring-2 focus:ring-purple-500/50"
-                  value={newEvent.departmentId}
-                  onChange={(e) => setNewEvent({ ...newEvent, departmentId: e.target.value })}
-                >
-                  <option value="" className="bg-zinc-900 text-white">College-wide</option>
-                  {departments.map((d: any) => (
-                    <option key={d._id} value={d._id} className="bg-zinc-900 text-white">{d.name}</option>
-                  ))}
-                </select>
-              </div>
-              <Input label="Seat Limit" type="number" value={newEvent.seatLimit} onChange={(e) => setNewEvent({ ...newEvent, seatLimit: parseInt(e.target.value || '0', 10) || 0 })} required />
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-zinc-300">Status</label>
-                <select
-                  className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:ring-2 focus:ring-purple-500/50"
-                  value={newEvent.status}
-                  onChange={(e) => setNewEvent({ ...newEvent, status: e.target.value })}
-                >
-                  <option value="draft" className="bg-zinc-900 text-white">Draft</option>
-                  <option value="published" className="bg-zinc-900 text-white">Published</option>
-                </select>
-              </div>
-              <div className="sm:col-span-2 flex gap-3 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => {
-                    setShowAddEvent(false);
-                    setNewEvent({
-                      title: '',
-                      description: '',
-                      date: '',
-                      venue: '',
-                      coverImage: '',
-                      galleryImages: [],
-                      category: 'General',
-                      seatLimit: 50,
-                      status: 'published',
-                      departmentId: '',
-                    });
-                  }}
-                  disabled={creatingEvent}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" className="flex-1" isLoading={creatingEvent}>
-                  Create Event
-                </Button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
-    </div>
-  );
-
-  const renderPayments = () => (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 border-b border-white/[0.04] p-6 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2 className="text-xl font-bold">Financial Oversight</h2>
-          <p className="text-xs text-zinc-400">Track ticketing and registration payments.</p>
-        </div>
-        <Button variant="outline" className="gap-2">
-          <Download size={18} /> Export Report
-        </Button>
-      </div>
-
-      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-sm overflow-hidden">
+      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
         <table className="w-full text-left text-sm">
-          <thead className="bg-white/[0.05]/40 border-b border-white/[0.06]">
-            <tr>
-              <th className="px-6 py-4 font-semibold">Transaction ID</th>
-              <th className="px-6 py-4 font-semibold">Event</th>
-              <th className="px-6 py-4 font-semibold">User</th>
-              <th className="px-6 py-4 font-semibold">Amount</th>
-              <th className="px-6 py-4 font-semibold">Status</th>
-              <th className="px-6 py-4 font-semibold">Date</th>
+          <thead>
+            <tr className="bg-white/[0.04] text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+              <th className="px-6 py-4">Name</th>
+              <th className="px-6 py-4">Role</th>
+              <th className="px-6 py-4">Joined</th>
+              <th className="px-6 py-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-100">
-            {transactions.map((t: any) => (
-              <tr key={t._id} className="hover:bg-white/[0.05]/40 transition-colors">
-                <td className="px-6 py-4 font-mono text-xs text-zinc-400">{t._id}</td>
-                <td className="px-6 py-4 font-medium">{t.event?.title}</td>
+          <tbody className="divide-y divide-white/[0.04]">
+            {orgUsers.map((u: any) => (
+              <tr key={u._id} className="hover:bg-white/[0.01]">
                 <td className="px-6 py-4">
                   <div>
-                    <p className="font-medium">{t.user?.name}</p>
-                    <p className="text-xs text-zinc-400">{t.user?.email}</p>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div>
-                    <p className="font-bold">₹{t.amount}</p>
-                    <p className="text-[10px] text-zinc-400">Fee: ₹{t.platformFee}</p>
+                    <p className="font-bold text-white">{u.name}</p>
+                    <p className="text-xs text-zinc-400">{u.email}</p>
                   </div>
                 </td>
                 <td className="px-6 py-4">
                   <span className={cn(
-                    "inline-flex items-center rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider",
-                    t.status === 'completed' ? "bg-emerald-100 text-emerald-700" : "bg-orange-100 text-orange-700"
+                    "rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
+                    u.role === 'org_admin' ? "bg-indigo-500/10 text-indigo-400" : "bg-zinc-800 text-zinc-300"
                   )}>
-                    {t.status}
+                    {u.role === 'org_admin' ? 'Workspace Admin' : 'User'}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-zinc-400">{new Date(t.createdAt).toLocaleDateString()}</td>
+                <td className="px-6 py-4 text-xs text-zinc-400">
+                  {formatDate(u.createdAt)}
+                </td>
+                <td className="px-6 py-4 text-right">
+                  {u.email !== user?.email ? (
+                    <select
+                      value={u.role}
+                      onChange={(e) => handleUpdateUserRole(u._id, e.target.value)}
+                      className="bg-zinc-800 border-none rounded-lg px-2 py-1 text-xs text-white"
+                    >
+                      <option value="user">User</option>
+                      <option value="org_admin">Workspace Admin</option>
+                    </select>
+                  ) : (
+                    <span className="text-xs text-zinc-500">Primary Admin</span>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -1044,356 +372,278 @@ export const CollegeAdminDashboard = () => {
     </div>
   );
 
-  const renderSettings = () => (
-    <div className="max-w-4xl space-y-8">
-      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8 shadow-sm">
-        <h3 className="text-lg font-bold">College Branding</h3>
-        <p className="text-sm text-zinc-400">Customize how your institution appears across the platform.</p>
-        
-        <div className="mt-8 space-y-6">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Input 
-              label="College Name" 
-              value={collegeSettings?.name || ''} 
-              onChange={(e) => setCollegeSettings({...collegeSettings, name: e.target.value})}
-            />
-            <Input
-              label="College Slug (public URL)"
-              value={collegeSettings?.slug || ''}
-              onChange={(e) => setCollegeSettings({ ...collegeSettings, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
-              placeholder="jecrc-university"
-            />
-            <Input 
-              label="Domain" 
-              value={collegeSettings?.domain || ''} 
-              disabled 
-            />
-            <Input
-              label="Website URL"
-              value={collegeSettings?.socialLinks?.website || ''}
-              onChange={(e) =>
-                setCollegeSettings({
-                  ...collegeSettings,
-                  socialLinks: { ...(collegeSettings?.socialLinks || {}), website: e.target.value },
-                })
-              }
-              placeholder="https://yourcollege.edu"
-            />
-          </div>
+  const renderEvents = () => (
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 border-b border-white/[0.04] pb-6 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 className="text-xl font-bold">Workspace Events</h2>
+          <p className="text-xs text-zinc-400">Create, edit, and moderate events hosted under your brand.</p>
+        </div>
+        <Button className="gap-2 bg-white text-black hover:bg-zinc-200" onClick={() => setShowAddEvent(true)}>
+          <Plus size={16} /> Create Event
+        </Button>
+      </div>
 
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-zinc-300">College About</label>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {orgEvents.map((event: any) => (
+          <div key={event._id} className="group relative rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5">
+            {event.coverImage && (
+              <img src={event.coverImage} alt={event.title} className="mb-4 h-40 w-full rounded-xl object-cover border border-white/[0.08]" />
+            )}
+            <div className="flex items-center justify-between">
+              <span className={cn(
+                "rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
+                event.status === 'published' ? "bg-emerald-500/10 text-emerald-400" : "bg-zinc-800 text-zinc-300"
+              )}>
+                {event.status}
+              </span>
+              <div className="flex gap-2">
+                <select
+                  value={event.status}
+                  onChange={(e) => updateEventStatus(event._id, e.target.value)}
+                  className="bg-zinc-800 border-none text-[10px] text-white rounded-lg px-2 py-0.5"
+                >
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
+                  <option value="flagged">Flagged</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
+
+            <h3 className="mt-4 font-bold text-white leading-tight">{event.title}</h3>
+            <p className="mt-1 text-xs text-zinc-400 line-clamp-2">{event.description}</p>
+            
+            <div className="mt-4 pt-4 border-t border-white/[0.04] flex items-center justify-between text-xs text-zinc-500">
+              <div className="flex items-center gap-1">
+                <Calendar size={13} />
+                {new Date(event.date).toLocaleDateString()}
+              </div>
+              <div className="flex items-center gap-1">
+                <Users size={13} />
+                {event.registeredCount} / {event.seatLimit}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderPayments = () => (
+    <div className="space-y-6">
+      <div className="border-b border-white/[0.04] pb-6">
+        <h2 className="text-xl font-bold">Revenue & Ticket Transactions</h2>
+        <p className="text-xs text-zinc-400">Overview of paid event registration logs.</p>
+      </div>
+
+      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="bg-white/[0.04] text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+              <th className="px-6 py-4">Transaction ID</th>
+              <th className="px-6 py-4">Event</th>
+              <th className="px-6 py-4">User</th>
+              <th className="px-6 py-4">Amount</th>
+              <th className="px-6 py-4">Status</th>
+              <th className="px-6 py-4">Date</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-white/[0.04]">
+            {transactions.map((t: any) => (
+              <tr key={t._id} className="hover:bg-white/[0.01]">
+                <td className="px-6 py-4 font-mono text-xs text-zinc-400">{t._id}</td>
+                <td className="px-6 py-4 font-semibold text-white">{t.event?.title}</td>
+                <td className="px-6 py-4 text-xs text-zinc-300">{t.user?.name}</td>
+                <td className="px-6 py-4">
+                  <span className="font-bold text-white">₹{t.amount}</span>
+                  <span className="text-[10px] text-zinc-500 block">Payout: ₹{t.organizationRevenue}</span>
+                </td>
+                <td className="px-6 py-4">
+                  <span className="rounded-full bg-emerald-500/10 text-emerald-400 px-2 py-0.5 text-[9px] font-bold uppercase">
+                    {t.status}
+                  </span>
+                </td>
+                <td className="px-6 py-4 text-xs text-zinc-500">{new Date(t.createdAt).toLocaleDateString()}</td>
+              </tr>
+            ))}
+            {transactions.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-6 py-12 text-center text-zinc-500">
+                  No ticket sales recorded yet.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  const renderSettings = () => (
+    <div className="max-w-3xl space-y-8">
+      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8 space-y-6">
+        <div>
+          <h3 className="text-lg font-bold">Workspace Details & Branding</h3>
+          <p className="text-xs text-zinc-400 mt-0.5">Customize your profile, custom logo, theme, and social handles.</p>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          <Input 
+            label="Organization Name" 
+            value={orgSettings?.name || ''} 
+            onChange={(e) => setOrgSettings({...orgSettings, name: e.target.value})}
+          />
+          <Input 
+            label="Slug (public URL path)" 
+            value={orgSettings?.slug || ''} 
+            onChange={(e) => setOrgSettings({...orgSettings, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})}
+          />
+          <div className="space-y-1 sm:col-span-2">
+            <label className="text-xs font-semibold uppercase text-zinc-400">About Workspace</label>
             <textarea
+              className="w-full rounded-xl bg-zinc-800 border-none text-sm text-white p-3 focus:ring-2 focus:ring-indigo-500"
               rows={4}
-              className="w-full rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500/40"
-              value={collegeSettings?.about || ''}
-              onChange={(e) => setCollegeSettings({ ...collegeSettings, about: e.target.value })}
+              value={orgSettings?.about || ''}
+              onChange={(e) => setOrgSettings({...orgSettings, about: e.target.value})}
             />
           </div>
-          
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Input 
-              label="Logo URL" 
-              value={collegeSettings?.logo || ''} 
-              onChange={(e) => setCollegeSettings({...collegeSettings, logo: e.target.value})}
-            />
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-zinc-300">Upload Logo</label>
+          <Input 
+            label="Physical Address" 
+            value={orgSettings?.address || ''} 
+            onChange={(e) => setOrgSettings({...orgSettings, address: e.target.value})}
+          />
+          <Input 
+            label="Website" 
+            value={orgSettings?.socialLinks?.website || ''} 
+            onChange={(e) => setOrgSettings({
+              ...orgSettings,
+              socialLinks: { ...(orgSettings?.socialLinks || {}), website: e.target.value }
+            })}
+          />
+        </div>
+
+        <div className="border-t border-white/[0.06] pt-6 grid gap-6 md:grid-cols-2">
+          <div className="space-y-2">
+            <label className="text-xs font-semibold uppercase text-zinc-400 block">Workspace Logo</label>
+            <div className="flex items-center gap-4">
+              <div className="h-16 w-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
+                {orgSettings?.logo ? (
+                  <img src={orgSettings.logo} alt="logo" className="h-full w-full object-cover" />
+                ) : (
+                  <Building2 size={24} className="text-zinc-500" />
+                )}
+              </div>
               <input
                 type="file"
                 accept="image/*"
-                className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2 text-sm"
+                className="text-xs"
                 onChange={async (e) => {
                   const urls = await filesToDataUrls(e.target.files);
-                  if (urls[0]) setCollegeSettings({ ...collegeSettings, logo: urls[0] });
+                  if (urls[0]) setOrgSettings({ ...orgSettings, logo: urls[0] });
                 }}
               />
             </div>
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl border border-white/[0.06] bg-white/[0.05]/40 flex items-center justify-center overflow-hidden">
-                {collegeSettings?.logo ? (
-                  <img src={collegeSettings.logo} alt="Logo" className="h-full w-full object-contain" />
-                ) : (
-                  <Building2 className="text-zinc-300" />
-                )}
-              </div>
-              <p className="text-xs text-zinc-400">Preview of your college logo</p>
-            </div>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Input
-              label="Instagram URL"
-              value={collegeSettings?.socialLinks?.instagram || ''}
-              onChange={(e) =>
-                setCollegeSettings({
-                  ...collegeSettings,
-                  socialLinks: { ...(collegeSettings?.socialLinks || {}), instagram: e.target.value },
-                })
-              }
-              placeholder="https://instagram.com/yourcollege"
-            />
-            <Input
-              label="YouTube URL"
-              value={collegeSettings?.socialLinks?.youtube || ''}
-              onChange={(e) =>
-                setCollegeSettings({
-                  ...collegeSettings,
-                  socialLinks: { ...(collegeSettings?.socialLinks || {}), youtube: e.target.value },
-                })
-              }
-              placeholder="https://youtube.com/@yourcollege"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-zinc-300">Story Highlights (upload images)</label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2 text-sm"
-              onChange={async (e) => {
-                const urls = await filesToDataUrls(e.target.files);
-                if (!urls.length) return;
-                setCollegeSettings({
-                  ...collegeSettings,
-                  storyHighlights: [...(collegeSettings?.storyHighlights || []), ...urls].slice(0, 12),
-                });
-              }}
-            />
-            {Array.isArray(collegeSettings?.storyHighlights) && collegeSettings.storyHighlights.length > 0 && (
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {collegeSettings.storyHighlights.map((img: string, idx: number) => (
-                  <img key={`${img}-${idx}`} src={img} className="h-16 w-16 rounded-xl border border-white/[0.08] object-cover" />
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-zinc-300">Campus Gallery (upload images)</label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2 text-sm"
-              onChange={async (e) => {
-                const urls = await filesToDataUrls(e.target.files);
-                if (!urls.length) return;
-                setCollegeSettings({
-                  ...collegeSettings,
-                  galleryImages: [...(collegeSettings?.galleryImages || []), ...urls].slice(0, 24),
-                });
-              }}
-            />
-            {Array.isArray(collegeSettings?.galleryImages) && collegeSettings.galleryImages.length > 0 && (
-              <div className="grid grid-cols-4 gap-2">
-                {collegeSettings.galleryImages.slice(0, 12).map((img: string, idx: number) => (
-                  <img key={`${img}-${idx}`} src={img} className="h-20 w-full rounded-xl border border-white/[0.08] object-cover" />
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="pt-4">
-            <Button onClick={() => updateCollegeSettings(collegeSettings)}>Save Branding Changes</Button>
           </div>
         </div>
-      </div>
 
-      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8 shadow-sm">
-        <h3 className="text-lg font-bold">College Theme</h3>
-        <p className="text-sm text-zinc-400">Set primary/secondary colors and optionally analyze your official website.</p>
-
-        <div className="mt-6 space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Input
-              label="Primary Color (hex)"
-              value={collegeSettings?.theme?.primaryColor || ''}
-              onChange={(e) => setCollegeSettings({ ...collegeSettings, theme: { ...(collegeSettings?.theme || {}), primaryColor: e.target.value } })}
-            />
-            <Input
-              label="Secondary Color (hex)"
-              value={collegeSettings?.theme?.secondaryColor || ''}
-              onChange={(e) => setCollegeSettings({ ...collegeSettings, theme: { ...(collegeSettings?.theme || {}), secondaryColor: e.target.value } })}
-            />
-            <Input
-              label="Favicon URL"
-              value={collegeSettings?.theme?.favicon || ''}
-              onChange={(e) => setCollegeSettings({ ...collegeSettings, theme: { ...(collegeSettings?.theme || {}), favicon: e.target.value } })}
-            />
-            <Input
-              label="Hero Banner URL"
-              value={collegeSettings?.theme?.heroBanner || ''}
-              onChange={(e) => setCollegeSettings({ ...collegeSettings, theme: { ...(collegeSettings?.theme || {}), heroBanner: e.target.value } })}
-            />
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-zinc-300">Header Style</label>
-              <select
-                className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:ring-2 focus:ring-purple-500/50"
-                value={collegeSettings?.theme?.headerStyle || 'glass'}
-                onChange={(e) => setCollegeSettings({ ...collegeSettings, theme: { ...(collegeSettings?.theme || {}), headerStyle: e.target.value } })}
-              >
-                <option value="glass" className="bg-zinc-900 text-white">Glass (Modern)</option>
-                <option value="classic" className="bg-zinc-900 text-white">Classic (Gradient)</option>
-                <option value="minimal" className="bg-zinc-900 text-white">Minimal (Clean)</option>
-              </select>
-            </div>
-            <Input
-              label="Typography (CSS font-family)"
-              value={collegeSettings?.theme?.typography || ''}
-              onChange={(e) => setCollegeSettings({ ...collegeSettings, theme: { ...(collegeSettings?.theme || {}), typography: e.target.value } })}
-              placeholder="Inter, Poppins, ui-sans-serif"
-            />
-            <Input
-              label="Hero Title"
-              value={collegeSettings?.theme?.heroTitle || ''}
-              onChange={(e) => setCollegeSettings({ ...collegeSettings, theme: { ...(collegeSettings?.theme || {}), heroTitle: e.target.value } })}
-              placeholder="Welcome to JECRC University"
-            />
-            <Input
-              label="Hero Subtitle"
-              value={collegeSettings?.theme?.heroSubtitle || ''}
-              onChange={(e) => setCollegeSettings({ ...collegeSettings, theme: { ...(collegeSettings?.theme || {}), heroSubtitle: e.target.value } })}
-              placeholder="Innovation, culture, and campus life in one place"
-            />
-          </div>
-
-          <div className="rounded-2xl border border-white/[0.06] bg-black/20 p-5">
-            <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">Auto theme from website</p>
-            <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
-              <div className="flex-1">
-                <Input label="Official Website URL" value={analyzeUrl} onChange={(e) => setAnalyzeUrl(e.target.value)} placeholder="https://jecrcu.edu.in" />
-              </div>
-              <Button onClick={analyzeWebsiteTheme} isLoading={analyzeLoading} className="shrink-0">
-                Analyze & Suggest
-              </Button>
-            </div>
-            {analyzeError && <p className="mt-3 text-sm text-red-400">{analyzeError}</p>}
-            {analyzeResult?.palette?.length ? (
-              <div className="mt-4">
-                <p className="text-xs text-zinc-400">Palette detected:</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {analyzeResult.palette.slice(0, 8).map((c: string) => (
-                    <div key={c} className="flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.02] px-3 py-1 text-xs text-zinc-300">
-                      <span className="h-3 w-3 rounded-full" style={{ background: c }} />
-                      {c}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="pt-2">
-            <Button onClick={() => updateCollegeSettings({ theme: { ...(collegeSettings?.theme || {}), updatedAt: new Date().toISOString() } })}>
-              Save Theme
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8 shadow-sm">
-        <h3 className="text-lg font-bold">Platform Features</h3>
-        <p className="text-sm text-zinc-400">Enable or disable specific modules for your college.</p>
-        
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          {[
-            { id: 'payments', title: 'Payment Integration', desc: 'Allow paid events and ticketing' },
-            { id: 'certificates', title: 'Automated Certificates', desc: 'Generate certificates for participants' },
-            { id: 'qrCheckin', title: 'QR Check-in System', desc: 'Digital attendance tracking' },
-            { id: 'customThemes', title: 'Custom Themes', desc: 'Advanced styling for event pages' },
-          ].map((feature) => (
-            <div key={feature.id} className="flex items-center justify-between rounded-xl border border-white/[0.04] p-4">
-              <div>
-                <h4 className="text-sm font-semibold">{feature.title}</h4>
-                <p className="text-xs text-zinc-400">{feature.desc}</p>
-              </div>
-              <button 
-                onClick={() => updateCollegeSettings({ features: { ...collegeSettings.features, [feature.id]: !collegeSettings.features[feature.id] } })}
-                className={cn(
-                  "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none",
-                  collegeSettings?.features?.[feature.id] ? "bg-white" : "bg-white/[0.08]"
-                )}
-              >
-                <span className={cn(
-                  "inline-block h-4 w-4 transform rounded-full bg-white/[0.02] transition-transform",
-                  collegeSettings?.features?.[feature.id] ? "translate-x-6" : "translate-x-1"
-                )} />
-              </button>
-            </div>
-          ))}
+        <div className="pt-6 border-t border-white/[0.06] flex justify-end">
+          <Button onClick={() => updateOrgSettings(orgSettings)} className="bg-white text-black hover:bg-zinc-200">
+            Save Branding Settings
+          </Button>
         </div>
       </div>
     </div>
   );
 
-  const renderTheme = () => renderSettings();
-
-  if (loading && !collegeSettings) {
-    return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-white/[0.06] border-t-black" />
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">College Command</h1>
-          <p className="text-zinc-400">Full administrative control over {collegeSettings?.name || 'your institution'}.</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="gap-2">
-            <Mail size={18} /> Announcement
-          </Button>
-          <Button className="gap-2">
-            <Download size={18} /> Reports
-          </Button>
-        </div>
+    <div className="min-h-screen space-y-8 pb-12">
+      {/* Navigation tabs */}
+      <div className="flex border-b border-white/[0.06] pb-px">
+        {[
+          { id: 'overview', label: 'Overview' },
+          { id: 'events', label: 'Events' },
+          { id: 'users', label: 'Members' },
+          { id: 'payments', label: 'Payments' },
+          { id: 'settings', label: 'Settings' }
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setSearchParams({ tab: tab.id })}
+            className={cn(
+              "px-6 py-4 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 -mb-px",
+              activeTab === tab.id
+                ? "border-white text-white"
+                : "border-transparent text-zinc-400 hover:text-white"
+            )}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.2 }}
-        >
+      <div className="px-6">
+        <AnimatePresence mode="wait">
           {activeTab === 'overview' && renderOverview()}
-          {activeTab === 'departments' && renderDepartments()}
           {activeTab === 'users' && renderUsers()}
           {activeTab === 'events' && renderEvents()}
           {activeTab === 'payments' && renderPayments()}
-          {activeTab === 'theme' && renderTheme()}
           {activeTab === 'settings' && renderSettings()}
-        </motion.div>
-      </AnimatePresence>
+        </AnimatePresence>
+      </div>
 
-      {/* Modals */}
-      {showAddDept && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4 backdrop-blur-md">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md rounded-2xl border border-white/[0.06] bg-[#09090b] p-8 shadow-2xl">
-            <h2 className="text-2xl font-bold">Add Department</h2>
-            <p className="mt-1 text-sm text-zinc-400">Create a new department (e.g., BBA, BTech).</p>
-            <form onSubmit={handleAddDept} className="mt-6 space-y-4">
-              <Input label="Department Name" value={newDept.name} onChange={e => setNewDept({ ...newDept, name: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
-              <Input label="Description" value={newDept.description} onChange={e => setNewDept({ ...newDept, description: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
-              {deptModalError && (
-                <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-                  {deptModalError}
-                </div>
-              )}
-              <div className="flex gap-3 pt-4">
-                <Button type="button" variant="outline" className="flex-1 border-white/[0.06] hover:bg-white/[0.02]" onClick={() => setShowAddDept(false)} disabled={creatingDept}>
+      {/* Add Member Modal */}
+      {showAddUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-md rounded-3xl border border-white/[0.08] bg-zinc-900 p-8 shadow-xl"
+          >
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-4 mb-6">
+              <h2 className="text-xl font-bold">Add Member</h2>
+              <button onClick={() => setShowAddUser(false)} className="text-zinc-400 hover:text-white">
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleAddUser} className="space-y-4">
+              <Input
+                label="Full Name"
+                value={newUser.name}
+                onChange={e => setNewUser({ ...newUser, name: e.target.value })}
+                required
+              />
+              <Input
+                label="Email"
+                type="email"
+                value={newUser.email}
+                onChange={e => setNewUser({ ...newUser, email: e.target.value })}
+                required
+              />
+              <Input
+                label="Password"
+                type="password"
+                value={newUser.password}
+                onChange={e => setNewUser({ ...newUser, password: e.target.value })}
+                required
+              />
+              <div className="space-y-1">
+                <label className="text-xs font-semibold uppercase text-zinc-400">Role</label>
+                <select
+                  value={newUser.role}
+                  onChange={e => setNewUser({ ...newUser, role: e.target.value })}
+                  className="w-full rounded-xl bg-zinc-800 border-none text-sm text-white p-3"
+                >
+                  <option value="user">User</option>
+                  <option value="org_admin">Workspace Admin</option>
+                </select>
+              </div>
+              <div className="flex justify-end gap-3 pt-6">
+                <Button type="button" variant="outline" onClick={() => setShowAddUser(false)}>
                   Cancel
                 </Button>
-                <Button type="submit" className="flex-1" isLoading={creatingDept}>
-                  Create Department
+                <Button type="submit" isLoading={creatingUser}>
+                  Add Member
                 </Button>
               </div>
             </form>
@@ -1401,112 +651,92 @@ export const CollegeAdminDashboard = () => {
         </div>
       )}
 
-      {editingDept && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4 backdrop-blur-md">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md rounded-2xl border border-white/[0.06] bg-[#09090b] p-8 shadow-2xl">
-            <h2 className="text-2xl font-bold">Edit Department</h2>
-            <form onSubmit={handleEditDept} onKeyDown={(e) => e.key === 'Enter' && handleEditDept(e as any)} className="mt-6 space-y-4">
-              <Input label="Department Name" value={editingDept.name} onChange={e => setEditingDept({ ...editingDept, name: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
-              <Input label="Description" value={editingDept.description} onChange={e => setEditingDept({ ...editingDept, description: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
-              <div className="flex gap-3 pt-4">
-                <Button type="button" variant="outline" className="flex-1 border-white/[0.06] hover:bg-white/[0.02]" onClick={() => setEditingDept(null)}>Cancel</Button>
-                <Button type="submit" className="flex-1">Save Changes</Button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
-
-      {showAddSpec && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4 backdrop-blur-md">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md rounded-2xl border border-white/[0.06] bg-[#09090b] p-8 shadow-2xl">
-            <h2 className="text-2xl font-bold">Add Specialization</h2>
-            <p className="mt-1 text-sm text-zinc-400">Create a specialization under a department.</p>
-            <form onSubmit={handleAddSpec} onKeyDown={(e) => e.key === 'Enter' && handleAddSpec(e as any)} className="mt-6 space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-zinc-300">Department</label>
-                <select 
-                  className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500/50"
-                  value={newSpec.departmentId}
-                  onChange={e => setNewSpec({ ...newSpec, departmentId: e.target.value })}
+      {/* Add Event Modal */}
+      {showAddEvent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-xl rounded-3xl border border-white/[0.08] bg-zinc-900 p-8 shadow-2xl overflow-y-auto max-h-[90vh]"
+          >
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-4 mb-6">
+              <h2 className="text-xl font-bold">Create Event</h2>
+              <button onClick={() => setShowAddEvent(false)} className="text-zinc-400 hover:text-white">
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleCreateEvent} className="space-y-4">
+              <Input 
+                label="Event Title" 
+                value={newEvent.title} 
+                onChange={e => setNewEvent({ ...newEvent, title: e.target.value })} 
+                required 
+              />
+              <div className="space-y-1">
+                <label className="text-xs font-semibold uppercase text-zinc-400">Description</label>
+                <textarea
+                  className="w-full rounded-xl bg-zinc-800 border-none text-sm text-white p-3 focus:ring-2 focus:ring-indigo-500"
+                  rows={4}
+                  value={newEvent.description}
+                  onChange={e => setNewEvent({ ...newEvent, description: e.target.value })}
                   required
-                >
-                  <option value="" className="bg-zinc-900 text-white">Select Department</option>
-                  {departments.map((d: any) => (
-                    <option key={d._id} value={d._id} className="bg-zinc-900 text-white">{d.name}</option>
-                  ))}
-                </select>
+                />
               </div>
-              <Input label="Specialization Name" value={newSpec.name} onChange={e => setNewSpec({ ...newSpec, name: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
-              <Input label="Description" value={newSpec.description} onChange={e => setNewSpec({ ...newSpec, description: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
-              <div className="flex gap-3 pt-4">
-                <Button type="button" variant="outline" className="flex-1 border-white/[0.06] hover:bg-white/[0.02]" onClick={() => setShowAddSpec(false)}>Cancel</Button>
-                <Button type="submit" className="flex-1">Create Specialization</Button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
-
-      {showAddUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4 backdrop-blur-md">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md rounded-2xl border border-white/[0.06] bg-[#09090b] p-8 shadow-2xl">
-            <h2 className="text-2xl font-bold">Create Sub Admin</h2>
-            <p className="mt-1 text-sm text-zinc-400">Create department/field admins for your college.</p>
-            <form onSubmit={handleAddUser} onKeyDown={(e) => e.key === 'Enter' && handleAddUser(e as any)} className="mt-6 space-y-4">
-              <Input label="Name" value={newUser.name} onChange={e => setNewUser({ ...newUser, name: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
-              <Input label="Email" type="email" value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
-              <Input label="Password" type="password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} className="bg-white/[0.03] border-white/[0.06]" />
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-zinc-300">Role</label>
-                <select 
-                  className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500/50 text-white"
-                  value={newUser.role}
-                  onChange={e => setNewUser({ ...newUser, role: e.target.value, specialization: e.target.value === 'dept_admin' ? '' : newUser.specialization })}
-                >
-                  <option value="dept_admin" className="bg-zinc-900">Department Admin</option>
-                  <option value="spec_admin" className="bg-zinc-900">Field Admin (Specialization)</option>
-                </select>
-              </div>
-              {(newUser.role === 'dept_admin' || newUser.role === 'spec_admin') && (
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-zinc-300">Department</label>
-                  <select 
-                    className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500/50 text-white"
-                    value={newUser.department}
-                    onChange={e => setNewUser({ ...newUser, department: e.target.value, specialization: '' })}
-                    required
+              <div className="grid gap-4 md:grid-cols-2">
+                <Input 
+                  label="Date & Time" 
+                  type="datetime-local" 
+                  value={newEvent.date} 
+                  onChange={e => setNewEvent({ ...newEvent, date: e.target.value })} 
+                  required 
+                />
+                <Input 
+                  label="Venue" 
+                  value={newEvent.venue} 
+                  onChange={e => setNewEvent({ ...newEvent, venue: e.target.value })} 
+                  required 
+                />
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold uppercase text-zinc-400">Category</label>
+                  <select
+                    value={newEvent.category}
+                    onChange={e => setNewEvent({ ...newEvent, category: e.target.value })}
+                    className="w-full rounded-xl bg-zinc-800 border-none text-sm text-white p-3"
                   >
-                    <option value="" className="bg-zinc-900">Select Department</option>
-                    {departments.map((d: any) => (
-                      <option key={d._id} value={d._id} className="bg-zinc-900">{d.name}</option>
+                    {categories.map((c) => (
+                      <option key={c} value={c}>{c}</option>
                     ))}
                   </select>
                 </div>
-              )}
+                <Input 
+                  label="RSVP Capacity" 
+                  type="number" 
+                  value={newEvent.seatLimit} 
+                  onChange={e => setNewEvent({ ...newEvent, seatLimit: parseInt(e.target.value) || 50 })} 
+                  required 
+                />
+              </div>
 
-              {newUser.role === 'spec_admin' && (
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-zinc-300">Specialization / Field</label>
-                  <select 
-                    className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500/50 text-white"
-                    value={newUser.specialization}
-                    onChange={e => setNewUser({ ...newUser, specialization: e.target.value })}
-                    required
-                    disabled={!newUser.department}
-                  >
-                    <option value="" className="bg-zinc-900">Select Field</option>
-                    {specializations
-                      .filter((s: any) => s.department?._id === newUser.department)
-                      .map((s: any) => (
-                        <option key={s._id} value={s._id} className="bg-zinc-900">{s.name}</option>
-                      ))}
-                  </select>
-                </div>
-              )}
-              <div className="flex gap-3 pt-4">
-                <Button type="button" variant="outline" className="flex-1 border-white/[0.06] hover:bg-white/[0.02]" onClick={() => setShowAddUser(false)}>Cancel</Button>
-                <Button type="submit" className="flex-1">Create Admin</Button>
+              <div className="space-y-1">
+                <label className="text-xs font-semibold uppercase text-zinc-400">Cover Image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const urls = await filesToDataUrls(e.target.files);
+                    if (urls[0]) setNewEvent({ ...newEvent, coverImage: urls[0] });
+                  }}
+                />
+                {newEvent.coverImage && <img src={newEvent.coverImage} className="h-32 w-full object-cover rounded-xl mt-2" />}
+              </div>
+
+              <div className="flex justify-end gap-3 pt-6">
+                <Button type="button" variant="outline" onClick={() => setShowAddEvent(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" isLoading={creatingEvent}>
+                  Create Event
+                </Button>
               </div>
             </form>
           </motion.div>

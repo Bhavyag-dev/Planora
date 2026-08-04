@@ -132,10 +132,9 @@ export const Events = () => {
           <p className="text-sm">Smart filters to help you find the right event faster.</p>
         </div>
         
-        {(user?.role === 'super_admin' || user?.role === 'admin' || user?.role === 'college_admin' || user?.role === 'dept_admin') && (
+        {(user?.role === 'super_admin' || user?.role === 'admin' || user?.role === 'org_admin') && (
           <Button onClick={() => {
-            const path = user.role === 'super_admin' || user.role === 'admin' ? '/super-admin' : 
-                         user.role === 'college_admin' ? '/college-admin' : '/dept-admin';
+            const path = user.role === 'super_admin' || user.role === 'admin' ? '/super-admin' : '/org-admin';
             navigate(path);
           }} variant="outline" className="gap-2 shrink-0">
             <LayoutDashboard size={18} />
