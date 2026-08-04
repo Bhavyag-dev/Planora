@@ -14,17 +14,17 @@ const systemSettingsSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
-  maxEventsPerCollege: {
+  maxEventsPerOrganization: {
     type: Number,
     default: 100
   },
   platformName: {
     type: String,
-    default: 'CampusSaaS'
+    default: 'Planora'
   },
   supportEmail: {
     type: String,
-    default: 'support@campussaas.com'
+    default: 'support@planora.io'
   },
   globalCommissionRate: {
     type: Number,
@@ -36,11 +36,11 @@ const systemSettingsSchema = new mongoose.Schema({
   },
   emailConfig: {
     provider: { type: String, default: 'SendGrid' },
-    fromEmail: { type: String, default: 'noreply@campussaas.com' }
+    fromEmail: { type: String, default: 'noreply@planora.io' }
   },
   eventCategories: {
     type: [String],
-    default: ['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'General']
+    default: ['Conference', 'Meetup', 'Workshop', 'Seminar', 'Networking', 'General']
   }
 }, { timestamps: true });
 
