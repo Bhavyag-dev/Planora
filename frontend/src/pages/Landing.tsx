@@ -45,7 +45,7 @@ export function Landing() {
     fetchEvents();
   }, []);
 
-  // Track scroll position to collapse footer contents onto Planora watermark at the absolute bottom
+  // Track scroll position to collapse footer content slightly towards Planora watermark
   useEffect(() => {
     const handleScroll = () => {
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -93,8 +93,8 @@ export function Landing() {
   return (
     <div className="min-h-screen bg-[#fbfbfb] text-neutral-900 font-sans antialiased selection:bg-neutral-200 overflow-x-hidden">
       
-      {/* Non-sticky, Collapsible Navbar */}
-      <header className="relative w-full z-50 bg-[#fbfbfb] border-b border-neutral-100/60">
+      {/* Sticky, Collapsible Navbar */}
+      <header className="sticky top-0 z-50 w-full bg-[#fbfbfb]/90 backdrop-blur-md border-b border-neutral-100/60 transition-all duration-300">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
@@ -208,7 +208,7 @@ export function Landing() {
             )}
           </div>
 
-          {/* Mobile Hamburguer Toggle */}
+          {/* Mobile Hamburger Toggle */}
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="rounded-lg p-2 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none md:hidden"
@@ -263,9 +263,9 @@ export function Landing() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative flex flex-col items-center justify-center pt-20 pb-16 text-center px-6 overflow-hidden">
+      <section className="relative flex flex-col items-center justify-center pt-20 pb-16 text-center px-6 overflow-hidden animate-in fade-in duration-500">
         {/* Central Badge */}
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-200/80 bg-white px-4 py-1.5 text-[11px] font-semibold text-neutral-700 shadow-sm hover:border-neutral-300 transition-colors duration-300 select-none">
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-200/80 bg-white px-4 py-1.5 text-[11px] font-semibold text-neutral-700 shadow-sm hover:border-neutral-300 transition-colors duration-300 select-none animate-bounce">
           <span>⚡</span>
           <span className="text-neutral-400">→</span>
           <span className="flex items-center gap-1">
@@ -283,7 +283,7 @@ export function Landing() {
         </h1>
 
         {/* Subtitle */}
-        <p className="mt-8 max-w-2xl text-[15px] font-medium text-neutral-500 leading-relaxed font-sans">
+        <p className="mt-8 max-w-2xl text-[15px] font-medium text-neutral-500 leading-relaxed font-sans animate-in slide-in-from-bottom duration-700">
           Dive into the ultimate event management experience with Planora.<br />
           We specialize in helping workspaces and communities create vibrant, unforgettable happenings.
         </p>
@@ -447,7 +447,7 @@ export function Landing() {
               <Link 
                 key={event._id}
                 to={`/events/${event._id}`}
-                className="group flex flex-col bg-white rounded-3xl border border-neutral-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
+                className="group flex flex-col bg-white rounded-3xl border border-neutral-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 animate-in fade-in duration-500"
               >
                 {/* Event Image */}
                 <div className="relative aspect-[16/10] bg-neutral-50 overflow-hidden">
@@ -537,13 +537,12 @@ export function Landing() {
         </div>
       </section>
 
-      {/* Premium Footer with scroll-ratio collapse effect and PLANORA brand watermark */}
-      <footer className="relative bg-[#fbfbfb] border-t border-neutral-100 pt-20 pb-12 overflow-hidden z-10">
-        
+      {/* Proper Footer Container (Testimonial, menus, coffee, social, copyright) */}
+      <footer className="relative bg-[#fbfbfb] border-t border-neutral-100 pt-20 pb-16 z-10">
         <div 
           className="mx-auto max-w-7xl px-6 relative z-10 space-y-12"
           style={{ 
-            transform: `translateY(${scrollRatio * 24}px)`, 
+            transform: `translateY(${scrollRatio * 20}px)`, 
             transition: 'transform 0.08s ease-out' 
           }}
         >
@@ -554,7 +553,7 @@ export function Landing() {
               <span className="text-[11px] font-bold font-mono text-neutral-300 uppercase tracking-widest select-none">
                 Planora Experience
               </span>
-              <p className="text-base sm:text-[17px] font-medium text-neutral-800 leading-relaxed font-sans">
+              <p className="text-base sm:text-[17px] font-medium text-neutral-800 leading-relaxed font-sans font-display">
                 " With our combined expertise and passion for organization, we promise to deliver an event that's <span className="text-neutral-400 font-normal">not just an event</span>, a vibrant memory etched in the minds of your audience. "
               </p>
               <div className="flex items-center gap-2 pt-2">
@@ -570,7 +569,7 @@ export function Landing() {
               </div>
             </div>
 
-            {/* Overlapping/side-by-side floating card images placed completely above Planora watermark */}
+            {/* Floating side-by-side card images (Completely above watermark) */}
             <div className="flex gap-4 items-center shrink-0">
               <div className="w-28 aspect-square rounded-2xl overflow-hidden shadow-md border border-neutral-200/50 rotate-[-4deg]">
                 <img 
@@ -641,15 +640,17 @@ export function Landing() {
             </div>
           </div>
         </div>
+      </footer>
 
-        {/* Stretched and Squeezed Planora watermark positioned completely at the bottom with zero text/image overlaps */}
-        <div className="mt-16 w-full text-center select-none pointer-events-none z-0">
-          <span className="inline-block font-display font-black text-[13.5vw] tracking-[-0.08em] text-[#ececee]/70 uppercase leading-none transform scale-x-[1.3] origin-center">
+      {/* Dedicated Watermark Brand Block at the Absolute Bottom (Below Footer) */}
+      <div className="relative w-full bg-[#fbfbfb] pb-10 border-t border-neutral-100/40 select-none z-0">
+        <div className="w-full text-center">
+          <span className="inline-block font-display font-black text-[13.5vw] tracking-[-0.01em] text-[#ececee]/80 uppercase leading-none transform scale-x-[1.05] origin-center">
             Planora
           </span>
         </div>
+      </div>
 
-      </footer>
     </div>
   );
 }
