@@ -111,21 +111,21 @@ export function Landing() {
     <div className="min-h-screen bg-[#fbfbfb] text-neutral-900 font-sans antialiased selection:bg-neutral-200 overflow-x-hidden">
       
       {/* Floating Collapsible Navbar (Physics and collapse styles copied from Fetchz) */}
-      <div className="fixed inset-x-0 top-0 z-50 pointer-events-none px-4 sm:px-8 md:px-16 pt-4">
+      <div className={`fixed inset-x-0 top-0 z-50 pointer-events-none ${scrolled ? 'px-4 sm:px-8 md:px-16 pt-4' : 'px-0 pt-0'}`}>
         <motion.nav
           initial={false}
           animate={{
-            borderRadius: "9999px",
-            boxShadow: scrolled ? "0 8px 32px rgba(0,0,0,0.06)" : "0 2px 12px rgba(0,0,0,0.02)",
-            paddingLeft: scrolled ? (isDesktop ? "1.5rem" : "1.25rem") : "1.5rem",
-            paddingRight: scrolled ? (isDesktop ? "1.5rem" : "1.25rem") : "1.5rem",
-            maxWidth: scrolled ? (isDesktop ? "44rem" : "92%") : "72rem",
+            borderRadius: scrolled ? "9999px" : "0px",
+            boxShadow: scrolled ? "0 8px 32px rgba(0,0,0,0.06)" : "0 0px 0px rgba(0,0,0,0)",
+            paddingLeft: scrolled ? (isDesktop ? "1.5rem" : "1.25rem") : "2rem",
+            paddingRight: scrolled ? (isDesktop ? "1.5rem" : "1.25rem") : "2rem",
+            maxWidth: scrolled ? (isDesktop ? "44rem" : "92%") : "100%",
             backgroundColor: scrolled ? "rgba(251, 251, 251, 0.85)" : "rgba(251, 251, 251, 0)",
             backdropFilter: scrolled ? "blur(18px)" : "blur(0px)",
             border: scrolled ? "1px solid rgba(0, 0, 0, 0.08)" : "1px solid rgba(0, 0, 0, 0)",
           }}
           style={{ marginLeft: "auto", marginRight: "auto" }}
-          transition={{ type: "spring", stiffness: 120, damping: 22 }}
+          transition={{ type: "spring", stiffness: 130, damping: 23 }}
           className="pointer-events-auto w-full flex flex-col justify-center py-3.5 text-neutral-900 z-50"
         >
           {/* Main Navbar Row */}
