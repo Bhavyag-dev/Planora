@@ -550,67 +550,65 @@ export function Landing() {
         </div>
       </section>
 
-      {/* Proper Footer Container (Testimonials quote with cursive, menus, coffee, social, copyright) */}
-      <footer className="relative bg-[#fbfbfb] border-t border-neutral-100 pt-20 pb-16 z-10">
-        <div className="mx-auto max-w-7xl px-6 space-y-12">
-          {/* Quote / Testimonial row */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-10 max-w-5xl mx-auto">
+      {/* Proper Footer Container (Testimonials quote with cursive, rich menus, newsletter, social, copyright) */}
+      <footer className="relative bg-[#fbfbfb] border-t border-neutral-100/60 pt-24 pb-20 z-10">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 space-y-16">
+          
+          {/* Top Highlight: Testimonial & Visual Cards */}
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-10 max-w-5xl mx-auto pb-12 border-b border-neutral-100">
             {/* Quote block */}
-            <div className="flex-1 space-y-3 text-left">
-              <span className="text-[11px] font-bold font-mono text-neutral-300 uppercase tracking-widest select-none">
+            <div className="flex-1 space-y-4 text-left">
+              <span className="text-[11px] font-bold font-mono text-neutral-400 uppercase tracking-widest select-none">
                 Planora Experience
               </span>
-              <p className="text-3xl font-medium text-neutral-800 leading-normal font-cursive">
-                " With our combined expertise and passion for organization, we promise to deliver an event that's <span className="text-neutral-400 font-normal">not just an event</span>, a vibrant memory etched in the minds of your audience. "
+              <p className="text-2xl md:text-3xl font-medium text-neutral-800 leading-normal font-cursive">
+                " With our combined expertise and passion for organization, we promise to deliver an event that's <span className="text-neutral-400 font-normal">not just an event</span>, but a vibrant memory etched in the minds of your audience. "
               </p>
-              <div className="flex items-center gap-2 pt-2">
+              <div className="flex items-center gap-3 pt-2">
                 <img 
                   src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" 
-                  alt="Trisha" 
-                  className="h-8 w-8 rounded-full object-cover border border-neutral-200/50 shadow-sm"
+                  alt="Trisha Woodward" 
+                  className="h-9 w-9 rounded-full object-cover border border-neutral-200/50 shadow-sm"
                 />
                 <div>
-                  <h5 className="text-[11px] font-bold text-neutral-900 leading-none">Trisha Woodward</h5>
-                  <p className="text-[9px] text-neutral-400">Co-founder at Planora</p>
+                  <h5 className="text-xs font-bold text-neutral-900 leading-none">Trisha Woodward</h5>
+                  <p className="text-[10px] text-neutral-400 mt-1">Co-founder at Planora</p>
                 </div>
               </div>
             </div>
 
-            {/* Floating side-by-side card images (Completely above watermark) */}
-            <div className="flex gap-4 items-center shrink-0">
-              <div className="w-28 aspect-square rounded-2xl overflow-hidden shadow-md border border-neutral-200/50 rotate-[-4deg]">
+            {/* Staggered visual photo cards */}
+            <div className="flex gap-4 items-center shrink-0 mx-auto lg:mx-0">
+              <div className="w-28 aspect-square rounded-2xl overflow-hidden shadow-md border border-neutral-200/50 rotate-[-4deg] hover:rotate-0 transition-transform duration-300">
                 <img 
                   src="https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=200&q=80" 
-                  alt="thumb" 
+                  alt="community social" 
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="w-24 aspect-[4/3] rounded-2xl overflow-hidden shadow-md border border-neutral-200/50 rotate-[4deg]">
+              <div className="w-24 aspect-[4/3] rounded-2xl overflow-hidden shadow-md border border-neutral-200/50 rotate-[4deg] hover:rotate-0 transition-transform duration-300">
                 <img 
                   src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=200&q=80" 
-                  alt="thumb" 
+                  alt="event presenter" 
                   className="w-full h-full object-cover"
                 />
               </div>
             </div>
           </div>
 
-          {/* Footer bottom controls: menus, coffee, social, copyright */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8 pt-10 border-t border-neutral-100/80 max-w-5xl mx-auto">
-            <div className="flex flex-col md:items-start gap-4">
-              {/* Menu Links */}
-              <div className="flex gap-6 text-xs font-semibold text-neutral-800 font-display">
-                <a href="#about" className="hover:text-neutral-500 transition-colors">About us &nbsp;→</a>
-                <a href="#blog" className="hover:text-neutral-500 transition-colors">Blog &nbsp;→</a>
-                <a href="#contact" className="hover:text-neutral-500 transition-colors">Contact us &nbsp;→</a>
-              </div>
-              
-              <p className="text-[11px] text-neutral-400 max-w-sm leading-relaxed font-sans">
-                Destination for flawless events. From luxurious workspace conferences to playful meetups, we guarantee a wave of excitement at every turn.
+          {/* Middle Rich 5-Column Grid */}
+          <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 max-w-5xl mx-auto pt-4 text-left">
+            
+            {/* Column 1: Brand Details */}
+            <div className="space-y-4 sm:col-span-2 lg:col-span-1">
+              <span className="text-xl font-extrabold tracking-tight text-neutral-950 font-display">
+                Planora
+              </span>
+              <p className="text-xs text-neutral-400 leading-relaxed font-sans max-w-xs">
+                The destination for flawless events. From luxurious workspace conferences to playful community meetups, we guarantee excitement at every turn.
               </p>
-
               {/* Social Circles */}
-              <div className="flex gap-2">
+              <div className="flex gap-2 pt-2">
                 {[
                   { icon: Twitter, url: 'https://twitter.com/planora' },
                   { icon: Instagram, url: 'https://instagram.com/planora' },
@@ -629,23 +627,83 @@ export function Landing() {
               </div>
             </div>
 
-            {/* Coffee and copyright */}
-            <div className="flex flex-col items-center md:items-end gap-3 text-right">
-              {/* Buy us a coffee pill button */}
-              <a 
-                href="https://buymeacoffee.com/planora"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-5 py-2.5 text-xs font-bold text-neutral-800 hover:bg-neutral-50 shadow-sm transition-all pointer-events-auto"
-              >
-                <Coffee size={14} className="text-amber-600" />
-                <span>Buy us a coffee</span>
-              </a>
-              <p className="text-[11px] text-neutral-400 mt-2 font-sans">
-                © {new Date().getFullYear()} Planora. All rights reserved.
-              </p>
+            {/* Column 2: Product links */}
+            <div>
+              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display">Product</h4>
+              <ul className="space-y-2 text-xs">
+                <li><Link to="/events" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Browse Events</Link></li>
+                <li><a href="#pricing" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Ticket Pricing</a></li>
+                <li><Link to="/signup" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Host Account</Link></li>
+                <li><Link to="/login" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Creator Login</Link></li>
+              </ul>
             </div>
+
+            {/* Column 3: Resources links */}
+            <div>
+              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display">Resources</h4>
+              <ul className="space-y-2 text-xs">
+                <li><a href="#blog" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Platform Blog</a></li>
+                <li><a href="#docs" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Help Center</a></li>
+                <li><a href="#support" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Ticket Support</a></li>
+                <li><a href="#rules" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Guidelines</a></li>
+              </ul>
+            </div>
+
+            {/* Column 4: Company links */}
+            <div>
+              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display">Company</h4>
+              <ul className="space-y-2 text-xs">
+                <li><a href="#about" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">About Us</a></li>
+                <li><a href="#careers" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Careers</a></li>
+                <li><a href="#privacy" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Privacy Policy</a></li>
+                <li><a href="#terms" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Terms of Service</a></li>
+              </ul>
+            </div>
+
+            {/* Column 5: Newsletter form */}
+            <div className="space-y-4 sm:col-span-2 lg:col-span-1">
+              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display">Newsletter</h4>
+              <p className="text-xs text-neutral-400 leading-relaxed font-sans">
+                Subscribe to get the latest workspace event announcements.
+              </p>
+              <form 
+                onSubmit={(e) => e.preventDefault()}
+                className="relative flex items-center mt-2"
+              >
+                <input 
+                  type="email" 
+                  placeholder="name@email.com" 
+                  className="w-full bg-white border border-neutral-200/80 px-4 py-2.5 pr-10 rounded-full text-xs focus:ring-1 focus:ring-neutral-400 focus:outline-none font-sans"
+                />
+                <button 
+                  type="submit"
+                  className="absolute right-1 w-8 h-8 rounded-full bg-neutral-950 text-white flex items-center justify-center hover:bg-neutral-800 transition shadow-sm"
+                >
+                  <ArrowRight size={13} />
+                </button>
+              </form>
+            </div>
+
           </div>
+
+          {/* Bottom Bar: Copyright and Coffee */}
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8 pt-8 border-t border-neutral-100 max-w-5xl mx-auto">
+            <p className="text-[11px] text-neutral-400 font-sans">
+              © {new Date().getFullYear()} Planora. All rights reserved. Locally crafted for seamless communities.
+            </p>
+            
+            {/* Coffee pill */}
+            <a 
+              href="https://buymeacoffee.com/planora"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-5 py-2.5 text-xs font-bold text-neutral-800 hover:bg-neutral-50 shadow-sm transition-all pointer-events-auto"
+            >
+              <Coffee size={14} className="text-amber-600" />
+              <span>Buy us a coffee</span>
+            </a>
+          </div>
+
         </div>
       </footer>
 
