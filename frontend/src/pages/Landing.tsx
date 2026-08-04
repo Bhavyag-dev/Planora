@@ -120,9 +120,9 @@ export function Landing() {
             paddingLeft: scrolled ? (isDesktop ? "1.5rem" : "1.25rem") : "1.5rem",
             paddingRight: scrolled ? (isDesktop ? "1.5rem" : "1.25rem") : "1.5rem",
             maxWidth: scrolled ? (isDesktop ? "44rem" : "92%") : "72rem",
-            backgroundColor: scrolled ? "rgba(251, 251, 251, 0.85)" : "rgba(251, 251, 251, 0.98)",
-            backdropFilter: scrolled ? "blur(18px)" : "blur(8px)",
-            border: scrolled ? "1px solid rgba(0, 0, 0, 0.08)" : "1px solid rgba(0, 0, 0, 0.04)",
+            backgroundColor: scrolled ? "rgba(251, 251, 251, 0.85)" : "rgba(251, 251, 251, 0)",
+            backdropFilter: scrolled ? "blur(18px)" : "blur(0px)",
+            border: scrolled ? "1px solid rgba(0, 0, 0, 0.08)" : "1px solid rgba(0, 0, 0, 0)",
           }}
           style={{ marginLeft: "auto", marginRight: "auto" }}
           transition={{ type: "spring", stiffness: 120, damping: 22 }}
@@ -155,7 +155,7 @@ export function Landing() {
                   Planning <ChevronDown size={13} className={`transition-transform duration-200 ${planningDropdown ? 'rotate-180' : ''}`} />
                 </button>
                 {planningDropdown && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-44 rounded-2xl border border-neutral-100 bg-white p-2 shadow-lg ring-1 ring-black/5 animate-in fade-in duration-200">
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-44 rounded-2xl border border-neutral-100 bg-white p-2 shadow-lg ring-1 ring-black/5 animate-in fade-in duration-200 z-50">
                     <Link to="/events" onClick={() => setPlanningDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
                       Browse Events
                     </Link>
@@ -178,7 +178,7 @@ export function Landing() {
                   Categories <ChevronDown size={13} className={`transition-transform duration-200 ${categoryDropdown ? 'rotate-180' : ''}`} />
                 </button>
                 {categoryDropdown && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-44 rounded-2xl border border-neutral-100 bg-white p-2 shadow-lg ring-1 ring-black/5 animate-in fade-in duration-200">
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-44 rounded-2xl border border-neutral-100 bg-white p-2 shadow-lg ring-1 ring-black/5 animate-in fade-in duration-200 z-50">
                     <Link to="/events?cat=Technical" onClick={() => setCategoryDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
                       Technical & Talks
                     </Link>
@@ -279,18 +279,18 @@ export function Landing() {
         </motion.nav>
       </div>
 
-      {/* Hero Section */}
-      <section className="relative flex flex-col items-center justify-center pt-28 pb-16 text-center px-6 overflow-hidden">
-        {/* Background Image asset (uploaded pixel art scene) */}
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
-          <img 
-            src="/morning.png" 
-            alt="Event Background" 
-            className="w-full h-full object-cover opacity-[0.95] filter saturate-[1.1] contrast-[1.02]" 
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#fbfbfb]/10 via-transparent to-[#fbfbfb]/80" />
-        </div>
+      {/* Full-Bleed Page Level Background Image spanning absolute top-0 */}
+      <div className="absolute top-0 inset-x-0 h-[800px] sm:h-[950px] z-0 overflow-hidden pointer-events-none select-none">
+        <img 
+          src="/morning.png" 
+          alt="Event Background" 
+          className="w-full h-full object-cover opacity-[0.98] filter saturate-[1.1] contrast-[1.02]" 
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fbfbfb]/40 to-[#fbfbfb]" />
+      </div>
 
+      {/* Hero Section */}
+      <section className="relative flex flex-col items-center justify-center pt-32 pb-20 text-center px-6 overflow-hidden">
         {/* Central Badge */}
         <div className="relative z-10 mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-200/80 bg-white px-4 py-1.5 text-[11px] font-semibold text-neutral-700 shadow-sm hover:border-neutral-300 transition-colors duration-300 select-none">
           <span>⚡</span>
