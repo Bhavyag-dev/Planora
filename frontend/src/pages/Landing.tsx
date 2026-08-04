@@ -347,7 +347,7 @@ export function Landing() {
       </section>
 
       {/* Brand Logos Bar */}
-      <section className="mx-auto max-w-5xl px-6 py-6 border-t border-b border-neutral-100/60 mt-4 select-none">
+      <section className="relative z-10 bg-[#fbfbfb] mx-auto max-w-5xl px-6 py-6 border-t border-b border-neutral-100/60 mt-4 select-none">
         <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 text-[13px] font-bold text-neutral-300 font-mono tracking-wider">
           <span className="hover:text-neutral-400 transition-colors">Retool</span>
           <span className="hover:text-neutral-400 transition-colors">remote</span>
@@ -363,7 +363,7 @@ export function Landing() {
       </section>
 
       {/* Fold 2: Unforgettable Event Panel Layout (Reference Image 2) */}
-      <section className="mx-auto max-w-7xl px-6 py-20">
+      <section className="relative z-10 bg-[#fbfbfb] mx-auto max-w-7xl px-6 py-24 border-b border-neutral-100/40">
         <div className="grid gap-12 lg:grid-cols-12 items-center">
           {/* Left Text details */}
           <div className="lg:col-span-5 space-y-6">
@@ -384,76 +384,46 @@ export function Landing() {
             </Link>
           </div>
 
-          {/* Right Floating Dashboard Visual Layer (Dark Panel with Overlays) */}
-          <div className="lg:col-span-7 relative">
-            {/* Dark background panel */}
-            <div className="w-full h-[400px] rounded-[2.5rem] bg-neutral-950 relative overflow-hidden flex flex-col justify-end p-8 shadow-xl">
-              {/* Decorative radial lighting */}
-              <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-white/[0.03] blur-3xl" />
-              
-              <div className="flex items-center justify-between text-xs text-neutral-500 select-none z-10">
-                <span className="font-semibold text-neutral-300">Upcoming events &nbsp; <span className="text-white">2 / 30</span></span>
-                <div className="flex gap-1.5">
-                  <div className="h-1.5 w-1.5 rounded-full bg-white/30" />
-                  <div className="h-1.5 w-1.5 rounded-full bg-white" />
-                  <div className="h-1.5 w-1.5 rounded-full bg-white/30" />
-                  <div className="h-1.5 w-1.5 rounded-full bg-white/30" />
-                </div>
+          {/* Right: Two Big Mockups side-by-side */}
+          <div className="lg:col-span-7 grid gap-6 sm:grid-cols-2 relative z-10">
+            {/* Big Mockup 1: Clean Glass-Dashboard Card */}
+            <div className="w-full h-[380px] rounded-[2rem] bg-neutral-950 p-6 flex flex-col justify-between shadow-xl border border-neutral-800 relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
+              <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-white/[0.02] blur-3xl" />
+              <div className="flex items-center justify-between text-xs text-neutral-500">
+                <span className="font-semibold text-neutral-400">workspace_stats</span>
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              </div>
+              <div className="my-auto">
+                <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest font-mono">Real-time Activity</span>
+                <h3 className="text-4xl font-extrabold text-white tracking-tight mt-1 font-display">94.2%</h3>
+                <p className="text-[13px] text-neutral-400 mt-2 font-medium leading-relaxed">Community Engagement score across 12 workspace events this month.</p>
+              </div>
+              <div className="border-t border-neutral-900 pt-4 flex items-center justify-between">
+                <span className="text-[10px] text-neutral-500 font-mono">planora_core_v1</span>
+                <Link to="/signup" className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors pointer-events-auto">View analytics ›</Link>
               </div>
             </div>
 
-            {/* Overlapping progress track card (Left float) */}
-            <div className="absolute top-1/2 -translate-y-1/2 -left-4 sm:-left-8 w-72 rounded-3xl border border-neutral-100 bg-[#e7f0e9]/90 p-5 shadow-2xl backdrop-blur-md z-20 transition-transform hover:-translate-y-[52%] duration-300">
-              <div className="flex items-center justify-between">
-                {/* Horizontal dot timeline indicator */}
-                <div className="flex items-center gap-1.5">
-                  <div className="h-2 w-2 rounded-full bg-neutral-400" />
-                  <div className="h-2 w-2 rounded-full bg-neutral-400" />
-                  <div className="h-2.5 w-2.5 rounded-full bg-emerald-600 flex items-center justify-center text-[7px] text-white">✓</div>
-                  <div className="h-2 w-2 rounded-full bg-neutral-200" />
-                  <div className="h-2 w-2 rounded-full bg-neutral-200" />
-                </div>
-                <Link to="/signup" className="rounded-full bg-white border border-neutral-200/60 px-3 py-1.5 text-[10px] font-bold text-neutral-800 hover:bg-neutral-50 shadow-sm transition-colors">
-                  Join ›
-                </Link>
-              </div>
-
-              {/* Mapped faces */}
-              <div className="flex items-center -space-x-1.5 mt-6">
-                <div className="h-6 w-6 rounded-full border-2 border-white bg-[#d1d5db] bg-[url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80')] bg-cover" />
-                <div className="h-6 w-6 rounded-full border-2 border-white bg-[#9ca3af] bg-[url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=80')] bg-cover" />
-                <div className="h-6 w-6 rounded-full border-2 border-white bg-[#e5e7eb] bg-[url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&q=80')] bg-cover" />
-              </div>
-
-              <div className="mt-4">
-                <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Plan starts Dec 26, 2026</span>
-                <h4 className="text-xl font-extrabold text-neutral-900 leading-tight mt-1">Design Workshop with Expert Team ☡</h4>
-              </div>
-            </div>
-
-            {/* Overlapping Image Card 1 (Center float) */}
-            <div className="absolute right-36 top-6 w-44 aspect-[3/4] rounded-3xl overflow-hidden shadow-2xl border border-white/10 z-20 hidden sm:block rotate-[-2deg] transition-all hover:scale-103 hover:rotate-[0deg] duration-300">
+            {/* Big Mockup 2: Premium Visual Event Card */}
+            <div className="w-full h-[380px] rounded-[2rem] overflow-hidden shadow-xl border border-neutral-200 relative group hover:scale-[1.02] transition-transform duration-300">
               <img 
-                src="https://images.unsplash.com/photo-1501446529957-6226bd447c46?auto=format&fit=crop&w=400&q=80" 
-                alt="event thumbnail" 
-                className="w-full h-full object-cover"
+                src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80" 
+                alt="Premium Community Event" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
-            </div>
-
-            {/* Overlapping Image Card 2 (Right float) */}
-            <div className="absolute -right-4 top-16 w-44 aspect-[3/4] rounded-3xl overflow-hidden shadow-2xl border border-white/10 z-20 rotate-[3deg] transition-all hover:scale-103 hover:rotate-[0deg] duration-300">
-              <img 
-                src="https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=400&q=80" 
-                alt="event thumbnail" 
-                className="w-full h-full object-cover"
-              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6 text-white">
+                <span className="rounded-full bg-white/20 backdrop-blur-md px-3 py-1 text-[9px] font-bold uppercase tracking-wider">Featured Meetup</span>
+                <h4 className="text-xl font-extrabold tracking-tight text-white mt-3 font-display">Creative Design Workspace Hub</h4>
+                <p className="text-xs text-neutral-300 mt-1 font-medium">Dec 26, 2026 • 65 Attendees</p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Dynamic Live Events Section */}
-      <section className="mx-auto max-w-7xl px-6 py-16 border-t border-neutral-100/60">
+      <section className="relative z-10 bg-[#fbfbfb] mx-auto max-w-7xl px-6 py-16 border-t border-neutral-100/60">
         <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-neutral-100/80 pb-6">
           <div>
             <div className="inline-flex items-center gap-1 text-[11px] font-bold text-neutral-400 uppercase tracking-widest mb-1.5">
