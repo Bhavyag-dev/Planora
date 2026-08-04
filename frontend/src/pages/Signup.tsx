@@ -77,8 +77,8 @@ export const Signup = () => {
               </div>
             </div>
             
-            <h1 className="text-3xl font-bold tracking-tight text-white mt-2">Join CampusPulse</h1>
-            <p className="mt-2 text-zinc-400 text-sm">Create your account to discover college events</p>
+            <h1 className="text-3xl font-bold tracking-tight text-white mt-2">Join Planora</h1>
+            <p className="mt-2 text-zinc-400 text-sm">Create your account to discover exciting events</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -90,9 +90,9 @@ export const Signup = () => {
               required
             />
             <Input
-              label="College Email Address"
+              label="Email Address"
               type="email"
-              placeholder="name@college.edu"
+              placeholder="name@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required

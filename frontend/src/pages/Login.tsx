@@ -79,7 +79,7 @@ export const Login = () => {
             </Link>
             
             <h1 className="text-3xl font-bold tracking-tight text-white mt-2">Welcome back</h1>
-            <p className="mt-2 text-zinc-400 text-sm">Sign in to your campus event portal</p>
+            <p className="mt-2 text-zinc-400 text-sm">Sign in to Planora</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -88,7 +88,7 @@ export const Login = () => {
                 <Input
                   label="Email Address"
                   type="email"
-                  placeholder="name@college.edu"
+                  placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required

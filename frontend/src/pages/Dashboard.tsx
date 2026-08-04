@@ -6,9 +6,9 @@ import { useAuth } from '../hooks/useAuth';
 export function Dashboard() {
   const { user } = useAuth();
 
-  const collegeName = useMemo(() => {
-    const anyCollege = (user as any)?.college;
-    return anyCollege?.name || 'Your College';
+  const organizationName = useMemo(() => {
+    const anyOrg = (user as any)?.organization;
+    return anyOrg?.name || 'Your Workspace';
   }, [user]);
 
   return (
@@ -21,10 +21,10 @@ export function Dashboard() {
             <span className="text-[10px] font-bold uppercase tracking-widest">Personal Dashboard</span>
           </div>
           <h1 className="mt-2 text-3xl md:text-4xl font-bold tracking-tight text-white">
-            Welcome back, <span className="text-purple-300">{user?.name || 'Student'}</span>
+            Welcome back, <span className="text-purple-300">{user?.name || 'User'}</span>
           </h1>
           <p className="mt-2 text-zinc-400">
-            Prioritizing events from <span className="font-semibold text-zinc-200">{collegeName}</span>, with global discovery always available.
+            Prioritizing events from <span className="font-semibold text-zinc-200">{organizationName}</span>, with global discovery always available.
           </p>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -53,20 +53,20 @@ export function Dashboard() {
               <Calendar size={18} className="text-indigo-400" />
             </div>
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">Your college</p>
-              <p className="text-sm font-semibold text-white">{collegeName}</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">Your Workspace</p>
+              <p className="text-sm font-semibold text-white">{organizationName}</p>
             </div>
           </div>
           <p className="mt-4 text-sm text-zinc-400">
-            This dashboard will show your college feed first (events, announcements), while you can still explore globally anytime.
+            This dashboard will show your organization feed first (events, announcements), while you can still explore globally anytime.
           </p>
         </div>
 
         <div className="rounded-3xl border border-white/[0.06] bg-white/[0.02] p-6 md:col-span-2">
           <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">What’s next</p>
-          <h2 className="mt-2 text-xl font-bold text-white">College-first experience + global discovery</h2>
+          <h2 className="mt-2 text-xl font-bold text-white">Workspace-first experience + global discovery</h2>
           <p className="mt-2 text-sm text-zinc-400">
-            Next steps in this rebuild will wire in real multi-college context, visibility rules, and a theme system—so this page becomes a true
+            Next steps in this rebuild will wire in real multi-organization context, visibility rules, and a theme system—so this page becomes a true
             personalized hub instead of just a redirect target.
           </p>
         </div>

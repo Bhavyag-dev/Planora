@@ -15,7 +15,6 @@ import { Settings } from './pages/Settings';
 import { useAuth } from './hooks/useAuth';
 import { AuthProvider } from './auth/AuthProvider';
 import { Dashboard } from './pages/Dashboard';
-import { ThemeLab } from './pages/ThemeLab';
 import { OrgHome } from './pages/OrgHome';
 import { getPostLoginRoute } from './auth/postLoginRoute';
 
@@ -75,7 +74,6 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/org/:slug" element={<OrgHome />} />
-            <Route path="/theme-lab" element={<DashboardLayout><ThemeLab /></DashboardLayout>} />
 
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />

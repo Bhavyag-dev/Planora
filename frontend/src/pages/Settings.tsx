@@ -72,7 +72,7 @@ export const Settings = () => {
           </button>
           <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-transparent hover:bg-white/[0.02] text-zinc-400 hover:text-white transition-colors">
             <Building size={18} />
-            <span className="font-medium text-sm">College Data</span>
+            <span className="font-medium text-sm">Organization Data</span>
           </button>
         </div>
 
