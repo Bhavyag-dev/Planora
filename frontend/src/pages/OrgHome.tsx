@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Calendar, ExternalLink, Facebook, Instagram, Linkedin, MapPin, PlayCircle, Search } from 'lucide-react';
 
-export function CollegeHome() {
+export function OrgHome() {
   const { slug } = useParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -12,38 +12,38 @@ export function CollegeHome() {
 
   useEffect(() => {
     if (!slug) return;
-    fetch(`/api/colleges/slug/${slug}`)
+    fetch(`/api/organizations/slug/${slug}`)
       .then(async (res) => {
         const payload = await res.json().catch(() => null);
-        if (!res.ok) throw new Error(payload?.message || 'Unable to load college');
+        if (!res.ok) throw new Error(payload?.message || 'Unable to load organization');
         setData(payload);
       })
-      .catch((e: any) => setError(e?.message || 'Unable to load college'))
+      .catch((e: any) => setError(e?.message || 'Unable to load organization'))
       .finally(() => setLoading(false));
   }, [slug]);
 
-  const college = data?.college || {};
+  const organization = data?.organization || {};
   const events = Array.isArray(data?.events) ? data.events : [];
-  const theme = college.theme || {};
-  const gallery = Array.isArray(college.galleryImages) ? college.galleryImages : [];
-  const stories = Array.isArray(college.storyHighlights) ? college.storyHighlights : [];
+  const theme = organization.theme || {};
+  const gallery = Array.isArray(organization.galleryImages) ? organization.galleryImages : [];
+  const stories = Array.isArray(organization.storyHighlights) ? organization.storyHighlights : [];
   const primary = theme.primaryColor || '#6366f1';
   const secondary = theme.secondaryColor || '#a855f7';
   const headerStyle = theme.headerStyle || 'glass';
-  const heroTitle = theme.heroTitle || college.name || 'College';
-  const heroSubtitle = theme.heroSubtitle || college.about || 'Discover campus stories, updates, and events.';
+  const heroTitle = theme.heroTitle || organization.name || 'Organization';
+  const heroSubtitle = theme.heroSubtitle || organization.about || 'Discover updates and events.';
   const fontFamily =
     theme.typography?.trim() || "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial";
 
   const socialItems = useMemo(
     () =>
       [
-        { key: 'instagram', href: college.socialLinks?.instagram, icon: Instagram, label: 'Instagram' },
-        { key: 'facebook', href: college.socialLinks?.facebook, icon: Facebook, label: 'Facebook' },
-        { key: 'linkedin', href: college.socialLinks?.linkedin, icon: Linkedin, label: 'LinkedIn' },
-        { key: 'youtube', href: college.socialLinks?.youtube, icon: PlayCircle, label: 'YouTube' },
+        { key: 'instagram', href: organization.socialLinks?.instagram, icon: Instagram, label: 'Instagram' },
+        { key: 'facebook', href: organization.socialLinks?.facebook, icon: Facebook, label: 'Facebook' },
+        { key: 'linkedin', href: organization.socialLinks?.linkedin, icon: Linkedin, label: 'LinkedIn' },
+        { key: 'youtube', href: organization.socialLinks?.youtube, icon: PlayCircle, label: 'YouTube' },
       ].filter((x) => !!x.href),
-    [college.socialLinks],
+    [organization.socialLinks],
   );
 
   const categories = useMemo(() => {
@@ -67,10 +67,10 @@ export function CollegeHome() {
   }, [events, query, categoryFilter]);
 
   useEffect(() => {
-    if (!college?.name) return;
+    if (!organization?.name) return;
     const prevTitle = document.title;
-    document.title = `${college.name} | Campus Space`;
-    const desc = (college.about || heroSubtitle || '').slice(0, 160);
+    document.title = `${organization.name} | Organization Space`;
+    const desc = (organization.about || heroSubtitle || '').slice(0, 160);
     let meta = document.querySelector('meta[name="description"]') as HTMLMetaElement | null;
     if (!meta) {
       meta = document.createElement('meta');
@@ -78,15 +78,15 @@ export function CollegeHome() {
       document.head.appendChild(meta);
     }
     const prevDescription = meta.content;
-    meta.content = desc || 'Explore college events, stories, and highlights.';
+    meta.content = desc || 'Explore organization events, stories, and highlights.';
 
     return () => {
       document.title = prevTitle;
       meta!.content = prevDescription;
     };
-  }, [college?.name, college?.about, heroSubtitle]);
+  }, [organization?.name, organization?.about, heroSubtitle]);
 
-  if (loading) return <div className="p-10 text-zinc-400">Loading college page...</div>;
+  if (loading) return <div className="p-10 text-zinc-400">Loading organization page...</div>;
   if (error) return <div className="p-10 text-red-400">{error}</div>;
 
   return (
@@ -110,23 +110,23 @@ export function CollegeHome() {
           <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
             <div className="max-w-2xl">
               <div className="mb-4 flex items-center gap-4">
-                {college.logo ? (
-                  <img src={college.logo} alt={college.name} className="h-16 w-16 rounded-2xl border border-white/[0.2] bg-white object-contain p-1 shadow-xl" />
+                {organization.logo ? (
+                  <img src={organization.logo} alt={organization.name} className="h-16 w-16 rounded-2xl border border-white/[0.2] bg-white object-contain p-1 shadow-xl" />
                 ) : (
                   <div className="h-16 w-16 rounded-2xl border border-white/[0.2] bg-white/[0.05]" />
                 )}
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-zinc-400">College Space</p>
-                  <p className="text-sm font-semibold text-zinc-300">{college.slug ? `/college/${college.slug}` : 'Public Profile'}</p>
+                  <p className="text-[10px] uppercase tracking-widest text-zinc-400">Organization Space</p>
+                  <p className="text-sm font-semibold text-zinc-300">{organization.slug ? `/org/${organization.slug}` : 'Public Profile'}</p>
                 </div>
               </div>
               <h1 className="text-4xl font-bold leading-tight md:text-5xl" style={{ color: '#fff' }}>
                 {heroTitle}
               </h1>
               <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-300 md:text-base">{heroSubtitle}</p>
-              {college.address && (
+              {organization.address && (
                 <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-black/30 px-3 py-1 text-xs text-zinc-300">
-                  <MapPin size={12} /> {college.address}
+                  <MapPin size={12} /> {organization.address}
                 </p>
               )}
             </div>
@@ -137,14 +137,14 @@ export function CollegeHome() {
               >
                 Explore all events
               </Link>
-              {college.socialLinks?.website && (
+              {organization.socialLinks?.website && (
                 <a
-                  href={college.socialLinks.website}
+                  href={organization.socialLinks.website}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 rounded-xl border border-white/[0.2] px-4 py-2 text-sm text-zinc-200 hover:bg-white/[0.07]"
                 >
-                  Official Website <ExternalLink size={14} />
+                  Website <ExternalLink size={14} />
                 </a>
               )}
             </div>
@@ -199,10 +199,10 @@ export function CollegeHome() {
           </div>
         </div>
 
-        {college.about && (
+        {organization.about && (
           <section id="about" className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
             <h2 className="text-xl font-semibold">About</h2>
-            <p className="mt-2 whitespace-pre-wrap text-zinc-400">{college.about}</p>
+            <p className="mt-2 whitespace-pre-wrap text-zinc-400">{organization.about}</p>
           </section>
         )}
 
@@ -222,7 +222,7 @@ export function CollegeHome() {
 
         {gallery.length > 0 && (
           <section id="gallery">
-            <h2 className="text-xl font-semibold">Campus Gallery</h2>
+            <h2 className="text-xl font-semibold">Workspace Gallery</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
               {gallery.map((img: string, idx: number) => (
                 <img key={`${img}-${idx}`} src={img} className="h-48 w-full rounded-2xl border border-white/[0.1] object-cover" />
@@ -280,7 +280,7 @@ export function CollegeHome() {
             ))}
             {filteredEvents.length === 0 && (
               <div className="rounded-2xl border border-dashed border-white/[0.12] bg-white/[0.01] p-8 text-center text-zinc-500 md:col-span-2">
-                No published events yet. College admin can create and publish events from Theme Studio / Events panel.
+                No published events yet. Organization admin can create and publish events from Events panel.
               </div>
             )}
           </div>
