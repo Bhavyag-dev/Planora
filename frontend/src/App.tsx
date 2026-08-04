@@ -4,9 +4,8 @@ import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { Events } from './pages/Events';
 import { EventDetails } from './pages/EventDetails';
-import { SuperAdminDashboard } from './pages/SuperAdminDashboard';
-import { CollegeAdminDashboard } from './pages/CollegeAdminDashboard';
-import { DeptAdminDashboard } from './pages/DeptAdminDashboard';
+import { PlatformAdminDashboard } from './pages/PlatformAdminDashboard';
+import { OrgAdminDashboard } from './pages/OrgAdminDashboard';
 import { ParticipantsList } from './pages/ParticipantsList';
 import { MyRegistrations } from './pages/MyRegistrations';
 import { CheckIn } from './pages/CheckIn';
@@ -17,7 +16,7 @@ import { useAuth } from './hooks/useAuth';
 import { AuthProvider } from './auth/AuthProvider';
 import { Dashboard } from './pages/Dashboard';
 import { ThemeLab } from './pages/ThemeLab';
-import { CollegeHome } from './pages/CollegeHome';
+import { OrgHome } from './pages/OrgHome';
 import { getPostLoginRoute } from './auth/postLoginRoute';
 
 function PrivateRoute({ children, roles }: { children: React.ReactNode; roles?: string[] }) {
@@ -30,15 +29,15 @@ function PrivateRoute({ children, roles }: { children: React.ReactNode; roles?: 
   return <>{children}</>;
 }
 
-function StudentEventsRoute() {
+function UserEventsRoute() {
   const { user, loading, isAuthenticated } = useAuth();
 
   if (loading) return <div className="flex h-screen items-center justify-center">Loading...</div>;
-  if (isAuthenticated && user && user.role !== 'student') {
+  if (isAuthenticated && user && user.role !== 'user') {
     return <Navigate to={getPostLoginRoute(user)} replace />;
   }
 
-  if (isAuthenticated && user?.role === 'student') {
+  if (isAuthenticated && user?.role === 'user') {
     return (
       <DashboardLayout>
         <Events />
@@ -49,15 +48,15 @@ function StudentEventsRoute() {
   return <Events />;
 }
 
-function StudentEventDetailsRoute() {
+function UserEventDetailsRoute() {
   const { user, loading, isAuthenticated } = useAuth();
 
   if (loading) return <div className="flex h-screen items-center justify-center">Loading...</div>;
-  if (isAuthenticated && user && user.role !== 'student') {
+  if (isAuthenticated && user && user.role !== 'user') {
     return <Navigate to={getPostLoginRoute(user)} replace />;
   }
 
-  if (isAuthenticated && user?.role === 'student') {
+  if (isAuthenticated && user?.role === 'user') {
     return (
       <DashboardLayout>
         <EventDetails />
@@ -75,7 +74,7 @@ export default function App() {
         <div className="min-h-screen bg-zinc-950 font-sans text-white">
           <Routes>
             <Route path="/" element={<Landing />} />
-            <Route path="/college/:slug" element={<CollegeHome />} />
+            <Route path="/org/:slug" element={<OrgHome />} />
             <Route path="/theme-lab" element={<DashboardLayout><ThemeLab /></DashboardLayout>} />
 
             <Route path="/login" element={<Login />} />
@@ -84,7 +83,7 @@ export default function App() {
             <Route
               path="/dashboard"
               element={
-                <PrivateRoute roles={['student']}>
+                <PrivateRoute roles={['user']}>
                   <DashboardLayout>
                     <Dashboard />
                   </DashboardLayout>
@@ -92,32 +91,23 @@ export default function App() {
               }
             />
 
-            <Route path="/events" element={<StudentEventsRoute />} />
-            <Route path="/events/:id" element={<StudentEventDetailsRoute />} />
+            <Route path="/events" element={<UserEventsRoute />} />
+            <Route path="/events/:id" element={<UserEventDetailsRoute />} />
 
             <Route
               path="/super-admin"
               element={
                 <PrivateRoute roles={['super_admin', 'admin']}>
-                  <DashboardLayout><SuperAdminDashboard /></DashboardLayout>
+                  <DashboardLayout><PlatformAdminDashboard /></DashboardLayout>
                 </PrivateRoute>
               }
             />
 
             <Route
-              path="/college-admin"
+              path="/org-admin"
               element={
-                <PrivateRoute roles={['college_admin']}>
-                  <DashboardLayout><CollegeAdminDashboard /></DashboardLayout>
-                </PrivateRoute>
-              }
-            />
-
-            <Route
-              path="/department-admin"
-              element={
-                <PrivateRoute roles={['dept_admin', 'spec_admin']}>
-                  <DashboardLayout><DeptAdminDashboard /></DashboardLayout>
+                <PrivateRoute roles={['org_admin']}>
+                  <DashboardLayout><OrgAdminDashboard /></DashboardLayout>
                 </PrivateRoute>
               }
             />
@@ -125,7 +115,7 @@ export default function App() {
             <Route
               path="/admin/events/:eventId/participants"
               element={
-                <PrivateRoute roles={['college_admin', 'dept_admin', 'spec_admin']}>
+                <PrivateRoute roles={['org_admin']}>
                   <DashboardLayout><ParticipantsList /></DashboardLayout>
                 </PrivateRoute>
               }
@@ -134,7 +124,7 @@ export default function App() {
             <Route
               path="/my-registrations"
               element={
-                <PrivateRoute roles={['student']}>
+                <PrivateRoute roles={['user']}>
                   <DashboardLayout><MyRegistrations /></DashboardLayout>
                 </PrivateRoute>
               }
@@ -143,7 +133,7 @@ export default function App() {
             <Route
               path="/check-in"
               element={
-                <PrivateRoute roles={['super_admin', 'admin', 'college_admin', 'dept_admin', 'spec_admin']}>
+                <PrivateRoute roles={['super_admin', 'admin', 'org_admin']}>
                   <DashboardLayout><CheckIn /></DashboardLayout>
                 </PrivateRoute>
               }

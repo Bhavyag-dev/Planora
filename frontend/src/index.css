@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Space Grotesk", sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
 }
 
 @layer base {
   body {
-    @apply bg-zinc-50 text-zinc-900 antialiased;
+    @apply bg-[#fbfbfb] text-neutral-900 antialiased;
   }
 }
 
