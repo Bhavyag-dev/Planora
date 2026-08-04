@@ -5,12 +5,9 @@ export function getPostLoginRoute(user: AuthUser): string {
     case 'super_admin':
     case 'admin':
       return '/super-admin';
-    case 'college_admin':
-      return '/college-admin';
-    case 'dept_admin':
-    case 'spec_admin':
-      return '/department-admin';
-    case 'student':
+    case 'org_admin':
+      return '/org-admin';
+    case 'user':
     default:
       return '/dashboard';
   }

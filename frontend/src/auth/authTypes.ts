@@ -1,9 +1,7 @@
 export type Role =
   | 'super_admin'
-  | 'college_admin'
-  | 'dept_admin'
-  | 'spec_admin'
-  | 'student'
+  | 'org_admin'
+  | 'user'
   | 'admin';
 
 export interface AuthUser {
@@ -11,9 +9,7 @@ export interface AuthUser {
   name: string;
   email: string;
   role: Role;
-  college?: any;
-  department?: any;
-  specialization?: any;
+  organization?: any;
 }
 
 export type AuthStatus = 'loading' | 'authenticated' | 'anonymous';

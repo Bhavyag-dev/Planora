@@ -5,8 +5,7 @@ export interface AuthRequest extends Request {
   user?: {
     id: string;
     role: string;
-    college?: string;
-    department?: string;
+    organization?: string;
   };
 }
 
@@ -21,8 +20,7 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
     const tryVerify = (secret: string) => jwt.verify(token, secret) as {
       id: string;
       role: string;
-      college?: string;
-      department?: string;
+      organization?: string;
       email?: string;
     };
 
@@ -43,7 +41,7 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
 };
 
 export const adminMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
-  const adminRoles = ['super_admin', 'college_admin', 'dept_admin', 'admin'];
+  const adminRoles = ['super_admin', 'org_admin', 'admin'];
   if (!req.user || !adminRoles.includes(req.user.role)) {
     return res.status(403).json({ message: 'Access denied, administrative privileges required' });
   }

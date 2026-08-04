@@ -10,11 +10,9 @@ import { fileURLToPath } from 'node:url';
 import authRoutes from './routes/authRoutes';
 import eventRoutes from './routes/eventRoutes';
 import registrationRoutes from './routes/registrationRoutes';
-import collegeRoutes from './routes/collegeRoutes';
-import departmentRoutes from './routes/departmentRoutes';
+import organizationRoutes from './routes/organizationRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
-import collegeAdminRoutes from './routes/collegeAdminRoutes';
-import themeRoutes from './routes/themeRoutes';
+import orgAdminRoutes from './routes/orgAdminRoutes';
 import { Event } from './models/Event';
 import { Registration } from './models/Registration';
 import { sendReminderEmail } from './services/emailService';
@@ -52,15 +50,12 @@ async function startServer() {
     console.warn('MONGODB_URI not found in environment variables. Database features will not work.');
   }
 
-  // API Routes
   app.use('/api/auth', authRoutes);
   app.use('/api/events', eventRoutes);
   app.use('/api/registrations', registrationRoutes);
-  app.use('/api/colleges', collegeRoutes);
-  app.use('/api/departments', departmentRoutes);
+  app.use('/api/organizations', organizationRoutes);
   app.use('/api/analytics', analyticsRoutes);
-  app.use('/api/college-admin', collegeAdminRoutes);
-  app.use('/api/theme', themeRoutes);
+  app.use('/api/org-admin', orgAdminRoutes);
 
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Server is running' });
