@@ -1,8 +1,8 @@
 import express from 'express';
-import { College } from '../models/College';
+import { Organization } from '../models/Organization';
 import { User } from '../models/User';
 import { AuditLog } from '../models/AuditLog';
-import { authMiddleware, adminMiddleware } from '../middleware/auth';
+import { authMiddleware } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -14,7 +14,7 @@ const toSlug = (value: string) =>
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-');
 
-// Super Admin: Create a new college and its initial admin
+// Super Admin: Create a new organization and its initial admin
 router.post('/', authMiddleware, async (req: any, res) => {
   if (req.user.role !== 'super_admin' && req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Super Admin access required' });
@@ -23,9 +23,11 @@ router.post('/', authMiddleware, async (req: any, res) => {
   try {
     const { name, domain, logo, address, slug, adminName, adminEmail, adminPassword } = req.body;
     
-    // Check if college domain exists
-    const existingCollege = await College.findOne({ domain });
-    if (existingCollege) return res.status(400).json({ message: 'College with this domain already exists' });
+    // Check if organization domain exists (optional check)
+    if (domain) {
+      const existingOrg = await Organization.findOne({ domain });
+      if (existingOrg) return res.status(400).json({ message: 'Organization with this domain already exists' });
+    }
 
     // Check if admin email exists
     if (adminEmail) {
@@ -34,12 +36,12 @@ router.post('/', authMiddleware, async (req: any, res) => {
     }
 
     const normalizedSlug = toSlug(slug || name);
-    const existingSlug = await College.findOne({ slug: normalizedSlug });
-    if (existingSlug) return res.status(400).json({ message: 'College slug already exists' });
+    const existingSlug = await Organization.findOne({ slug: normalizedSlug });
+    if (existingSlug) return res.status(400).json({ message: 'Organization slug already exists' });
 
-    // Create College
-    const college = new College({ name, slug: normalizedSlug, domain, logo, address });
-    await college.save();
+    // Create Organization
+    const organization = new Organization({ name, slug: normalizedSlug, domain, logo, address });
+    await organization.save();
 
     // Create Admin if provided
     let adminUser = null;
@@ -48,8 +50,8 @@ router.post('/', authMiddleware, async (req: any, res) => {
         name: adminName,
         email: adminEmail,
         password: adminPassword,
-        role: 'college_admin',
-        college: college._id
+        role: 'org_admin',
+        organization: organization._id
       });
       await adminUser.save();
     }
@@ -57,13 +59,13 @@ router.post('/', authMiddleware, async (req: any, res) => {
     // Log Audit
     await AuditLog.create({
       userId: req.user.id,
-      action: 'CREATE_COLLEGE',
-      module: 'COLLEGE',
-      details: `Created college: ${name} (${domain})${adminUser ? ` with admin: ${adminEmail}` : ''}`
+      action: 'CREATE_ORGANIZATION',
+      module: 'SYSTEM',
+      details: `Created organization: ${name} (${domain || 'no domain'})${adminUser ? ` with admin: ${adminEmail}` : ''}`
     });
 
     res.status(201).json({
-      college,
+      organization,
       admin: adminUser ? { id: adminUser._id, name: adminUser.name, email: adminUser.email } : null
     });
   } catch (err) {
@@ -72,68 +74,68 @@ router.post('/', authMiddleware, async (req: any, res) => {
   }
 });
 
-// Public: Get college profile by slug + published events
+// Public: Get organization profile by slug + published events
 router.get('/slug/:slug', async (req, res) => {
   try {
     const slug = toSlug(req.params.slug);
-    const college = await College.findOne({ slug }).lean();
-    if (!college) return res.status(404).json({ message: 'College not found' });
+    const organization = await Organization.findOne({ slug }).lean();
+    if (!organization) return res.status(404).json({ message: 'Organization not found' });
 
     const { Event } = await import('../models/Event');
-    const events = await Event.find({ college: college._id, status: 'published' })
+    const events = await Event.find({ organization: organization._id, status: 'published' })
       .sort({ date: 1 })
       .limit(30);
 
-    res.json({ college, events });
+    res.json({ organization, events });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Super Admin: Get all colleges
+// Super Admin: Get all organizations
 router.get('/', authMiddleware, async (req: any, res) => {
   if (req.user.role !== 'super_admin' && req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Super Admin access required' });
   }
 
   try {
-    const colleges = await College.find();
-    res.json(colleges);
+    const organizations = await Organization.find();
+    res.json(organizations);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Super Admin: Assign College Admin
+// Super Admin: Assign Organization Admin
 router.post('/assign-admin', authMiddleware, async (req: any, res) => {
   if (req.user.role !== 'super_admin' && req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Super Admin access required' });
   }
 
   try {
-    const { userId, collegeId } = req.body;
+    const { userId, organizationId } = req.body;
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    user.role = 'college_admin';
-    user.college = collegeId;
+    user.role = 'org_admin';
+    user.organization = organizationId;
     await user.save();
 
     // Log Audit
     await AuditLog.create({
       userId: req.user.id,
-      action: 'ASSIGN_COLLEGE_ADMIN',
-      module: 'COLLEGE',
-      details: `Assigned user ${user.email} as admin for college ${collegeId}`
+      action: 'ASSIGN_ORG_ADMIN',
+      module: 'SYSTEM',
+      details: `Assigned user ${user.email} as admin for organization ${organizationId}`
     });
 
-    res.json({ message: 'College Admin assigned successfully', user });
+    res.json({ message: 'Organization Admin assigned successfully', user });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Super Admin: Update College Status
+// Super Admin: Update Organization Status
 router.patch('/:id/status', authMiddleware, async (req: any, res) => {
   if (req.user.role !== 'super_admin' && req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Super Admin access required' });
@@ -141,23 +143,23 @@ router.patch('/:id/status', authMiddleware, async (req: any, res) => {
 
   try {
     const { status } = req.body;
-    const college = await College.findByIdAndUpdate(req.params.id, { status }, { new: true });
-    if (!college) return res.status(404).json({ message: 'College not found' });
+    const organization = await Organization.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    if (!organization) return res.status(404).json({ message: 'Organization not found' });
 
     await AuditLog.create({
       userId: req.user.id,
-      action: 'UPDATE_COLLEGE_STATUS',
-      module: 'COLLEGE',
-      details: `Updated college ${college.name} status to ${status}`
+      action: 'UPDATE_ORGANIZATION_STATUS',
+      module: 'SYSTEM',
+      details: `Updated organization ${organization.name} status to ${status}`
     });
 
-    res.json(college);
+    res.json(organization);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Super Admin: Update College Features
+// Super Admin: Update Organization Features
 router.patch('/:id/features', authMiddleware, async (req: any, res) => {
   if (req.user.role !== 'super_admin' && req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Super Admin access required' });
@@ -165,17 +167,17 @@ router.patch('/:id/features', authMiddleware, async (req: any, res) => {
 
   try {
     const { features } = req.body;
-    const college = await College.findByIdAndUpdate(req.params.id, { features }, { new: true });
-    if (!college) return res.status(404).json({ message: 'College not found' });
+    const organization = await Organization.findByIdAndUpdate(req.params.id, { features }, { new: true });
+    if (!organization) return res.status(404).json({ message: 'Organization not found' });
 
     await AuditLog.create({
       userId: req.user.id,
-      action: 'UPDATE_COLLEGE_FEATURES',
-      module: 'COLLEGE',
-      details: `Updated college ${college.name} features`
+      action: 'UPDATE_ORGANIZATION_FEATURES',
+      module: 'SYSTEM',
+      details: `Updated organization ${organization.name} features`
     });
 
-    res.json(college);
+    res.json(organization);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }

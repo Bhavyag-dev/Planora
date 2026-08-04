@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 
 const transactionSchema = new mongoose.Schema({
-  college: {
+  organization: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'College',
+    ref: 'Organization',
     required: true
   },
   event: {
@@ -24,7 +24,7 @@ const transactionSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  collegeRevenue: {
+  organizationRevenue: {
     type: Number,
     required: true
   },

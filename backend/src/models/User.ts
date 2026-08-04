@@ -7,12 +7,10 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: { 
     type: String, 
-    enum: ['super_admin', 'college_admin', 'dept_admin', 'spec_admin', 'student', 'admin'], 
-    default: 'student' 
+    enum: ['super_admin', 'org_admin', 'user'], 
+    default: 'user' 
   },
-  college: { type: mongoose.Schema.Types.ObjectId, ref: 'College' },
-  department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department' },
-  specialization: { type: mongoose.Schema.Types.ObjectId, ref: 'Specialization' },
+  organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization' },
   createdAt: { type: Date, default: Date.now },
 }, { timestamps: true });
 
