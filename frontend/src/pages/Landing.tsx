@@ -306,10 +306,10 @@ export function Landing() {
         {/* Heading with text-shadow glow for maximum readability against background */}
         <h1 
           style={{ textShadow: '0 2px 16px rgba(255, 255, 255, 0.95), 0 4px 40px rgba(255, 255, 255, 0.85)' }}
-          className="relative z-10 max-w-5xl text-5xl font-extrabold tracking-tight text-neutral-950 leading-[1.08] sm:text-6xl md:text-7xl lg:text-[5.4rem] font-display"
+          className="relative z-10 max-w-5xl text-4xl font-extrabold tracking-tight text-neutral-800 leading-[1.1] sm:text-5xl md:text-6xl lg:text-[4.6rem] font-display"
         >
-          Radiant Events,<br />
-          Seamless Organization Easy!
+          Radiant <span className="font-cursive text-neutral-700 font-normal capitalize tracking-normal text-[1.05em] inline-block mr-1">Events</span>,<br />
+          Seamless Organization <span className="font-cursive text-neutral-700 font-normal lowercase tracking-normal text-[1.05em] inline-block mr-1">easy!</span>
         </h1>
 
         {/* Subtitle */}
