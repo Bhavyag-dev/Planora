@@ -280,7 +280,7 @@ export function Landing() {
       </div>
 
       {/* Full-Bleed Page Level Background Image spanning absolute top-0 */}
-      <div className="absolute top-0 inset-x-0 h-[800px] sm:h-[950px] z-0 overflow-hidden pointer-events-none select-none">
+      <div className="absolute top-0 inset-x-0 h-screen z-0 overflow-hidden pointer-events-none select-none">
         <img 
           src="/morning.png" 
           alt="Event Background" 
@@ -290,9 +290,9 @@ export function Landing() {
       </div>
 
       {/* Hero Section */}
-      <section className="relative flex flex-col items-center justify-center pt-32 pb-20 text-center px-6 overflow-hidden">
+      <section className="relative flex flex-col items-center justify-center pt-48 pb-32 text-center px-6 overflow-hidden">
         {/* Central Badge */}
-        <div className="relative z-10 mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-200/80 bg-white px-4 py-1.5 text-[11px] font-semibold text-neutral-700 shadow-sm hover:border-neutral-300 transition-colors duration-300 select-none">
+        <div className="relative z-10 mb-10 inline-flex items-center gap-2 rounded-full border border-neutral-200/80 bg-white px-4 py-1.5 text-[11px] font-semibold text-neutral-700 shadow-sm hover:border-neutral-300 transition-colors duration-300 select-none">
           <span>⚡</span>
           <span className="text-neutral-400">→</span>
           <span className="flex items-center gap-1">
@@ -315,14 +315,14 @@ export function Landing() {
         {/* Subtitle */}
         <p 
           style={{ textShadow: '0 2px 10px rgba(255, 255, 255, 0.95)' }}
-          className="relative z-10 mt-8 max-w-2xl text-[15px] font-semibold text-neutral-850 leading-relaxed font-sans"
+          className="relative z-10 mt-12 max-w-2xl text-[15px] font-semibold text-neutral-850 leading-relaxed font-sans"
         >
           Dive into the ultimate event management experience with Planora.<br />
           We specialize in helping workspaces and communities create vibrant, unforgettable happenings.
         </p>
 
         {/* CTA Button */}
-        <div className="relative z-10 mt-10 flex flex-col items-center gap-3">
+        <div className="relative z-10 mt-14 flex flex-col items-center gap-3">
           <Link
             to="/events"
             className="group inline-flex items-center gap-2 rounded-full bg-neutral-950 px-7 py-4 text-sm font-semibold text-white hover:bg-neutral-800 transition-colors duration-200 shadow-md"
