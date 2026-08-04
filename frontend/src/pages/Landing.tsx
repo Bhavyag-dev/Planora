@@ -131,8 +131,8 @@ export function Landing() {
           {/* Main Navbar Row */}
           <div className="flex items-center justify-between w-full">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 shrink-0">
-              <span className="text-xl font-extrabold tracking-tight text-neutral-950 font-display">
+            <Link to="/" className="flex items-center gap-2 shrink-0 pl-2">
+              <span className="text-[22px] font-black tracking-tight text-neutral-950 font-display">
                 Planora
               </span>
             </Link>
