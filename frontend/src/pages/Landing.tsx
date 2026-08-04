@@ -144,22 +144,25 @@ export function Landing() {
               </Link>
               
               {/* Planning Dropdown */}
-              <div className="relative">
+              <div 
+                className="relative"
+                onMouseEnter={() => {
+                  setPlanningDropdown(true);
+                  setCategoryDropdown(false);
+                }}
+                onMouseLeave={() => setPlanningDropdown(false)}
+              >
                 <button 
-                  onClick={() => {
-                    setPlanningDropdown(!planningDropdown);
-                    setCategoryDropdown(false);
-                  }}
                   className="flex items-center gap-1 text-[13px] font-semibold text-neutral-600 hover:text-neutral-950 transition-colors focus:outline-none"
                 >
                   Planning <ChevronDown size={13} className={`transition-transform duration-200 ${planningDropdown ? 'rotate-180' : ''}`} />
                 </button>
                 {planningDropdown && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-44 rounded-2xl border border-neutral-100 bg-white p-2 shadow-lg ring-1 ring-black/5 animate-in fade-in duration-200 z-50">
-                    <Link to="/events" onClick={() => setPlanningDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2.5 w-44 rounded-2xl border border-white/60 bg-white/55 p-2 shadow-xl backdrop-blur-xl animate-in fade-in duration-200 z-50 pointer-events-auto">
+                    <Link to="/events" onClick={() => setPlanningDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-white/40 hover:text-neutral-950 transition-colors duration-150">
                       Browse Events
                     </Link>
-                    <Link to="/signup" onClick={() => setPlanningDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
+                    <Link to="/signup" onClick={() => setPlanningDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-white/40 hover:text-neutral-950 transition-colors duration-150">
                       Host Profile
                     </Link>
                   </div>
@@ -167,25 +170,28 @@ export function Landing() {
               </div>
 
               {/* Categories Dropdown */}
-              <div className="relative">
+              <div 
+                className="relative"
+                onMouseEnter={() => {
+                  setCategoryDropdown(true);
+                  setPlanningDropdown(false);
+                }}
+                onMouseLeave={() => setCategoryDropdown(false)}
+              >
                 <button 
-                  onClick={() => {
-                    setCategoryDropdown(!categoryDropdown);
-                    setPlanningDropdown(false);
-                  }}
                   className="flex items-center gap-1 text-[13px] font-semibold text-neutral-600 hover:text-neutral-950 transition-colors focus:outline-none"
                 >
                   Categories <ChevronDown size={13} className={`transition-transform duration-200 ${categoryDropdown ? 'rotate-180' : ''}`} />
                 </button>
                 {categoryDropdown && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-44 rounded-2xl border border-neutral-100 bg-white p-2 shadow-lg ring-1 ring-black/5 animate-in fade-in duration-200 z-50">
-                    <Link to="/events?cat=Technical" onClick={() => setCategoryDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2.5 w-44 rounded-2xl border border-white/60 bg-white/55 p-2 shadow-xl backdrop-blur-xl animate-in fade-in duration-200 z-50 pointer-events-auto">
+                    <Link to="/events?cat=Technical" onClick={() => setCategoryDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-white/40 hover:text-neutral-950 transition-colors duration-150">
                       Technical & Talks
                     </Link>
-                    <Link to="/events?cat=Workshop" onClick={() => setCategoryDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
+                    <Link to="/events?cat=Workshop" onClick={() => setCategoryDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-white/40 hover:text-neutral-950 transition-colors duration-150">
                       Workshops
                     </Link>
-                    <Link to="/events?cat=Cultural" onClick={() => setCategoryDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
+                    <Link to="/events?cat=Cultural" onClick={() => setCategoryDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-white/40 hover:text-neutral-950 transition-colors duration-150">
                       Cultural fests
                     </Link>
                   </div>
@@ -284,7 +290,7 @@ export function Landing() {
         <img 
           src="/morning.png" 
           alt="Event Background" 
-          className="w-full h-full object-cover opacity-[0.98] filter saturate-[1.1] contrast-[1.02]" 
+          className="w-full h-full object-cover opacity-[0.88] filter saturate-[1.1] contrast-[1.02]" 
         />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fbfbfb]/40 to-[#fbfbfb]" />
       </div>
