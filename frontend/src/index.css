@@ -3,6 +3,8 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Fustat", "Schibsted Grotesk", sans-serif;
+  --font-cursive: "Caveat", cursive;
+  --font-serif-italic: "Playfair Display", serif;
 }
 
 @layer base {

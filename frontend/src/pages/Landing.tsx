@@ -15,6 +15,7 @@ import {
   Twitter,
   Instagram
 } from 'lucide-react';
+import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'motion/react';
 
 export function Landing() {
   const { isAuthenticated, user } = useAuth();
@@ -24,7 +25,23 @@ export function Landing() {
   const [planningDropdown, setPlanningDropdown] = useState(false);
   const [categoryDropdown, setCategoryDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  // Navbar shrink scroll triggers (copied collapse physics from Fetchz)
+  const { scrollY } = useScroll();
+  const [scrolled, setScrolled] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(true);
   const [scrollRatio, setScrollRatio] = useState(0);
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setScrolled(latest > 20);
+  });
+
+  useEffect(() => {
+    const update = () => setIsDesktop(window.innerWidth >= 768);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   // Fetch events from API
   useEffect(() => {
@@ -45,15 +62,15 @@ export function Landing() {
     fetchEvents();
   }, []);
 
-  // Track scroll position to collapse footer content slightly towards Planora watermark
+  // Safe bottom collapse tracker (does not reflow layout or cause page height jitter)
   useEffect(() => {
     const handleScroll = () => {
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       if (docHeight <= 0) return;
-      const scrolled = window.scrollY;
-      const triggerStart = docHeight - 350; // starts collapse in the last 350px
-      if (scrolled > triggerStart) {
-        const ratio = (scrolled - triggerStart) / 350;
+      const scrolledVal = window.scrollY;
+      const triggerStart = docHeight - 300;
+      if (scrolledVal > triggerStart) {
+        const ratio = (scrolledVal - triggerStart) / 300;
         setScrollRatio(Math.min(1, Math.max(0, ratio)));
       } else {
         setScrollRatio(0);
@@ -93,179 +110,179 @@ export function Landing() {
   return (
     <div className="min-h-screen bg-[#fbfbfb] text-neutral-900 font-sans antialiased selection:bg-neutral-200 overflow-x-hidden">
       
-      {/* Sticky, Collapsible Navbar */}
-      <header className="sticky top-0 z-50 w-full bg-[#fbfbfb]/90 backdrop-blur-md border-b border-neutral-100/60 transition-all duration-300">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <span className="text-2xl font-extrabold tracking-tight text-neutral-900 font-display">
-              Planora
-            </span>
-          </Link>
-
-          {/* Desktop Nav Links */}
-          <nav className="hidden items-center gap-8 md:flex">
-            <Link to="/" className="text-[13px] font-medium text-neutral-600 hover:text-neutral-950 transition-colors">
-              Home
+      {/* Floating Collapsible Navbar (Physics and collapse styles copied from Fetchz) */}
+      <div className="fixed inset-x-0 top-0 z-50 pointer-events-none px-4 sm:px-8 md:px-16 pt-4">
+        <motion.nav
+          initial={false}
+          animate={{
+            borderRadius: "9999px",
+            boxShadow: scrolled ? "0 8px 32px rgba(0,0,0,0.06)" : "0 2px 12px rgba(0,0,0,0.02)",
+            paddingLeft: scrolled ? (isDesktop ? "1.5rem" : "1.25rem") : "1.5rem",
+            paddingRight: scrolled ? (isDesktop ? "1.5rem" : "1.25rem") : "1.5rem",
+            maxWidth: scrolled ? (isDesktop ? "44rem" : "92%") : "72rem",
+            backgroundColor: scrolled ? "rgba(251, 251, 251, 0.85)" : "rgba(251, 251, 251, 0.98)",
+            backdropFilter: scrolled ? "blur(18px)" : "blur(8px)",
+            border: scrolled ? "1px solid rgba(0, 0, 0, 0.08)" : "1px solid rgba(0, 0, 0, 0.04)",
+          }}
+          style={{ marginLeft: "auto", marginRight: "auto" }}
+          transition={{ type: "spring", stiffness: 120, damping: 22 }}
+          className="pointer-events-auto w-full flex flex-col justify-center py-3.5 text-neutral-900 z-50"
+        >
+          {/* Main Navbar Row */}
+          <div className="flex items-center justify-between w-full">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2 shrink-0">
+              <span className="text-xl font-extrabold tracking-tight text-neutral-950 font-display">
+                Planora
+              </span>
             </Link>
-            
-            {/* Planning Dropdown */}
-            <div className="relative">
-              <button 
-                onClick={() => {
-                  setPlanningDropdown(!planningDropdown);
-                  setCategoryDropdown(false);
-                }}
-                className="flex items-center gap-1 text-[13px] font-medium text-neutral-600 hover:text-neutral-950 transition-colors focus:outline-none"
-              >
-                Planning <ChevronDown size={14} className={`transition-transform duration-200 ${planningDropdown ? 'rotate-180' : ''}`} />
-              </button>
-              {planningDropdown && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 rounded-xl border border-neutral-100 bg-white p-2 shadow-lg ring-1 ring-black/5 animate-in fade-in duration-200 z-50">
-                  <Link to="/events" className="block rounded-lg px-3 py-2 text-[13px] text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
-                    Browse All Events
-                  </Link>
-                  <Link to="/signup" className="block rounded-lg px-3 py-2 text-[13px] text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
-                    Create Organizer Profile
-                  </Link>
-                </div>
-              )}
-            </div>
 
-            {/* Event Categories Dropdown */}
-            <div className="relative">
-              <button 
-                onClick={() => {
-                  setCategoryDropdown(!categoryDropdown);
-                  setPlanningDropdown(false);
-                }}
-                className="flex items-center gap-1 text-[13px] font-medium text-neutral-600 hover:text-neutral-950 transition-colors focus:outline-none"
-              >
-                Categories <ChevronDown size={14} className={`transition-transform duration-200 ${categoryDropdown ? 'rotate-180' : ''}`} />
-              </button>
-              {categoryDropdown && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 rounded-xl border border-neutral-100 bg-white p-2 shadow-lg ring-1 ring-black/5 animate-in fade-in duration-200 z-50">
-                  <Link to="/events?cat=Technical" className="block rounded-lg px-3 py-2 text-[13px] text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
-                    Technical & Talks
-                  </Link>
-                  <Link to="/events?cat=Workshop" className="block rounded-lg px-3 py-2 text-[13px] text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
-                    Creative Workshops
-                  </Link>
-                  <Link to="/events?cat=Cultural" className="block rounded-lg px-3 py-2 text-[13px] text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
-                    Cultural & Festivals
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            <a href="#pricing" className="text-[13px] font-medium text-neutral-600 hover:text-neutral-950 transition-colors">
-              Pricing
-            </a>
-            <a href="#faqs" className="text-[13px] font-medium text-neutral-600 hover:text-neutral-950 transition-colors">
-              FAQs
-            </a>
-          </nav>
-
-          {/* Desktop Right Side */}
-          <div className="hidden items-center gap-4 md:flex">
-            {/* Language Selector */}
-            <div className="relative">
-              <button 
-                onClick={() => setLangDropdown(!langDropdown)}
-                className="flex items-center gap-1.5 text-[13px] font-medium text-neutral-500 hover:text-neutral-950 transition-colors focus:outline-none"
-              >
-                <Globe size={15} />
-                <span>English</span>
-              </button>
-              {langDropdown && (
-                <div className="absolute right-0 mt-2 w-32 rounded-xl border border-neutral-100 bg-white p-1.5 shadow-lg ring-1 ring-black/5 animate-in fade-in duration-200">
-                  <button className="w-full text-left rounded-lg px-3 py-1.5 text-[12px] text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950 font-medium">English</button>
-                  <button className="w-full text-left rounded-lg px-3 py-1.5 text-[12px] text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950 font-medium">Español</button>
-                </div>
-              )}
-            </div>
-
-            {/* Auth Button */}
-            {isAuthenticated && user ? (
-              <Link
-                to={user.role === 'super_admin' || user.role === 'admin' ? '/super-admin' : user.role === 'org_admin' ? '/org-admin' : '/dashboard'}
-                className="rounded-full bg-neutral-950 px-5 py-2 text-xs font-semibold text-white hover:bg-neutral-800 transition-colors duration-200 shadow-sm"
-              >
-                Dashboard
+            {/* Desktop Links */}
+            <div className="hidden md:flex items-center gap-6">
+              <Link to="/" className="text-[13px] font-semibold text-neutral-600 hover:text-neutral-950 transition-colors">
+                Home
               </Link>
-            ) : (
-              <div className="flex items-center gap-3">
-                <Link to="/login" className="text-[13px] font-medium text-neutral-600 hover:text-neutral-950 transition-colors">
-                  Login
-                </Link>
-                <Link
-                  to="/signup"
-                  className="rounded-full bg-neutral-950 px-5 py-2 text-xs font-semibold text-white hover:bg-neutral-800 transition-colors duration-200 shadow-sm"
+              
+              {/* Planning Dropdown */}
+              <div className="relative">
+                <button 
+                  onClick={() => {
+                    setPlanningDropdown(!planningDropdown);
+                    setCategoryDropdown(false);
+                  }}
+                  className="flex items-center gap-1 text-[13px] font-semibold text-neutral-600 hover:text-neutral-950 transition-colors focus:outline-none"
                 >
-                  Register
-                </Link>
+                  Planning <ChevronDown size={13} className={`transition-transform duration-200 ${planningDropdown ? 'rotate-180' : ''}`} />
+                </button>
+                {planningDropdown && (
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-44 rounded-2xl border border-neutral-100 bg-white p-2 shadow-lg ring-1 ring-black/5 animate-in fade-in duration-200">
+                    <Link to="/events" onClick={() => setPlanningDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
+                      Browse Events
+                    </Link>
+                    <Link to="/signup" onClick={() => setPlanningDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
+                      Host Profile
+                    </Link>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          {/* Mobile Hamburger Toggle */}
-          <button 
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="rounded-lg p-2 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none md:hidden"
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
-        </div>
+              {/* Categories Dropdown */}
+              <div className="relative">
+                <button 
+                  onClick={() => {
+                    setCategoryDropdown(!categoryDropdown);
+                    setPlanningDropdown(false);
+                  }}
+                  className="flex items-center gap-1 text-[13px] font-semibold text-neutral-600 hover:text-neutral-950 transition-colors focus:outline-none"
+                >
+                  Categories <ChevronDown size={13} className={`transition-transform duration-200 ${categoryDropdown ? 'rotate-180' : ''}`} />
+                </button>
+                {categoryDropdown && (
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-44 rounded-2xl border border-neutral-100 bg-white p-2 shadow-lg ring-1 ring-black/5 animate-in fade-in duration-200">
+                    <Link to="/events?cat=Technical" onClick={() => setCategoryDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
+                      Technical & Talks
+                    </Link>
+                    <Link to="/events?cat=Workshop" onClick={() => setCategoryDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
+                      Workshops
+                    </Link>
+                    <Link to="/events?cat=Cultural" onClick={() => setCategoryDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
+                      Cultural fests
+                    </Link>
+                  </div>
+                )}
+              </div>
 
-        {/* Collapsible Mobile Menu panel */}
-        {mobileMenuOpen && (
-          <div className="border-t border-neutral-100 bg-[#fbfbfb] px-6 py-4 space-y-4 animate-in slide-in-from-top duration-300 md:hidden">
-            <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-neutral-700 hover:text-neutral-950">
-              Home
-            </Link>
-            <Link to="/events" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-neutral-700 hover:text-neutral-950">
-              Browse Events
-            </Link>
-            <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-neutral-700 hover:text-neutral-950">
-              Pricing
-            </a>
-            <a href="#faqs" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-neutral-700 hover:text-neutral-950">
-              FAQs
-            </a>
-            
-            <div className="border-t border-neutral-100 pt-4 flex flex-col gap-3">
+              <a href="#pricing" className="text-[13px] font-semibold text-neutral-600 hover:text-neutral-950 transition-colors">
+                Pricing
+              </a>
+            </div>
+
+            {/* Desktop Auth Controls */}
+            <div className="hidden md:flex items-center gap-3">
               {isAuthenticated && user ? (
                 <Link
                   to={user.role === 'super_admin' || user.role === 'admin' ? '/super-admin' : user.role === 'org_admin' ? '/org-admin' : '/dashboard'}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full rounded-full bg-neutral-950 text-center py-2.5 text-xs font-semibold text-white"
+                  className="rounded-full bg-neutral-950 px-4.5 py-1.5 text-xs font-bold text-white hover:bg-neutral-800 transition shadow-sm"
                 >
                   Dashboard
                 </Link>
               ) : (
-                <>
-                  <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="w-full text-center py-2 text-sm font-semibold text-neutral-700">
+                <div className="flex items-center gap-3">
+                  <Link to="/login" className="text-[13px] font-semibold text-neutral-600 hover:text-neutral-950 transition">
                     Login
                   </Link>
                   <Link
                     to="/signup"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="w-full rounded-full bg-neutral-950 text-center py-2.5 text-xs font-semibold text-white"
+                    className="rounded-full bg-neutral-950 px-4.5 py-1.5 text-xs font-bold text-white hover:bg-neutral-800 transition shadow-sm"
                   >
                     Register
                   </Link>
-                </>
+                </div>
               )}
             </div>
+
+            {/* Mobile Menu Button */}
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="rounded-full p-1.5 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none md:hidden"
+            >
+              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
           </div>
-        )}
-      </header>
+
+          {/* Collapsible mobile panel within floating pill container */}
+          <AnimatePresence>
+            {mobileMenuOpen && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className="w-full mt-3 pt-3 border-t border-neutral-200/50 flex flex-col gap-2.5 overflow-hidden md:hidden px-1"
+              >
+                <Link to="/" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold text-neutral-700 hover:text-neutral-950">
+                  Home
+                </Link>
+                <Link to="/events" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold text-neutral-700 hover:text-neutral-950">
+                  Browse Events
+                </Link>
+                <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold text-neutral-700 hover:text-neutral-950">
+                  Pricing
+                </a>
+                <div className="border-t border-neutral-100 pt-3 flex items-center justify-between gap-3">
+                  {isAuthenticated && user ? (
+                    <Link
+                      to={user.role === 'super_admin' || user.role === 'admin' ? '/super-admin' : user.role === 'org_admin' ? '/org-admin' : '/dashboard'}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full rounded-full bg-neutral-950 text-center py-2 text-xs font-bold text-white"
+                    >
+                      Dashboard
+                    </Link>
+                  ) : (
+                    <>
+                      <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold text-neutral-600 py-1 px-3">
+                        Login
+                      </Link>
+                      <Link
+                        to="/signup"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="rounded-full bg-neutral-950 text-center py-2 px-4 text-xs font-bold text-white shrink-0"
+                      >
+                        Register
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.nav>
+      </div>
 
       {/* Hero Section */}
-      <section className="relative flex flex-col items-center justify-center pt-20 pb-16 text-center px-6 overflow-hidden animate-in fade-in duration-500">
+      <section className="relative flex flex-col items-center justify-center pt-28 pb-16 text-center px-6 overflow-hidden">
         {/* Central Badge */}
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-200/80 bg-white px-4 py-1.5 text-[11px] font-semibold text-neutral-700 shadow-sm hover:border-neutral-300 transition-colors duration-300 select-none animate-bounce">
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-200/80 bg-white px-4 py-1.5 text-[11px] font-semibold text-neutral-700 shadow-sm hover:border-neutral-300 transition-colors duration-300 select-none">
           <span>⚡</span>
           <span className="text-neutral-400">→</span>
           <span className="flex items-center gap-1">
@@ -283,7 +300,7 @@ export function Landing() {
         </h1>
 
         {/* Subtitle */}
-        <p className="mt-8 max-w-2xl text-[15px] font-medium text-neutral-500 leading-relaxed font-sans animate-in slide-in-from-bottom duration-700">
+        <p className="mt-8 max-w-2xl text-[15px] font-medium text-neutral-500 leading-relaxed font-sans">
           Dive into the ultimate event management experience with Planora.<br />
           We specialize in helping workspaces and communities create vibrant, unforgettable happenings.
         </p>
@@ -328,7 +345,7 @@ export function Landing() {
               Together, let's<br />
               make this event<br />
               unforgettable!<br />
-              with <span className="text-neutral-400 font-normal">ultimate planning experience!</span>
+              with <span className="text-neutral-400 font-normal font-cursive text-3.5xl block sm:inline leading-none">ultimate planning experience!</span>
             </h2>
             <p className="text-[14px] leading-relaxed text-neutral-500 font-sans">
               Our passion for creating colorful and energetic events means every single meetup, workshop, and conference is a masterpiece of fun. Get ready for a workspace filled with vivid memories and vibrant celebrations.
@@ -447,7 +464,7 @@ export function Landing() {
               <Link 
                 key={event._id}
                 to={`/events/${event._id}`}
-                className="group flex flex-col bg-white rounded-3xl border border-neutral-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 animate-in fade-in duration-500"
+                className="group flex flex-col bg-white rounded-3xl border border-neutral-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
               >
                 {/* Event Image */}
                 <div className="relative aspect-[16/10] bg-neutral-50 overflow-hidden">
@@ -537,15 +554,9 @@ export function Landing() {
         </div>
       </section>
 
-      {/* Proper Footer Container (Testimonial, menus, coffee, social, copyright) */}
+      {/* Proper Footer Container (Testimonials quote with cursive, menus, coffee, social, copyright) */}
       <footer className="relative bg-[#fbfbfb] border-t border-neutral-100 pt-20 pb-16 z-10">
-        <div 
-          className="mx-auto max-w-7xl px-6 relative z-10 space-y-12"
-          style={{ 
-            transform: `translateY(${scrollRatio * 20}px)`, 
-            transition: 'transform 0.08s ease-out' 
-          }}
-        >
+        <div className="mx-auto max-w-7xl px-6 space-y-12">
           {/* Quote / Testimonial row */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-10 max-w-5xl mx-auto">
             {/* Quote block */}
@@ -553,7 +564,7 @@ export function Landing() {
               <span className="text-[11px] font-bold font-mono text-neutral-300 uppercase tracking-widest select-none">
                 Planora Experience
               </span>
-              <p className="text-base sm:text-[17px] font-medium text-neutral-800 leading-relaxed font-sans font-display">
+              <p className="text-3xl font-medium text-neutral-800 leading-normal font-cursive">
                 " With our combined expertise and passion for organization, we promise to deliver an event that's <span className="text-neutral-400 font-normal">not just an event</span>, a vibrant memory etched in the minds of your audience. "
               </p>
               <div className="flex items-center gap-2 pt-2">
@@ -592,10 +603,10 @@ export function Landing() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-8 pt-10 border-t border-neutral-100/80 max-w-5xl mx-auto">
             <div className="flex flex-col md:items-start gap-4">
               {/* Menu Links */}
-              <div className="flex gap-6 text-xs font-semibold text-neutral-800">
-                <a href="#about" className="hover:text-neutral-500 transition-colors font-display">About us &nbsp;→</a>
-                <a href="#blog" className="hover:text-neutral-500 transition-colors font-display">Blog &nbsp;→</a>
-                <a href="#contact" className="hover:text-neutral-500 transition-colors font-display">Contact us &nbsp;→</a>
+              <div className="flex gap-6 text-xs font-semibold text-neutral-800 font-display">
+                <a href="#about" className="hover:text-neutral-500 transition-colors">About us &nbsp;→</a>
+                <a href="#blog" className="hover:text-neutral-500 transition-colors">Blog &nbsp;→</a>
+                <a href="#contact" className="hover:text-neutral-500 transition-colors">Contact us &nbsp;→</a>
               </div>
               
               <p className="text-[11px] text-neutral-400 max-w-sm leading-relaxed font-sans">
@@ -642,10 +653,15 @@ export function Landing() {
         </div>
       </footer>
 
-      {/* Dedicated Watermark Brand Block at the Absolute Bottom (Below Footer) */}
-      <div className="relative w-full bg-[#fbfbfb] pb-10 border-t border-neutral-100/40 select-none z-0">
+      {/* Separate Watermark block BELOW the proper footer, collapsing cleanly on scroll */}
+      <div className="relative w-full bg-[#fbfbfb] pb-12 pt-4 border-t border-neutral-100/40 select-none overflow-hidden z-0">
         <div className="w-full text-center">
-          <span className="inline-block font-display font-black text-[13.5vw] tracking-[-0.01em] text-[#ececee]/80 uppercase leading-none transform scale-x-[1.05] origin-center">
+          <motion.span 
+            style={{ 
+              y: -scrollRatio * 35 
+            }}
+            className="inline-block font-display font-black text-[13.5vw] tracking-[0.06em] text-[#ececee]/80 uppercase leading-none transform scale-x-[1.05] origin-center"
+          >
             Planora
           </span>
         </div>
