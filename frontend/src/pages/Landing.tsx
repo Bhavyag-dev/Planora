@@ -292,7 +292,7 @@ export function Landing() {
           alt="Event Background" 
           className="w-full h-full object-cover opacity-[0.88] filter saturate-[1.1] contrast-[1.02]" 
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fbfbfb]/40 to-[#fbfbfb]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fbfbfb]/20 to-[#fbfbfb]/75" />
       </div>
 
       {/* Hero Section */}
