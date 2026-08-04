@@ -17,7 +17,7 @@ export function Landing() {
   const [loadingEvents, setLoadingEvents] = useState(true);
   const [langDropdown, setLangDropdown] = useState(false);
   const [planningDropdown, setPlanningDropdown] = useState(false);
-  const [partiesDropdown, setPartiesDropdown] = useState(false);
+  const [categoryDropdown, setCategoryDropdown] = useState(false);
 
   // Fetch events from API
   useEffect(() => {
@@ -40,28 +40,28 @@ export function Landing() {
 
   const galleryImages = [
     {
-      url: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80',
-      alt: 'Refreshing summer drinks'
+      url: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=600&q=80',
+      alt: 'Corporate event conference'
     },
     {
-      url: 'https://images.unsplash.com/photo-1589927986089-35812388d1f4?auto=format&fit=crop&w=600&q=80',
-      alt: 'Watermelon on beach towel'
+      url: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=600&q=80',
+      alt: 'Seminar stage presentation'
     },
     {
-      url: 'https://images.unsplash.com/photo-1543007630-9710e4a00a20?auto=format&fit=crop&w=600&q=80',
-      alt: 'Raising glasses'
+      url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=600&q=80',
+      alt: 'Networking dinner gathering'
     },
     {
-      url: 'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=600&q=80',
-      alt: 'Pool party floating'
+      url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=600&q=80',
+      alt: 'Music concert crowd'
     },
     {
-      url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80',
-      alt: 'Surfboards on tropical beach'
+      url: 'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=600&q=80',
+      alt: 'Festive community social event'
     },
     {
-      url: 'https://images.unsplash.com/photo-1501446529957-6226bd447c46?auto=format&fit=crop&w=600&q=80',
-      alt: 'Ice cream sprinkle cone'
+      url: 'https://images.unsplash.com/photo-1531058020387-3be344559be6?auto=format&fit=crop&w=600&q=80',
+      alt: 'Creative design workshop'
     }
   ];
 
@@ -73,7 +73,7 @@ export function Landing() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <span className="text-2xl font-extrabold tracking-tight text-neutral-900 font-display">
-              Sumip
+              Planora
             </span>
           </Link>
 
@@ -88,7 +88,7 @@ export function Landing() {
               <button 
                 onClick={() => {
                   setPlanningDropdown(!planningDropdown);
-                  setPartiesDropdown(false);
+                  setCategoryDropdown(false);
                 }}
                 className="flex items-center gap-1 text-[13px] font-medium text-neutral-600 hover:text-neutral-950 transition-colors focus:outline-none"
               >
@@ -106,24 +106,27 @@ export function Landing() {
               )}
             </div>
 
-            {/* Summer-Parties Dropdown */}
+            {/* Event Categories Dropdown */}
             <div className="relative">
               <button 
                 onClick={() => {
-                  setPartiesDropdown(!partiesDropdown);
+                  setCategoryDropdown(!categoryDropdown);
                   setPlanningDropdown(false);
                 }}
                 className="flex items-center gap-1 text-[13px] font-medium text-neutral-600 hover:text-neutral-950 transition-colors focus:outline-none"
               >
-                Summer-Parties <ChevronDown size={14} className={`transition-transform duration-200 ${partiesDropdown ? 'rotate-180' : ''}`} />
+                Categories <ChevronDown size={14} className={`transition-transform duration-200 ${categoryDropdown ? 'rotate-180' : ''}`} />
               </button>
-              {partiesDropdown && (
+              {categoryDropdown && (
                 <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 rounded-xl border border-neutral-100 bg-white p-2 shadow-lg ring-1 ring-black/5 animate-in fade-in slide-in-from-top-1 duration-200">
-                  <Link to="/events?cat=Meetup" className="block rounded-lg px-3 py-2 text-[13px] text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
-                    Pool Meetups
+                  <Link to="/events?cat=Technical" className="block rounded-lg px-3 py-2 text-[13px] text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
+                    Technical & Talks
                   </Link>
                   <Link to="/events?cat=Workshop" className="block rounded-lg px-3 py-2 text-[13px] text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
-                    Summer Workshops
+                    Creative Workshops
+                  </Link>
+                  <Link to="/events?cat=Cultural" className="block rounded-lg px-3 py-2 text-[13px] text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950">
+                    Cultural & Festivals
                   </Link>
                 </div>
               )}
@@ -185,11 +188,11 @@ export function Landing() {
       <section className="relative flex flex-col items-center justify-center pt-20 pb-16 text-center px-6 overflow-hidden">
         {/* Central Badge */}
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-200/80 bg-white px-4 py-1.5 text-[11px] font-semibold text-neutral-700 shadow-sm hover:border-neutral-300 transition-colors duration-300 select-none">
-          <span>🥤</span>
+          <span>⚡</span>
           <span className="text-neutral-400">→</span>
           <span className="flex items-center gap-1">
             <span className="inline-block h-4 w-4 rounded-full bg-neutral-100 bg-[url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80')] bg-cover" />
-            Brightness-dreams
+            Planora Events
           </span>
           <span className="text-neutral-400">→</span>
           <span>🔍</span>
@@ -197,14 +200,14 @@ export function Landing() {
 
         {/* Heading */}
         <h1 className="max-w-5xl text-5xl font-extrabold tracking-tight text-neutral-950 leading-[1.08] sm:text-6xl md:text-7xl lg:text-[5.4rem] font-display">
-          Radiant Revelries,<br />
-          Sparkling Summer Parties Easy!
+          Radiant Events,<br />
+          Seamless Organization Easy!
         </h1>
 
         {/* Subtitle */}
         <p className="mt-8 max-w-2xl text-[15px] font-medium text-neutral-500 leading-relaxed font-sans">
-          Dive into the ultimate summer party experience with SumipSplash<br />
-          Celebrations! We specialize in creating vibrant, unforgettable events.
+          Dive into the ultimate event management experience with Planora.<br />
+          We specialize in helping workspaces and communities create vibrant, unforgettable happenings.
         </p>
 
         {/* CTA Button */}
@@ -217,7 +220,7 @@ export function Landing() {
             <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
           </Link>
           <span className="flex items-center gap-1 text-[11px] font-medium text-neutral-400 select-none mt-1">
-            🍁 Pause or cancel service anytime.
+            ⚡ Start hosting in minutes. No credit card required.
           </span>
         </div>
       </section>
@@ -238,7 +241,7 @@ export function Landing() {
         </div>
       </section>
 
-      {/* Summer Gallery Showcase */}
+      {/* Event Gallery Showcase */}
       <section className="w-full px-6 pt-16 pb-12 overflow-hidden">
         <div className="mx-auto max-w-7xl">
           <div className="flex overflow-x-auto gap-6 pb-6 snap-x no-scrollbar">
@@ -287,7 +290,7 @@ export function Landing() {
             <Calendar className="mx-auto text-neutral-300 mb-3" size={32} />
             <h3 className="text-[15px] font-semibold text-neutral-900">No active events found</h3>
             <p className="text-xs text-neutral-400 mt-1 max-w-sm mx-auto">
-              Ready to host your own summer parties? Register or login to create events.
+              Ready to host your own events? Register or login to create events.
             </p>
           </div>
         ) : (
@@ -355,37 +358,37 @@ export function Landing() {
       <section className="mx-auto max-w-7xl px-6 py-16 border-t border-neutral-100/80">
         <div className="grid gap-12 lg:grid-cols-3">
           <div className="flex gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-neutral-950 text-white font-bold">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-neutral-950 text-white font-bold animate-pulse">
               1
             </div>
             <div>
-              <h3 className="text-[15px] font-bold text-neutral-900">Vibrant Party Templates</h3>
+              <h3 className="text-[15px] font-bold text-neutral-900">Vibrant Event Workspaces</h3>
               <p className="text-xs text-neutral-400 leading-relaxed mt-1">
-                Customize your summer workspace with beautiful theme variations, custom colors, and highlights.
+                Customize your organization profile with custom details, logos, cover headers, and active gallery highlights.
               </p>
             </div>
           </div>
 
           <div className="flex gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-neutral-950 text-white font-bold">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-neutral-950 text-white font-bold animate-pulse">
               2
             </div>
             <div>
-              <h3 className="text-[15px] font-bold text-neutral-900">Smart QR Checks</h3>
+              <h3 className="text-[15px] font-bold text-neutral-900">Instant QR Access</h3>
               <p className="text-xs text-neutral-400 leading-relaxed mt-1">
-                Instant attendee check-in with high-security auto-generated QR code cards.
+                Generate secure QR codes for registrants to scan for instant check-in auditing at the event gates.
               </p>
             </div>
           </div>
 
           <div className="flex gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-neutral-950 text-white font-bold">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-neutral-950 text-white font-bold animate-pulse">
               3
             </div>
             <div>
-              <h3 className="text-[15px] font-bold text-neutral-900">Flexible Ticket Rules</h3>
+              <h3 className="text-[15px] font-bold text-neutral-900">Flexible Paid Tickets</h3>
               <p className="text-xs text-neutral-400 leading-relaxed mt-1">
-                Supports free or premium paid ticket registrations using Stripe payouts and dashboard reports.
+                Collect ticket payments directly with Stripe payouts and track real-time workspace sales.
               </p>
             </div>
           </div>
@@ -402,7 +405,7 @@ export function Landing() {
             <div className="rounded-2xl border border-neutral-100 p-6 text-left flex flex-col justify-between">
               <div>
                 <h3 className="font-bold text-neutral-900">Free Events</h3>
-                <p className="text-xs text-neutral-400 mt-1">For open meetups, community gatherings, or picnics.</p>
+                <p className="text-xs text-neutral-400 mt-1">For open meetups, community gatherings, or forums.</p>
                 <div className="text-2xl font-extrabold text-neutral-950 mt-4 font-display">₹0 <span className="text-xs text-neutral-400 font-normal">/ event</span></div>
               </div>
               <ul className="text-xs text-neutral-500 mt-6 space-y-2">
@@ -415,7 +418,7 @@ export function Landing() {
               <span className="absolute top-3 right-3 bg-white/20 text-[9px] font-bold tracking-widest px-2 py-0.5 rounded-full uppercase">Popular</span>
               <div>
                 <h3 className="font-bold">Paid Tickets</h3>
-                <p className="text-xs text-neutral-300 mt-1">Host concerts, pool fests, and workshops.</p>
+                <p className="text-xs text-neutral-300 mt-1">Host concerts, sports fests, and workshops.</p>
                 <div className="text-2xl font-extrabold mt-4 font-display">5% <span className="text-xs text-neutral-300 font-normal">commission per ticket</span></div>
               </div>
               <ul className="text-xs text-neutral-300 mt-6 space-y-2">
@@ -431,11 +434,11 @@ export function Landing() {
       <footer className="bg-neutral-950 text-neutral-400 py-12">
         <div className="mx-auto max-w-7xl px-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
-            <span className="text-lg font-extrabold text-white font-display">Sumip</span>
-            <p className="text-xs text-neutral-500 mt-1">© {new Date().getFullYear()} SumipSplash. All rights reserved.</p>
+            <span className="text-lg font-extrabold text-white font-display">Planora</span>
+            <p className="text-xs text-neutral-500 mt-1">© {new Date().getFullYear()} Planora. All rights reserved.</p>
           </div>
           <div className="flex gap-6 text-xs font-semibold">
-            <Link to="/events" className="hover:text-white transition-colors">Explore Parties</Link>
+            <Link to="/events" className="hover:text-white transition-colors">Explore Events</Link>
             <Link to="/signup" className="hover:text-white transition-colors">Start Hosting</Link>
             <Link to="/" className="hover:text-white transition-colors">Terms of Service</Link>
           </div>
