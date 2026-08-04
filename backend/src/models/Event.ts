@@ -17,9 +17,8 @@ const eventSchema = new mongoose.Schema({
     default: 'published' 
   },
   isFeatured: { type: Boolean, default: false },
-  isCrossCollege: { type: Boolean, default: false },
-  college: { type: mongoose.Schema.Types.ObjectId, ref: 'College', required: true },
-  department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department' },
+  isCrossOrganization: { type: Boolean, default: false },
+  organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true },
   organizer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   createdAt: { type: Date, default: Date.now },
 });

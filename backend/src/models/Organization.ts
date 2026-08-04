@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 
-const collegeSchema = new mongoose.Schema({
+const organizationSchema = new mongoose.Schema({
   name: { type: String, required: true },
   slug: { type: String, unique: true, sparse: true, lowercase: true, trim: true },
-  domain: { type: String, required: true, unique: true }, // e.g., jecrc.edu
+  domain: { type: String, unique: true, sparse: true }, // Optional email domain mapping
   logo: { type: String },
   address: { type: String },
   about: { type: String, default: '' },
@@ -44,4 +44,4 @@ const collegeSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-export const College = mongoose.model('College', collegeSchema);
+export const Organization = mongoose.model('Organization', organizationSchema);
