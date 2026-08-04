@@ -8,7 +8,7 @@ import { sendRegistrationEmail } from '../services/emailService';
 
 const router = express.Router();
 
-// Student: Register for an event
+// User: Register for an event
 router.post('/register', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const { eventId } = req.body;
@@ -17,9 +17,9 @@ router.post('/register', authMiddleware, async (req: AuthRequest, res) => {
     const event = await Event.findById(eventId);
     if (!event) return res.status(404).json({ message: 'Event not found' });
 
-    // Multi-tenant check: Student must belong to the same college as the event
-    if (req.user?.role === 'student' && event.college.toString() !== req.user?.college) {
-      return res.status(403).json({ message: 'You can only register for events in your college' });
+    // Multi-tenant check: User must belong to the same organization as the event
+    if (req.user?.role === 'user' && event.organization.toString() !== req.user?.organization) {
+      return res.status(403).json({ message: 'You can only register for events in your organization' });
     }
 
     if (event.registeredCount >= event.seatLimit) {
@@ -34,14 +34,14 @@ router.post('/register', authMiddleware, async (req: AuthRequest, res) => {
     // Generate QR Code
     const user = await User.findById(userId);
     const qrData = JSON.stringify({ 
-      registrationId: '', // Will be updated after save if needed, but IDs are enough for lookup
+      registrationId: '', // Will be updated after save if needed
       eventId, 
       userId, 
       userName: user?.name,
       userEmail: user?.email,
       eventTitle: event.title,
       eventDate: event.date,
-      collegeId: event.college,
+      organizationId: event.organization,
       timestamp: Date.now() 
     });
     const qrCode = await QRCode.toDataURL(qrData);
@@ -49,13 +49,13 @@ router.post('/register', authMiddleware, async (req: AuthRequest, res) => {
     const registration = new Registration({
       event: eventId,
       user: userId,
-      college: event.college,
+      organization: event.organization,
       qrCode
     });
 
     await registration.save();
     
-    // Optionally update QR code with registration ID if needed for absolute uniqueness in offline scenarios
+    // Update QR code with registration ID
     const finalQrData = JSON.stringify({ 
       registrationId: registration._id,
       eventId, 
@@ -64,7 +64,7 @@ router.post('/register', authMiddleware, async (req: AuthRequest, res) => {
       userEmail: user?.email,
       eventTitle: event.title,
       eventDate: event.date,
-      collegeId: event.college,
+      organizationId: event.organization,
       timestamp: Date.now() 
     });
     registration.qrCode = await QRCode.toDataURL(finalQrData);

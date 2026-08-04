@@ -1,18 +1,14 @@
 import express from 'express';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
-import { College } from '../models/College';
+import { Organization } from '../models/Organization';
 import { User } from '../models/User';
 import { Event } from '../models/Event';
 import { Registration } from '../models/Registration';
-import { Department } from '../models/Department';
-
 import { AuditLog } from '../models/AuditLog';
 import { SystemSettings } from '../models/SystemSettings';
-
 import { Transaction } from '../models/Transaction';
 
 const router = express.Router();
-
 
 // Helper to log audit actions
 const logAudit = async (userId: string, action: string, module: string, details: string) => {
@@ -23,7 +19,6 @@ const logAudit = async (userId: string, action: string, module: string, details:
   }
 };
 
-
 // Super Admin Stats
 router.get('/super-admin', authMiddleware, async (req: AuthRequest, res) => {
   if (req.user?.role !== 'super_admin' && req.user?.role !== 'admin') {
@@ -31,9 +26,9 @@ router.get('/super-admin', authMiddleware, async (req: AuthRequest, res) => {
   }
 
   try {
-    const [totalColleges, totalStudents, totalEvents, totalRegistrations] = await Promise.all([
-      College.countDocuments(),
-      User.countDocuments({ role: 'student' }),
+    const [totalOrganizations, totalUsers, totalEvents, totalRegistrations] = await Promise.all([
+      Organization.countDocuments(),
+      User.countDocuments({ role: 'user' }),
       Event.countDocuments(),
       Registration.countDocuments()
     ]);
@@ -44,7 +39,7 @@ router.get('/super-admin', authMiddleware, async (req: AuthRequest, res) => {
       .limit(8)
       .populate('user', 'name email')
       .populate('event', 'title')
-      .populate('college', 'name');
+      .populate('organization', 'name');
 
     // Growth Data (Last 6 months)
     const sixMonthsAgo = new Date();
@@ -61,31 +56,31 @@ router.get('/super-admin', authMiddleware, async (req: AuthRequest, res) => {
       { $sort: { "_id": 1 } }
     ]);
 
-    // College Distribution (Students per college)
-    const collegeDistribution = await User.aggregate([
-      { $match: { role: 'student' } },
+    // Organization Distribution (Users per organization)
+    const organizationDistribution = await User.aggregate([
+      { $match: { role: 'user' } },
       {
         $group: {
-          _id: '$college',
-          studentCount: { $sum: 1 }
+          _id: '$organization',
+          userCount: { $sum: 1 }
         }
       },
       {
         $lookup: {
-          from: 'colleges',
+          from: 'organizations',
           localField: '_id',
           foreignField: '_id',
-          as: 'collegeInfo'
+          as: 'organizationInfo'
         }
       },
-      { $unwind: '$collegeInfo' },
+      { $unwind: '$organizationInfo' },
       {
         $project: {
-          name: '$collegeInfo.name',
-          studentCount: 1
+          name: '$organizationInfo.name',
+          userCount: 1
         }
       },
-      { $sort: { studentCount: -1 } },
+      { $sort: { userCount: -1 } },
       { $limit: 5 }
     ]);
 
@@ -128,17 +123,17 @@ router.get('/super-admin', authMiddleware, async (req: AuthRequest, res) => {
           _id: null,
           totalRevenue: { $sum: '$amount' },
           totalPlatformFee: { $sum: '$platformFee' },
-          totalCollegeRevenue: { $sum: '$collegeRevenue' }
+          totalOrganizationRevenue: { $sum: '$organizationRevenue' }
         }
       }
     ]);
 
-    const revenue = revenueData[0] || { totalRevenue: 0, totalPlatformFee: 0, totalCollegeRevenue: 0 };
+    const revenue = revenueData[0] || { totalRevenue: 0, totalPlatformFee: 0, totalOrganizationRevenue: 0 };
 
     res.json({
       stats: {
-        totalColleges,
-        totalStudents,
+        totalOrganizations,
+        totalUsers,
         totalEvents,
         totalRegistrations,
         totalRevenue: revenue.totalRevenue,
@@ -147,7 +142,7 @@ router.get('/super-admin', authMiddleware, async (req: AuthRequest, res) => {
       recentRegistrations,
       growthData: growthData.map(d => ({ month: d._id, registrations: d.count })),
       dailyActivity: dailyActivity.map(d => ({ date: d._id, count: d.count })),
-      collegeDistribution,
+      organizationDistribution,
       categoryDistribution: categoryDistribution.map(c => ({ name: c._id || 'General', value: c.count })),
       settings
     });
@@ -158,48 +153,33 @@ router.get('/super-admin', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-// College Admin Stats
-router.get('/college-stats', authMiddleware, async (req: AuthRequest, res) => {
-  if (req.user?.role !== 'college_admin') {
+// Organization Admin Stats
+router.get('/org-stats', authMiddleware, async (req: AuthRequest, res) => {
+  if (req.user?.role !== 'org_admin') {
     return res.status(403).json({ message: 'Access denied' });
   }
 
-  const collegeId = req.user.college;
+  const organizationId = req.user.organization;
 
   try {
-    const [totalDepts, totalStudents, totalEvents, totalRegistrations] = await Promise.all([
-      Department.countDocuments({ college: collegeId }),
-      User.countDocuments({ college: collegeId, role: 'student' }),
-      Event.countDocuments({ college: collegeId }),
-      Registration.countDocuments({ college: collegeId })
+    const [totalUsers, totalEvents, totalRegistrations] = await Promise.all([
+      User.countDocuments({ organization: organizationId, role: 'user' }),
+      Event.countDocuments({ organization: organizationId }),
+      Registration.countDocuments({ organization: organizationId })
     ]);
-
-    // Department-wise event data
-    const deptStatsRaw = await Event.aggregate([
-      { $match: { college: collegeId } },
-      { $group: { _id: '$department', count: { $sum: 1 } } }
-    ]);
-
-    // Populate department names
-    const deptStats = await Promise.all(deptStatsRaw.map(async (stat) => {
-      const dept = await Department.findById(stat._id);
-      return { name: dept?.name || 'General', count: stat.count };
-    }));
 
     // Venue-wise data
     const venueStats = await Event.aggregate([
-      { $match: { college: collegeId } },
+      { $match: { organization: organizationId } },
       { $group: { _id: '$venue', count: { $sum: 1 }, totalSeats: { $sum: '$seatLimit' }, registered: { $sum: '$registeredCount' } } }
     ]);
 
     res.json({
       stats: {
-        totalDepts,
-        totalStudents,
+        totalUsers,
         totalEvents,
         totalRegistrations
       },
-      deptStats,
       venueStats: venueStats.map(v => ({ name: v._id || 'TBD', count: v.count, capacity: v.totalSeats, registered: v.registered }))
     });
   } catch (err) {
@@ -247,7 +227,7 @@ router.get('/all-events', authMiddleware, async (req: AuthRequest, res) => {
 
   try {
     const events = await Event.find()
-      .populate('college', 'name')
+      .populate('organization', 'name')
       .populate('organizer', 'name email')
       .sort({ createdAt: -1 });
     res.json(events);
@@ -280,7 +260,7 @@ router.get('/transactions', authMiddleware, async (req: AuthRequest, res) => {
 
   try {
     const transactions = await Transaction.find()
-      .populate('college', 'name')
+      .populate('organization', 'name')
       .populate('event', 'title')
       .populate('user', 'name email')
       .sort({ createdAt: -1 });

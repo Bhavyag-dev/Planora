@@ -6,7 +6,7 @@ import { sendCancellationEmail } from '../services/emailService';
 
 const router = express.Router();
 
-// Public: Get all events for a specific college (or all if not logged in)
+// Public: Get all events for a specific organization (or all if not logged in)
 router.get('/', async (req: AuthRequest, res) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -17,8 +17,8 @@ router.get('/', async (req: AuthRequest, res) => {
         const jwt = require('jsonwebtoken');
         if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET is not configured');
         const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
-        if (decoded.role !== 'super_admin' && decoded.role !== 'admin' && decoded.college) {
-           query.college = decoded.college;
+        if (decoded.role !== 'super_admin' && decoded.role !== 'admin' && decoded.organization) {
+           query.organization = decoded.organization;
         }
       } catch (err) {
          // Ignore invalid token, just return all
@@ -45,13 +45,13 @@ router.get('/:id', async (req, res) => {
 
 // Admin: Create event
 router.post('/', authMiddleware, async (req: AuthRequest, res) => {
-  const allowedRoles = ['college_admin', 'dept_admin', 'super_admin', 'admin'];
+  const allowedRoles = ['org_admin', 'super_admin', 'admin'];
   if (!req.user || !allowedRoles.includes(req.user.role)) {
     return res.status(403).json({ message: 'Unauthorized to create events' });
   }
 
   try {
-    const { title, description, coverImage, galleryImages, date, venue, category, seatLimit, departmentId, status } = req.body;
+    const { title, description, coverImage, galleryImages, date, venue, category, seatLimit, status } = req.body;
     const event = new Event({
       title,
       description,
@@ -63,8 +63,7 @@ router.post('/', authMiddleware, async (req: AuthRequest, res) => {
       seatLimit,
       status: status || 'published',
       organizer: req.user.id,
-      college: req.user.college,
-      department: departmentId || (req.user.role === 'dept_admin' ? req.user.department : undefined)
+      organization: req.user.organization
     });
     await event.save();
     res.status(201).json(event);

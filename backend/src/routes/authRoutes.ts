@@ -2,9 +2,8 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import { User } from '../models/User';
-import { College } from '../models/College';
+import { Organization } from '../models/Organization';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
-
 import { AuditLog } from '../models/AuditLog';
 
 const router = express.Router();
@@ -33,52 +32,47 @@ const normalizeEmailDomain = (email: string) => {
   return parts.length === 2 ? parts[1] : '';
 };
 
-const findCollegeByDomain = async (domain: string) => {
+const findOrganizationByDomain = async (domain: string) => {
   if (!domain) return null;
 
   // Exact match first
-  let college = await College.findOne({ domain: new RegExp(`^${domain}$`, 'i') });
-  if (college) return college;
+  let org = await Organization.findOne({ domain: new RegExp(`^${domain}$`, 'i') });
+  if (org) return org;
 
-  // If email is from subdomain (e.g. student.cs.jecrc.edu.in), try parent domains
+  // If email is from subdomain, try parent domains
   const segments = domain.split('.');
   for (let i = 1; i < segments.length - 1; i += 1) {
     const parent = segments.slice(i).join('.');
-    // Avoid tiny suffixes
     if (parent.split('.').length < 2) continue;
-    college = await College.findOne({ domain: new RegExp(`^${parent}$`, 'i') });
-    if (college) return college;
+    org = await Organization.findOne({ domain: new RegExp(`^${parent}$`, 'i') });
+    if (org) return org;
   }
 
   return null;
 };
 
-
 router.post('/signup', async (req, res) => {
   try {
     if (!ensureDatabaseConnected(res)) return;
 
-    const { name, email, password } = req.body;
+    const { name, email, password, organizationId } = req.body;
     const normalizedEmail = String(email || '').trim().toLowerCase();
     const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) return res.status(400).json({ message: 'User already exists' });
 
-    // Extract domain from email
-    const domain = normalizeEmailDomain(email);
-    if (!domain || !domain.endsWith('.edu')) {
-      // For demo purposes, we might allow other domains if they are registered colleges
+    // Find organization by ID first, then by domain
+    let organization = null;
+    if (organizationId) {
+      organization = await Organization.findById(organizationId);
+    } else {
+      const domain = normalizeEmailDomain(email);
+      organization = await findOrganizationByDomain(domain);
     }
-
-    const college = await findCollegeByDomain(domain);
     
     // Super Admin check
-    let role = 'student';
+    let role = 'user';
     if (normalizedEmail === process.env.SUPER_ADMIN_EMAIL) {
       role = 'super_admin';
-    } else if (!college && domain.endsWith('.edu')) {
-      // If it's a new .edu domain, maybe we don't auto-assign college
-      // but for this SaaS, students MUST belong to a college
-      return res.status(400).json({ message: 'Your college is not registered on this platform.' });
     }
 
     const user = new User({ 
@@ -86,12 +80,12 @@ router.post('/signup', async (req, res) => {
       email: normalizedEmail, 
       password, 
       role,
-      college: college?._id 
+      organization: organization?._id 
     });
     await user.save();
 
     const token = jwt.sign(
-      { id: user._id, role: user.role, college: user.college, email: user.email }, 
+      { id: user._id, role: user.role, organization: user.organization, email: user.email }, 
       process.env.JWT_SECRET!, 
       { expiresIn: '7d' }
     );
@@ -102,7 +96,7 @@ router.post('/signup', async (req, res) => {
         name: user.name, 
         email: user.email, 
         role: user.role,
-        college: user.college
+        organization: user.organization
       } 
     });
   } catch (err) {
@@ -116,7 +110,7 @@ router.post('/login', async (req, res) => {
     if (!ensureDatabaseConnected(res)) return;
 
     const { email, password } = req.body;
-    const user = await User.findOne({ email: String(email || '').trim().toLowerCase() }).populate('college');
+    const user = await User.findOne({ email: String(email || '').trim().toLowerCase() }).populate('organization');
     if (!user) return res.status(400).json({ message: 'Invalid credentials' });
 
     const isMatch = await (user as any).comparePassword(password);
@@ -128,18 +122,18 @@ router.post('/login', async (req, res) => {
       await user.save();
     }
 
-    // Auto-map student to college by email domain if missing
-    if (user.role === 'student' && !user.college && user.email) {
+    // Auto-map user to organization by email domain if missing
+    if (user.role === 'user' && !user.organization && user.email) {
       const domain = normalizeEmailDomain(user.email);
-      const college = await findCollegeByDomain(domain);
-      if (college) {
-        user.college = college._id as any;
+      const organization = await findOrganizationByDomain(domain);
+      if (organization) {
+        user.organization = organization._id as any;
         await user.save();
       }
     }
 
     const token = jwt.sign(
-      { id: user._id, role: user.role, college: user.college?._id, email: user.email }, 
+      { id: user._id, role: user.role, organization: user.organization?._id, email: user.email }, 
       process.env.JWT_SECRET!, 
       { expiresIn: '7d' }
     );
@@ -150,7 +144,7 @@ router.post('/login', async (req, res) => {
         name: user.name, 
         email: user.email, 
         role: user.role,
-        college: user.college
+        organization: user.organization
       } 
     });
   } catch (err) {
@@ -158,32 +152,22 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Super Admin: Search users by email or filter by college/dept
+// Search users by email or filter by organization
 router.get('/search', authMiddleware, async (req: AuthRequest, res) => {
-  if (req.user?.role !== 'super_admin' && req.user?.role !== 'college_admin' && req.user?.role !== 'admin') {
+  if (req.user?.role !== 'super_admin' && req.user?.role !== 'org_admin' && req.user?.role !== 'admin') {
     return res.status(403).json({ message: 'Access denied' });
   }
 
   try {
-    const { email, collegeId, departmentId, role } = req.query;
+    const { email, organizationId, role } = req.query;
     const query: any = {};
     
     if (email) query.email = { $regex: email as string, $options: 'i' };
-    if (collegeId) query.college = collegeId;
-    if (departmentId) query.department = departmentId;
-    
-    // Super Admin should not view department-level admins
-    if (req.user?.role === 'super_admin' || req.user?.role === 'admin') {
-      if (role && ['dept_admin', 'spec_admin'].includes(role as string)) {
-        return res.json([]);
-      }
-      query.role = role ? role : { $nin: ['dept_admin', 'spec_admin'] };
-    } else {
-      if (role) query.role = role;
-    }
+    if (organizationId) query.organization = organizationId;
+    if (role) query.role = role;
 
     const users = await User.find(query)
-      .select('name email role college department')
+      .select('name email role organization')
       .limit(20);
 
     res.json(users);
@@ -204,7 +188,7 @@ router.post('/impersonate', authMiddleware, async (req: AuthRequest, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     const token = jwt.sign(
-      { id: user._id, role: user.role, college: user.college, email: user.email, impersonatedBy: req.user.id }, 
+      { id: user._id, role: user.role, organization: user.organization, email: user.email, impersonatedBy: req.user.id }, 
       process.env.JWT_SECRET!, 
       { expiresIn: '1h' }
     );
@@ -216,7 +200,7 @@ router.post('/impersonate', authMiddleware, async (req: AuthRequest, res) => {
         name: user.name, 
         email: user.email, 
         role: user.role,
-        college: user.college
+        organization: user.organization
       } 
     });
   } catch (err) {
@@ -245,12 +229,11 @@ router.patch('/users/:userId/role', authMiddleware, async (req: AuthRequest, res
 // Update Profile / Password
 router.patch('/update-profile', authMiddleware, async (req: AuthRequest, res) => {
   try {
-    const { name, departmentId, currentPassword, newPassword } = req.body;
+    const { name, currentPassword, newPassword } = req.body;
     const user = await User.findById(req.user?.id);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     if (name) user.name = name;
-    if (departmentId) user.department = departmentId;
 
     if (currentPassword && newPassword) {
       const isMatch = await (user as any).comparePassword(currentPassword);
@@ -259,7 +242,7 @@ router.patch('/update-profile', authMiddleware, async (req: AuthRequest, res) =>
     }
 
     await user.save();
-    res.json({ message: 'Profile updated successfully', user: { name: user.name, department: user.department } });
+    res.json({ message: 'Profile updated successfully', user: { name: user.name } });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
