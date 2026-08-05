@@ -13,7 +13,15 @@ import {
   X,
   Coffee,
   Twitter,
-  Instagram
+  Instagram,
+  LayoutDashboard,
+  UserPlus,
+  Share2,
+  HelpCircle,
+  Building2,
+  Plus,
+  Users,
+  Check
 } from 'lucide-react';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'motion/react';
 
@@ -25,6 +33,8 @@ export function Landing() {
   const [planningDropdown, setPlanningDropdown] = useState(false);
   const [categoryDropdown, setCategoryDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [previewTab, setPreviewTab] = useState<'events' | 'members' | 'create'>('events');
   
   // Navbar shrink scroll triggers (copied collapse physics from Fetchz)
   const { scrollY } = useScroll();
@@ -513,6 +523,458 @@ export function Landing() {
             ))}
           </div>
         )}
+      </section>
+
+      {/* Feature Showcase */}
+      <section id="features" className="mx-auto max-w-7xl px-6 py-20 border-t border-neutral-100/80">
+        <div className="text-center max-w-3xl mx-auto space-y-3">
+          <div className="inline-flex items-center gap-2 rounded-full border border-neutral-200/85 bg-neutral-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
+            <Sparkles size={12} className="text-purple-600" />
+            Core Capabilities
+          </div>
+          <h2 className="text-4xl font-extrabold tracking-tight text-neutral-950 font-display">
+            Designed for Flawless Workspace Execution
+          </h2>
+          <p className="text-sm text-neutral-500 max-w-xl mx-auto">
+            Everything you need to host internal meetups, community conferences, and team activities in one place.
+          </p>
+        </div>
+
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 mt-16">
+          {/* Card 1 */}
+          <motion.div 
+            whileHover={{ y: -5 }}
+            className="rounded-3xl border border-neutral-100 bg-white p-6 shadow-sm flex flex-col justify-between"
+          >
+            <div className="space-y-4">
+              <div className="h-10 w-10 rounded-2xl bg-indigo-55 border border-indigo-100 flex items-center justify-center text-indigo-650">
+                <Building2 size={20} />
+              </div>
+              <h3 className="font-bold text-neutral-900 text-lg">Multi-Tenant Workspaces</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed">
+                Create and manage isolated environments for each team, community chapter, or campus club under one global account profile.
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Card 2 */}
+          <motion.div 
+            whileHover={{ y: -5 }}
+            className="rounded-3xl border border-neutral-100 bg-white p-6 shadow-sm flex flex-col justify-between"
+          >
+            <div className="space-y-4">
+              <div className="h-10 w-10 rounded-2xl bg-purple-55 border border-purple-100 flex items-center justify-center text-purple-650">
+                <UserPlus size={20} />
+              </div>
+              <h3 className="font-bold text-neutral-900 text-lg">Instant Team Invites</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed">
+                Invite team members by email directly from the workspace roster to co-host, edit event settings, or coordinate guest lists.
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Card 3 */}
+          <motion.div 
+            whileHover={{ y: -5 }}
+            className="rounded-3xl border border-neutral-100 bg-white p-6 shadow-sm flex flex-col justify-between"
+          >
+            <div className="space-y-4">
+              <div className="h-10 w-10 rounded-2xl bg-pink-55 border border-pink-100 flex items-center justify-center text-pink-650">
+                <Share2 size={20} />
+              </div>
+              <h3 className="font-bold text-neutral-900 text-lg">Unified Hosting Control</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed">
+                Schedule workshops, panel discussions, or hackathons with ease. Setup seat limits to prevent capacity issues.
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Card 4 */}
+          <motion.div 
+            whileHover={{ y: -5 }}
+            className="rounded-3xl border border-neutral-100 bg-white p-6 shadow-sm flex flex-col justify-between"
+          >
+            <div className="space-y-4">
+              <div className="h-10 w-10 rounded-2xl bg-emerald-55 border border-emerald-100 flex items-center justify-center text-emerald-650">
+                <Globe size={20} />
+              </div>
+              <h3 className="font-bold text-neutral-900 text-lg">Global Discover</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed">
+                Publish events locally to active workspaces, or make them public to allow discoverability and open registration.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section id="how-it-works" className="mx-auto max-w-7xl px-6 py-20 border-t border-neutral-100/80 bg-neutral-50/50 rounded-[2.5rem] my-12 shadow-inner">
+        <div className="text-center max-w-2xl mx-auto space-y-3">
+          <h2 className="text-4xl font-extrabold tracking-tight text-neutral-950 font-display">Hosting in Four Simple Steps</h2>
+          <p className="text-sm text-neutral-500">Go from account setup to a live workspace event in under five minutes.</p>
+        </div>
+
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 mt-16 relative">
+          {/* Step 1 */}
+          <div className="space-y-4 text-left p-6 rounded-3xl bg-white border border-neutral-100 shadow-sm relative">
+            <span className="absolute top-4 right-4 text-neutral-100 font-display font-black text-4xl select-none">01</span>
+            <div className="h-8 w-8 rounded-xl bg-neutral-950 text-white flex items-center justify-center text-xs font-bold font-mono">1</div>
+            <h3 className="font-bold text-neutral-900 text-base mt-2">Create Workspace</h3>
+            <p className="text-xs text-neutral-400 leading-relaxed">Create a custom workspace (e.g. Acme Corp Dev) to isolate your event activities.</p>
+          </div>
+
+          {/* Step 2 */}
+          <div className="space-y-4 text-left p-6 rounded-3xl bg-white border border-neutral-100 shadow-sm relative">
+            <span className="absolute top-4 right-4 text-neutral-100 font-display font-black text-4xl select-none">02</span>
+            <div className="h-8 w-8 rounded-xl bg-neutral-950 text-white flex items-center justify-center text-xs font-bold font-mono">2</div>
+            <h3 className="font-bold text-neutral-900 text-base mt-2">Schedule Event</h3>
+            <p className="text-xs text-neutral-400 leading-relaxed">Enter details, seat capacities, venue, category, and cover image to create an event.</p>
+          </div>
+
+          {/* Step 3 */}
+          <div className="space-y-4 text-left p-6 rounded-3xl bg-white border border-neutral-100 shadow-sm relative">
+            <span className="absolute top-4 right-4 text-neutral-100 font-display font-black text-4xl select-none">03</span>
+            <div className="h-8 w-8 rounded-xl bg-neutral-950 text-white flex items-center justify-center text-xs font-bold font-mono">3</div>
+            <h3 className="font-bold text-neutral-900 text-base mt-2">Invite & Share</h3>
+            <p className="text-xs text-neutral-400 leading-relaxed">Share the registration URL, invite workspace colleagues, or open it up for global attendees.</p>
+          </div>
+
+          {/* Step 4 */}
+          <div className="space-y-4 text-left p-6 rounded-3xl bg-white border border-neutral-100 shadow-sm relative">
+            <span className="absolute top-4 right-4 text-neutral-100 font-display font-black text-4xl select-none">04</span>
+            <div className="h-8 w-8 rounded-xl bg-neutral-950 text-white flex items-center justify-center text-xs font-bold font-mono">4</div>
+            <h3 className="font-bold text-neutral-900 text-base mt-2">Track Registrations</h3>
+            <p className="text-xs text-neutral-400 leading-relaxed">Monitor attendees lists in real-time. Instantly check-in registered users.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Dashboard Preview Mockup */}
+      <section id="preview" className="mx-auto max-w-7xl px-6 py-20 border-t border-neutral-100/80">
+        <div className="text-center max-w-3xl mx-auto space-y-3">
+          <h2 className="text-4xl font-extrabold tracking-tight text-neutral-950 font-display">
+            A Minimal, Clean Interface
+          </h2>
+          <p className="text-sm text-neutral-500 max-w-xl mx-auto">
+            Interact with the mockup tabs below to preview the actual dashboard workspace.
+          </p>
+        </div>
+
+        {/* Interactive Mockup Container */}
+        <div className="mt-12 rounded-3xl border border-neutral-200/60 bg-zinc-950 p-3 shadow-2xl relative overflow-hidden text-zinc-300">
+          
+          {/* Mockup Tabs */}
+          <div className="flex bg-zinc-900/50 border border-white/[0.04] p-1 rounded-2xl mb-4 max-w-xs mx-auto justify-between">
+            <button 
+              onClick={() => setPreviewTab('events')} 
+              className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all cursor-pointer ${
+                previewTab === 'events' ? 'bg-white text-black shadow-lg' : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              Workspace Events
+            </button>
+            <button 
+              onClick={() => setPreviewTab('members')} 
+              className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all cursor-pointer ${
+                previewTab === 'members' ? 'bg-white text-black shadow-lg' : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              Team Members
+            </button>
+            <button 
+              onClick={() => setPreviewTab('create')} 
+              className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all cursor-pointer ${
+                previewTab === 'create' ? 'bg-white text-black shadow-lg' : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              Event Creator
+            </button>
+          </div>
+
+          <div className="bg-zinc-900 rounded-[1.5rem] border border-white/[0.04] p-6 text-left flex gap-6 min-h-[360px]">
+            {/* Mock Sidebar */}
+            <div className="w-48 border-r border-white/[0.06] pr-6 hidden md:flex flex-col justify-between">
+              <div className="space-y-6">
+                <div className="flex items-center gap-2.5 font-bold tracking-tight text-white pl-2">
+                  <div className="h-6 w-6 rounded bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-[10px] font-bold text-white">
+                    A
+                  </div>
+                  <span className="text-sm truncate">Acme Workshops</span>
+                </div>
+                <nav className="space-y-1.5 flex flex-col">
+                  <span className="flex items-center gap-2.5 text-xs text-white bg-white/5 px-2.5 py-1.5 rounded-lg"><LayoutDashboard size={14} className="text-purple-400" /> Dashboard</span>
+                  <span className="flex items-center gap-2.5 text-xs text-zinc-400 hover:text-white px-2.5 py-1.5 rounded-lg"><Calendar size={14} /> Events</span>
+                  <span className="flex items-center gap-2.5 text-xs text-zinc-400 hover:text-white px-2.5 py-1.5 rounded-lg"><Users size={14} /> Team Roster</span>
+                </nav>
+              </div>
+              <div className="text-[10px] text-zinc-500 border-t border-white/[0.06] pt-3 pl-2">
+                SaaS Dashboard v1.0
+              </div>
+            </div>
+
+            {/* Mock Dashboard Area */}
+            <div className="flex-1 flex flex-col justify-between">
+              <AnimatePresence mode="wait">
+                {previewTab === 'events' && (
+                  <motion.div 
+                    key="events"
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    className="space-y-4"
+                  >
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-semibold text-white">Workspace Events</h4>
+                      <span className="text-[10px] text-purple-400 font-bold bg-purple-500/10 px-2 py-0.5 rounded">2 Scheduled</span>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="p-4 bg-zinc-950 border border-white/[0.04] rounded-2xl space-y-2">
+                        <span className="text-[9px] font-bold text-purple-400 uppercase tracking-widest bg-purple-500/10 px-1.5 py-0.5 rounded">Workshop</span>
+                        <h5 className="text-xs font-bold text-white leading-tight">Advanced React Patterns</h5>
+                        <p className="text-[10px] text-zinc-500">A deep dive into server actions and hooks...</p>
+                        <div className="pt-2 border-t border-white/[0.04] text-[9px] text-zinc-500 flex items-center gap-1.5">
+                          <MapPin size={9} /> Acme Conf Room A
+                        </div>
+                      </div>
+                      <div className="p-4 bg-zinc-950 border border-white/[0.04] rounded-2xl space-y-2">
+                        <span className="text-[9px] font-bold text-pink-400 uppercase tracking-widest bg-pink-500/10 px-1.5 py-0.5 rounded">Meetup</span>
+                        <h5 className="text-xs font-bold text-white leading-tight">AI & Analytics Forum</h5>
+                        <p className="text-[10px] text-zinc-500">Exploring generative model integrations...</p>
+                        <div className="pt-2 border-t border-white/[0.04] text-[9px] text-zinc-500 flex items-center gap-1.5">
+                          <MapPin size={9} /> Community Hub Workspace
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {previewTab === 'members' && (
+                  <motion.div 
+                    key="members"
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    className="space-y-4"
+                  >
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-semibold text-white">Active Team Members</h4>
+                      <span className="text-[10px] text-zinc-500 bg-white/5 px-2.5 py-0.5 rounded-full">3 Collaborators</span>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between p-2.5 bg-zinc-950 border border-white/[0.04] rounded-xl">
+                        <div className="flex items-center gap-2">
+                          <div className="h-6 w-6 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-[10px] text-white">S</div>
+                          <div>
+                            <p className="text-[10px] font-bold text-white leading-none">Sarah Chen</p>
+                            <p className="text-[9px] text-zinc-500 mt-0.5">sarah@acme.com</p>
+                          </div>
+                        </div>
+                        <span className="text-[8px] font-bold uppercase tracking-widest text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded">owner</span>
+                      </div>
+                      <div className="flex items-center justify-between p-2.5 bg-zinc-950 border border-white/[0.04] rounded-xl">
+                        <div className="flex items-center gap-2">
+                          <div className="h-6 w-6 rounded-full bg-purple-500 flex items-center justify-center font-bold text-[10px] text-white">D</div>
+                          <div>
+                            <p className="text-[10px] font-bold text-white leading-none">David Miller</p>
+                            <p className="text-[9px] text-zinc-500 mt-0.5">david@acme.com</p>
+                          </div>
+                        </div>
+                        <span className="text-[8px] font-bold uppercase tracking-widest text-zinc-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded">member</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {previewTab === 'create' && (
+                  <motion.div 
+                    key="create"
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    className="space-y-3 max-w-sm"
+                  >
+                    <h4 className="text-sm font-semibold text-white">Schedule Workspace Event</h4>
+                    <div className="space-y-2">
+                      <div className="space-y-1">
+                        <span className="text-[8px] font-bold uppercase text-zinc-550 tracking-wider">Event Title</span>
+                        <input disabled placeholder="e.g. Design Sync" className="w-full h-8 px-2.5 bg-zinc-950 border border-white/[0.06] rounded-lg text-xs text-zinc-450 focus:outline-none" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-1">
+                          <span className="text-[8px] font-bold uppercase text-zinc-550 tracking-wider">Venue</span>
+                          <input disabled placeholder="e.g. Zoom Link" className="w-full h-8 px-2.5 bg-zinc-950 border border-white/[0.06] rounded-lg text-xs text-zinc-450 focus:outline-none" />
+                        </div>
+                        <div className="space-y-1">
+                          <span className="text-[8px] font-bold uppercase text-zinc-550 tracking-wider">Seat Limit</span>
+                          <input disabled value="100" className="w-full h-8 px-2.5 bg-zinc-950 border border-white/[0.06] rounded-lg text-xs text-zinc-450 focus:outline-none" />
+                        </div>
+                      </div>
+                      <button disabled className="w-full h-8 bg-white text-black font-bold text-xs rounded-lg mt-1 opacity-80 cursor-not-allowed">
+                        Create Event
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div className="pt-4 border-t border-white/[0.04] mt-6 flex items-center justify-between text-[10px] text-zinc-550">
+                <span>Database Connection Status: OK</span>
+                <span className="text-purple-400 font-semibold flex items-center gap-1">
+                  <Check size={10} /> Active Workspace Locked
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Use Cases */}
+      <section id="use-cases" className="mx-auto max-w-7xl px-6 py-20 border-t border-neutral-100/80 bg-neutral-50/50 rounded-[2.5rem] my-12 shadow-sm border border-neutral-100">
+        <div className="text-center max-w-3xl mx-auto space-y-3">
+          <h2 className="text-4xl font-extrabold tracking-tight text-neutral-950 font-display">
+            Built for Every Event Layout
+          </h2>
+          <p className="text-sm text-neutral-500">
+            A flexible platform tailored for organizations, organizers, and networks of all scales.
+          </p>
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-16">
+          <div className="p-6 bg-white rounded-3xl border border-neutral-100 shadow-sm text-left">
+            <h4 className="font-bold text-neutral-900 text-base">Corporate Teams</h4>
+            <p className="text-xs text-neutral-400 mt-2 leading-relaxed">Coordinate team syncs, masterclasses, and executive panel discussions securely inside workspace boundaries.</p>
+          </div>
+          <div className="p-6 bg-white rounded-3xl border border-neutral-100 shadow-sm text-left">
+            <h4 className="font-bold text-neutral-900 text-base">Local Meetups</h4>
+            <p className="text-xs text-neutral-400 mt-2 leading-relaxed">Perfect for tech communities, book clubs, and developer forums looking to build local connections with RSVP lists.</p>
+          </div>
+          <div className="p-6 bg-white rounded-3xl border border-neutral-100 shadow-sm text-left">
+            <h4 className="font-bold text-neutral-900 text-base">Universities & Clubs</h4>
+            <p className="text-xs text-neutral-400 mt-2 leading-relaxed">Allow campus chapters and activity groups to invite members, schedule fests, and collect attendee list approvals.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section id="testimonials" className="mx-auto max-w-7xl px-6 py-20 border-t border-neutral-100/80">
+        <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
+          <h2 className="text-4xl font-extrabold tracking-tight text-neutral-950 font-display">
+            Loved by Event Organizers
+          </h2>
+          <p className="text-sm text-neutral-500">
+            Hear from community builders who switched to Planora to coordinate their scheduling.
+          </p>
+        </div>
+
+        <div className="grid gap-8 md:grid-cols-3">
+          {/* Card 1 */}
+          <div className="rounded-3xl border border-neutral-100 bg-white p-6 shadow-sm flex flex-col justify-between text-left space-y-6">
+            <p className="text-xs text-neutral-550 leading-relaxed font-medium italic">
+              "Planora solved our workspace scheduling immediately. We can switch between internal department activities and global meetups without any configuration overhead."
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-full bg-neutral-955 text-white font-bold flex items-center justify-center text-xs">SC</div>
+              <div>
+                <h5 className="text-xs font-bold text-neutral-900">Sarah Chen</h5>
+                <p className="text-[10px] text-neutral-400">Tech Ops Lead at Acme Corp</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2 */}
+          <div className="rounded-3xl border border-neutral-100 bg-white p-6 shadow-sm flex flex-col justify-between text-left space-y-6">
+            <p className="text-xs text-neutral-550 leading-relaxed font-medium italic">
+              "Switching between our local developer workspace and national events is seamless. Team invitations and simple free RSVPs have saved us hours of email coordination."
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-full bg-neutral-955 text-white font-bold flex items-center justify-center text-xs">DM</div>
+              <div>
+                <h5 className="text-xs font-bold text-neutral-900">David Miller</h5>
+                <p className="text-[10px] text-neutral-400">Dev Community Organizer</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3 */}
+          <div className="rounded-3xl border border-neutral-100 bg-white p-6 shadow-sm flex flex-col justify-between text-left space-y-6">
+            <p className="text-xs text-neutral-550 leading-relaxed font-medium italic">
+              "Clean design, fast RSVP, and zero ticketing clutter. Our student activities team coordinates fests with instant confirmations. Highly recommended."
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-full bg-neutral-955 text-white font-bold flex items-center justify-center text-xs">MV</div>
+              <div>
+                <h5 className="text-xs font-bold text-neutral-900">Dr. Marcus Vance</h5>
+                <p className="text-[10px] text-neutral-400">Student Coordinator</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQs */}
+      <section id="faq" className="mx-auto max-w-4xl px-6 py-20 border-t border-neutral-100/80">
+        <div className="text-center max-w-2xl mx-auto space-y-3 mb-12">
+          <h2 className="text-4xl font-extrabold tracking-tight text-neutral-950 font-display">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-sm text-neutral-500">
+            Answers to common questions about workspace limits, ticket setup, and features.
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          {[
+            {
+              q: "Is Planora free to use?",
+              a: "Yes! Planora is 100% free for hosting free events with unlimited RSVPs. For paid ticketed events, we charge a flat 5% commission per ticket transaction with zero setup costs."
+            },
+            {
+              q: "How does multi-workspace support work?",
+              a: "Planora allows you to create separate workspaces for different organizations (e.g. Acme Corp, local meetups, or personal clubs). Each workspace isolates events, member roles, and settings."
+            },
+            {
+              q: "Can I invite team members to co-host events?",
+              a: "Absolutely. As a workspace owner, you can enter any team member's email in the dashboard roster. They will be added as a collaborator to co-manage the events feed."
+            },
+            {
+              q: "Are there limit counts on attendees?",
+              a: "No! Planora supports events of all scales. You can specify a custom seat limit when scheduling an event, and registrations will close automatically once the capacity is filled."
+            }
+          ].map((item, idx) => (
+            <div 
+              key={idx}
+              className="rounded-2xl border border-neutral-150 bg-white p-4 shadow-sm text-left transition-all"
+            >
+              <button
+                onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                className="w-full flex items-center justify-between font-bold text-sm text-neutral-950 focus:outline-none cursor-pointer"
+              >
+                <span>{item.q}</span>
+                <ChevronDown 
+                  size={16} 
+                  className={`text-neutral-400 transition-transform duration-200 ${openFaq === idx ? 'rotate-180' : ''}`} 
+                />
+              </button>
+              <AnimatePresence initial={false}>
+                {openFaq === idx && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: 'easeInOut' }}
+                    className="overflow-hidden"
+                  >
+                    <p className="text-xs text-neutral-500 leading-relaxed mt-2.5 pt-2.5 border-t border-neutral-100">
+                      {item.a}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Pricing / FAQs target anchors for navigation */}
