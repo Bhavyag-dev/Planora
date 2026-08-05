@@ -13,9 +13,9 @@
   }
 }
 
-/* ==========================================================================
+/*
    Glass Utilities
-   ========================================================================== */
+ */
 
 .glass {
   @apply bg-white/70 backdrop-blur-md border border-white/20;
@@ -29,9 +29,7 @@
   @apply transition-all duration-300 hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:border-purple-500/50;
 }
 
-/* ==========================================================================
-   Scrollbar Hide
-   ========================================================================== */
+/* Scrollbar Hide */
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -41,9 +39,7 @@
   scrollbar-width: none;
 }
 
-/* ==========================================================================
-   Keyframe Animations
-   ========================================================================== */
+/* Keyframe Animations */
 
 /* Animated gradient text shift (hero "Campus" word) */
 @keyframes gradientShift {
@@ -91,9 +87,7 @@
   animation-play-state: paused;
 }
 
-/* ==========================================================================
-   Focus Ring (Accessibility)
-   ========================================================================== */
+/* Focus Ring (Accessibility) */
 
 *:focus-visible {
   outline: 2px solid rgba(129, 140, 248, 0.6);
@@ -101,9 +95,7 @@
   border-radius: 8px;
 }
 
-/* ==========================================================================
-   Custom Scrollbar (for non-hidden scrollbars)
-   ========================================================================== */
+/* Custom Scrollbar */
 
 ::-webkit-scrollbar {
   width: 6px;
