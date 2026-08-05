@@ -63,7 +63,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setStatus('anonymous');
 
       const redirectTo = opts?.redirectTo ?? '/';
-      // If already on an auth page, keep it stable.
       if (location.pathname.startsWith('/login') || location.pathname.startsWith('/signup')) {
         return;
       }
