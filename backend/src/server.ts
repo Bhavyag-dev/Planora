@@ -3,7 +3,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import path from 'path';
-import cron from 'node-cron';
 import type { Server } from 'node:http';
 import dns from 'node:dns';
 import { fileURLToPath } from 'node:url';
@@ -11,11 +10,6 @@ import authRoutes from './routes/authRoutes';
 import eventRoutes from './routes/eventRoutes';
 import registrationRoutes from './routes/registrationRoutes';
 import organizationRoutes from './routes/organizationRoutes';
-import analyticsRoutes from './routes/analyticsRoutes';
-import orgAdminRoutes from './routes/orgAdminRoutes';
-import { Event } from './models/Event';
-import { Registration } from './models/Registration';
-import { sendReminderEmail } from './services/emailService';
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(currentDir, '../../.env') });
@@ -54,53 +48,13 @@ async function startServer() {
   app.use('/api/events', eventRoutes);
   app.use('/api/registrations', registrationRoutes);
   app.use('/api/organizations', organizationRoutes);
-  app.use('/api/analytics', analyticsRoutes);
-  app.use('/api/org-admin', orgAdminRoutes);
 
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Server is running' });
   });
 
-  // Cron job for event reminders (runs every hour)
-  cron.schedule('0 * * * *', async () => {
-    console.log('Running event reminder cron job...');
-    try {
-      const tomorrow = new Date();
-      tomorrow.setHours(tomorrow.getHours() + 24);
-      
-      const startWindow = new Date(tomorrow);
-      startWindow.setMinutes(0, 0, 0);
-      
-      const endWindow = new Date(tomorrow);
-      endWindow.setMinutes(59, 59, 999);
-
-      // Find events happening in the 24h window
-      const upcomingEvents = await Event.find({
-        date: { $gte: startWindow, $lte: endWindow }
-      });
-
-      for (const event of upcomingEvents) {
-        const registrations = await Registration.find({
-          event: event._id,
-          reminderSent: false
-        }).populate('user', 'name email');
-
-        for (const reg of registrations) {
-          const user = reg.user as any;
-          if (user && user.email) {
-            await sendReminderEmail(user.email, user.name, event);
-            reg.reminderSent = true;
-            await reg.save();
-          }
-        }
-      }
-    } catch (err) {
-      console.error('Cron job error:', err);
-    }
-  });
-
   app.get('/', (_req, res) => {
-    res.status(200).type('text/plain').send('Campus Events API is running.');
+    res.status(200).type('text/plain').send('Planora SaaS API is running.');
   });
 
   const server: Server = app.listen(PORT, '0.0.0.0', () => {
