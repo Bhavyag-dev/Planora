@@ -1,28 +1,30 @@
 import express from 'express';
 import { Event } from '../models/Event';
 import { Registration } from '../models/Registration';
-import { authMiddleware, adminMiddleware, AuthRequest } from '../middleware/auth';
-import { sendCancellationEmail } from '../services/emailService';
+import { Organization } from '../models/Organization';
+import { authMiddleware, AuthRequest } from '../middleware/auth';
 
 const router = express.Router();
 
-// Public: Get all events for a specific organization (or all if not logged in)
+// Helper: Check if user is a member of the organization
+const checkMembership = async (organizationId: string, userId: string) => {
+  const org = await Organization.findById(organizationId);
+  if (!org) return false;
+  return org.members.some((m: any) => m.user.toString() === userId);
+};
+
+// Public/Authenticated: Get events
 router.get('/', async (req: AuthRequest, res) => {
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
+    const { organizationId } = req.query;
     let query: any = {};
-    
-    if (token && token !== 'null') {
-      try {
-        const jwt = require('jsonwebtoken');
-        if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET is not configured');
-        const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
-        if (decoded.role !== 'super_admin' && decoded.role !== 'admin' && decoded.organization) {
-           query.organization = decoded.organization;
-        }
-      } catch (err) {
-         // Ignore invalid token, just return all
-      }
+
+    if (organizationId) {
+      query.organization = organizationId;
+    } else {
+      // By default, if no organizationId is requested, only return published events across organizations.
+      // This supports the public landing page listing.
+      query.status = 'published';
     }
 
     const events = await Event.find(query).sort({ date: 1 });
@@ -32,7 +34,7 @@ router.get('/', async (req: AuthRequest, res) => {
   }
 });
 
-// Public: Get single event
+// Public/Authenticated: Get single event
 router.get('/:id', async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
@@ -43,28 +45,28 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Admin: Create event
+// Authenticated: Create event under active workspace
 router.post('/', authMiddleware, async (req: AuthRequest, res) => {
-  const allowedRoles = ['org_admin', 'super_admin', 'admin'];
-  if (!req.user || !allowedRoles.includes(req.user.role)) {
-    return res.status(403).json({ message: 'Unauthorized to create events' });
-  }
-
   try {
-    const { title, description, coverImage, galleryImages, date, venue, category, seatLimit, status } = req.body;
+    const { title, description, coverImage, date, venue, category, seatLimit, organizationId, status } = req.body;
+    if (!organizationId) return res.status(400).json({ message: 'Organization ID is required' });
+
+    const isMember = await checkMembership(organizationId, req.user?.id!);
+    if (!isMember) return res.status(403).json({ message: 'You are not a member of this workspace' });
+
     const event = new Event({
       title,
       description,
       coverImage: coverImage || '',
-      galleryImages: Array.isArray(galleryImages) ? galleryImages.slice(0, 12) : [],
       date,
       venue,
-      category,
-      seatLimit,
+      category: category || 'General',
+      seatLimit: seatLimit || 100,
       status: status || 'published',
-      organizer: req.user.id,
-      organization: req.user.organization
+      organizer: req.user?.id,
+      organization: organizationId
     });
+
     await event.save();
     res.status(201).json(event);
   } catch (err) {
@@ -73,44 +75,38 @@ router.post('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-// Admin: Update event
-router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
+// Authenticated: Update event
+router.put('/:id', authMiddleware, async (req: AuthRequest, res) => {
   try {
-    const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).json({ message: 'Event not found' });
-    res.json(event);
+
+    const isMember = await checkMembership(event.organization.toString(), req.user?.id!);
+    if (!isMember) return res.status(403).json({ message: 'Access denied: you do not belong to this workspace' });
+
+    const updatedEvent = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updatedEvent);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Admin: Delete event
-router.delete('/:id', authMiddleware, adminMiddleware, async (req: AuthRequest, res) => {
+// Authenticated: Delete event
+router.delete('/:id', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).json({ message: 'Event not found' });
 
-    const eventTitle = event.title;
-    const eventId = event._id;
+    const isMember = await checkMembership(event.organization.toString(), req.user?.id!);
+    if (!isMember) return res.status(403).json({ message: 'Access denied: you do not belong to this workspace' });
 
-    // Find all registered users for this event
-    const registrations = await Registration.find({ event: eventId }).populate('user', 'name email');
-    
+    const eventId = event._id;
     await Event.findByIdAndDelete(eventId);
-    // Also delete registrations
+    
+    // Clean up registrations
     await Registration.deleteMany({ event: eventId });
 
-    // Send cancellation emails
-    registrations.forEach(reg => {
-      const user = reg.user as any;
-      if (user && user.email) {
-        sendCancellationEmail(user.email, user.name, eventTitle).catch(err =>
-          console.error('Failed to send cancellation email:', err)
-        );
-      }
-    });
-
-    res.json({ message: 'Event deleted and participants notified' });
+    res.json({ message: 'Event deleted successfully' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
