@@ -4,8 +4,7 @@ import jwt from 'jsonwebtoken';
 export interface AuthRequest extends Request {
   user?: {
     id: string;
-    role: string;
-    organization?: string;
+    email: string;
   };
 }
 
@@ -17,33 +16,17 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
   }
 
   try {
-    const tryVerify = (secret: string) => jwt.verify(token, secret) as {
-      id: string;
-      role: string;
-      organization?: string;
-      email?: string;
-    };
-
     const primarySecret = process.env.JWT_SECRET;
     if (!primarySecret) throw new Error('JWT_SECRET is not configured');
-    const decoded = tryVerify(primarySecret);
-
-    // Force super_admin role for the specific email if it's in the token
-    if (decoded.email === process.env.SUPER_ADMIN_EMAIL) {
-      decoded.role = 'super_admin';
-    }
+    
+    const decoded = jwt.verify(token, primarySecret) as {
+      id: string;
+      email: string;
+    };
     
     req.user = decoded;
     next();
   } catch (err) {
     res.status(401).json({ message: 'Token is not valid' });
   }
-};
-
-export const adminMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
-  const adminRoles = ['super_admin', 'org_admin', 'admin'];
-  if (!req.user || !adminRoles.includes(req.user.role)) {
-    return res.status(403).json({ message: 'Access denied, administrative privileges required' });
-  }
-  next();
 };
