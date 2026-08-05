@@ -1,11 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Users, Search, Filter, Tag, LayoutDashboard, Sparkles, CalendarDays } from 'lucide-react';
+import { Users, Search, Filter, Tag, Sparkles, CalendarDays, Globe } from 'lucide-react';
 import { Input } from '../components/Input';
-import { Button } from '../components/Button';
 import MagicBento from '../components/MagicBento';
-import { useAuth } from '../hooks/useAuth';
+import { useWorkspace } from '../context/WorkspaceContext';
 
 interface Event {
   _id: string;
@@ -19,12 +17,11 @@ interface Event {
 }
 
 export const Events = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { activeWorkspace } = useWorkspace();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  // NOTE: Events is a global discover page and should not redirect users away.
-  
+  const [viewMode, setViewMode] = useState<'workspace' | 'global'>('workspace');
+
   // Filter states
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
@@ -32,7 +29,13 @@ export const Events = () => {
   const [showOnlyAvailable, setShowOnlyAvailable] = useState(false);
 
   useEffect(() => {
-    fetch('/api/events', {
+    setLoading(true);
+    let url = '/api/events';
+    if (viewMode === 'workspace' && activeWorkspace) {
+      url += `?organizationId=${activeWorkspace._id}`;
+    }
+    
+    fetch(url, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     })
       .then(res => res.json())
@@ -40,7 +43,6 @@ export const Events = () => {
         if (Array.isArray(data)) {
           setEvents(data);
         } else {
-          console.error('Expected array of events, got:', data);
           setEvents([]);
         }
         setLoading(false);
@@ -50,7 +52,7 @@ export const Events = () => {
         setEvents([]);
         setLoading(false);
       });
-  }, []);
+  }, [viewMode, activeWorkspace]);
 
   const categories = useMemo(() => {
     const cats = new Set(events.map(e => e.category || 'General'));
@@ -65,9 +67,8 @@ export const Events = () => {
       
       const matchesCategory = category === 'All' || event.category === category;
       const isAvailable = !showOnlyAvailable || (event.registeredCount < event.seatLimit);
-      const isPublished = (event as any).status === 'published';
       
-      return matchesSearch && matchesCategory && isAvailable && isPublished;
+      return matchesSearch && matchesCategory && isAvailable;
     });
 
     result.sort((a, b) => {
@@ -84,14 +85,16 @@ export const Events = () => {
   const upcomingEvents = events.filter((e) => new Date(e.date).getTime() >= Date.now()).length;
 
   if (loading) return (
-    <div className="flex min-h-[50vh] flex-col items-center justify-center">
+    <div className="flex min-h-[50vh] flex-col items-center justify-center bg-zinc-950 text-white">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-purple-500 border-t-transparent" />
         <p className="mt-4 text-sm font-medium text-zinc-400">Loading events...</p>
     </div>
   );
 
   return (
-    <div className="space-y-10 pb-12">
+    <div className="space-y-10 pb-12 select-none">
+      
+      {/* Header card */}
       <div className="relative overflow-hidden rounded-3xl border border-white/[0.06] bg-white/[0.02] p-6 md:p-8 shadow-2xl backdrop-blur-xl">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(99,102,241,0.12),transparent_55%)]" aria-hidden="true" />
         <div className="absolute -right-20 top-8 h-44 w-44 rounded-full bg-purple-500/10 blur-3xl" aria-hidden="true" />
@@ -99,12 +102,15 @@ export const Events = () => {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.02] px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
               <Sparkles size={12} className="text-purple-400" />
-              Discover Layer
+              Discover Events
             </div>
-            <h1 className="mt-3 text-4xl font-bold tracking-tight text-white">
-              Discover <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Events</span>
+            <h1 className="mt-3 text-4xl font-bold tracking-tight text-white font-display">
+              {viewMode === 'workspace' && activeWorkspace 
+                ? `${activeWorkspace.name} Events`
+                : 'Global Discover'
+              }
             </h1>
-            <p className="mt-2 text-zinc-400">Find and register for the best activities on campus.</p>
+            <p className="mt-2 text-zinc-400 text-sm">Browse events or switch views to explore other organizations.</p>
           </div>
 
           <div className="grid w-full gap-3 sm:grid-cols-3 md:w-auto md:min-w-[360px]">
@@ -124,29 +130,45 @@ export const Events = () => {
         </div>
       </div>
 
-      {/* Header section with gradient line */}
-      <div className="relative pb-6 border-b border-white/[0.06] flex flex-col md:flex-row md:items-center justify-between gap-6">
+      {/* View Switcher Bar */}
+      <div className="relative pb-6 border-b border-white/[0.06] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="absolute bottom-0 left-0 h-px w-1/3 bg-gradient-to-r from-indigo-500 via-purple-500 to-transparent" />
-        <div className="flex items-center gap-2 text-zinc-400">
+        <div className="flex items-center gap-2 text-zinc-400 text-sm">
           <CalendarDays size={16} />
-          <p className="text-sm">Smart filters to help you find the right event faster.</p>
+          <span>Toggle filters to refine search feed.</span>
         </div>
-        
-        {(user?.role === 'super_admin' || user?.role === 'admin' || user?.role === 'org_admin') && (
-          <Button onClick={() => {
-            const path = user.role === 'super_admin' || user.role === 'admin' ? '/super-admin' : '/org-admin';
-            navigate(path);
-          }} variant="outline" className="gap-2 shrink-0">
-            <LayoutDashboard size={18} />
-            Go to Dashboard
-          </Button>
+
+        {activeWorkspace && (
+          <div className="flex bg-white/5 border border-white/10 rounded-xl p-1 shrink-0">
+            <button
+              onClick={() => setViewMode('workspace')}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                viewMode === 'workspace' 
+                  ? 'bg-purple-600 text-white shadow' 
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              Workspace View
+            </button>
+            <button
+              onClick={() => setViewMode('global')}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 ${
+                viewMode === 'global' 
+                  ? 'bg-purple-600 text-white shadow' 
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              <Globe size={12} />
+              Global Discover
+            </button>
+          </div>
         )}
       </div>
 
-      {/* Filters Section - Glassmorphic card */}
+      {/* Filters Section */}
       <div className="grid gap-4 rounded-3xl border border-white/[0.06] bg-white/[0.02] p-6 shadow-2xl backdrop-blur-xl md:grid-cols-4">
         <div className="relative md:col-span-2 space-y-1.5">
-          <label className="flex items-center gap-1.5 text-xs font-bold text-zinc-500 uppercase tracking-widest pl-1">
+          <label className="flex items-center gap-1.5 text-xs font-bold text-zinc-550 uppercase tracking-widest pl-1">
              Search
           </label>
           <div className="relative">
@@ -161,7 +183,7 @@ export const Events = () => {
         </div>
 
         <div className="space-y-1.5">
-          <label className="flex items-center gap-1.5 text-xs font-bold text-zinc-500 uppercase tracking-widest pl-1">
+          <label className="flex items-center gap-1.5 text-xs font-bold text-zinc-550 uppercase tracking-widest pl-1">
             <Tag size={12} /> Category
           </label>
           <select 
@@ -176,7 +198,7 @@ export const Events = () => {
         </div>
 
         <div className="space-y-1.5">
-          <label className="flex items-center gap-1.5 text-xs font-bold text-zinc-500 uppercase tracking-widest pl-1">
+          <label className="flex items-center gap-1.5 text-xs font-bold text-zinc-550 uppercase tracking-widest pl-1">
             <Filter size={12} /> Sort & View
           </label>
           <div className="flex gap-2">
