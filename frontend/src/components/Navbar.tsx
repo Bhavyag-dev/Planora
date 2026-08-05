@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useWorkspace } from '../context/WorkspaceContext';
 import { Button } from './Button';
-import { Calendar, User as UserIcon, LogOut, LayoutDashboard, Zap } from 'lucide-react';
+import { LogOut, User as UserIcon, Zap } from 'lucide-react';
 
 export const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
-  const navigate = useNavigate();
+  const { activeWorkspace } = useWorkspace();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -28,7 +29,7 @@ export const Navbar = () => {
             <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-purple-500/25 transition-transform duration-300 group-hover:scale-110">
               <Zap className="text-white" size={16} fill="currentColor" />
             </div>
-            <span className="text-xl text-white">Campus<span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Pulse</span></span>
+            <span className="text-xl text-white font-display">Planora</span>
           </Link>
 
           <div className="flex items-center gap-4">
@@ -48,8 +49,8 @@ export const Navbar = () => {
     <nav className="sticky top-0 z-30 flex h-16 items-center border-b border-white/[0.06] bg-zinc-950/80 px-6 backdrop-blur-2xl relative">
       <div className="flex flex-1 items-center justify-between">
         <div className="flex items-center gap-4">
-          <h2 className="text-sm font-medium text-zinc-500">
-            {user?.college?.name || 'Global Platform'}
+          <h2 className="text-sm font-semibold text-zinc-300">
+            {activeWorkspace?.name || 'Workspace Dashboard'}
           </h2>
         </div>
         
@@ -62,9 +63,12 @@ export const Navbar = () => {
               {user?.name?.charAt(0) || 'U'}
             </button>
             
-            {showDropdown && user?.role === 'super_admin' && (
+            {showDropdown && (
               <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-xl bg-zinc-900 border border-white/10 shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden z-50">
                 <div className="p-1">
+                  <div className="px-3 py-2 text-xs text-zinc-500 border-b border-white/[0.06] mb-1">
+                    Logged in as <span className="font-semibold text-zinc-300">{user?.name}</span>
+                  </div>
                   <button
                     onClick={() => {
                       setShowDropdown(false);
