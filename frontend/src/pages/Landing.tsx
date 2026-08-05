@@ -306,7 +306,7 @@ export function Landing() {
           alt="Event Background" 
           className="w-full h-full object-cover opacity-[0.88] filter saturate-[1.1] contrast-[1.02]" 
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fbfbfb]/20 to-[#fbfbfb]/75" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fbfbfb]/20 to-[#fbfbfb]" />
       </div>
 
       {/* Hero Section */}
@@ -356,11 +356,9 @@ export function Landing() {
         </div>
       </section>
 
-
-
       {/* Fold 2: Unforgettable Event Panel Layout (Reference Image 2) */}
-      <section className="relative z-10 bg-[#fbfbfb] mx-auto max-w-7xl px-6 py-24 border-b border-neutral-100/40">
-        <div className="grid gap-12 lg:grid-cols-12 items-center">
+      <section className="w-full bg-[#fbfbfb] relative z-10 py-24 border-b border-neutral-100/40">
+        <div className="mx-auto max-w-7xl px-6 grid gap-12 lg:grid-cols-12 items-center">
           {/* Left Text details */}
           <div className="lg:col-span-5 space-y-6">
             <h2 className="text-4xl font-extrabold text-neutral-900 leading-[1.1] tracking-tight font-display sm:text-5xl">
@@ -419,8 +417,9 @@ export function Landing() {
       </section>
 
       {/* Dynamic Live Events Section */}
-      <section className="relative z-10 bg-[#fbfbfb] mx-auto max-w-7xl px-6 py-16 border-t border-neutral-100/60">
-        <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-neutral-100/80 pb-6">
+      <section className="w-full bg-[#fbfbfb] relative z-10 py-16 border-t border-neutral-100/60">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-neutral-100/80 pb-6">
           <div>
             <div className="inline-flex items-center gap-1 text-[11px] font-bold text-neutral-400 uppercase tracking-widest mb-1.5">
               <Sparkles size={12} className="text-amber-500" /> Discover Exciting Happenings
@@ -509,6 +508,7 @@ export function Landing() {
             ))}
           </div>
         )}
+        </div>
       </section>
 
       {/* Feature Showcase */}
