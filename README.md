@@ -39,6 +39,22 @@ This codebase consists of a robust TypeScript-Express backend API and a fast Vit
 - **Framer Motion (`motion/react`)**: Spring-physics micro-interactions and workspace modal transitions.
 - **Lucide React**: Modern SVG icon library.
 
+### 🗂️ Codebase Languages & Formats
+
+This repository leverages the following programming, markup, styling, configuration, scripting, query, and infrastructure languages/formats:
+
+| Category | Language / Format | Usage & Purpose |
+| :--- | :--- | :--- |
+| **Programming Languages** | **TypeScript** (`.ts`, `.tsx`) | Core language for backend server logic (`server.ts`, seed scripts, database schemas, routes, middleware) and frontend React interactive UI components (`App.tsx`, pages, components). |
+| **Markup Languages** | **HTML5** (`.html`), **Markdown** (`.md`), **SVG** (`.svg`) | HTML is used for the application entry point (`index.html`). Markdown is used for documentation (`README.md`, `SETUP.md`, `.agents/AGENTS.md`). SVG (XML-based) is used for the vector graphics favicon (`favicon.svg`). |
+| **Styling Languages** | **CSS3** (`.css`) | Used for global and component-specific styles (`index.css`, `Aurora.css`, `MagicBento.css`) integrated with Tailwind CSS v4 directives. |
+| **Configuration Languages** | **JSON** / **JSONC** | Used for dependency and task management (`package.json`, `package-lock.json`), TypeScript compiler settings (`tsconfig.json`), and app metadata (`metadata.json`). |
+| | **Dotenv** | Declares backend config variables and environment parameters (`.env`, `.env.example`). |
+| | **Gitignore Path-spec** | Defines untracked files and folders to exclude from version control (`.gitignore`). |
+| **Scripting Languages** | **Shell Scripting** (`sh`/`bash` commands) | Used to chain package script tasks (e.g. concurrent dev servers, build pipelines, database seeding) in `package.json`. |
+| **Query Languages** | **MongoDB Query Language** (MQL) | Database query operations integrated via Mongoose ODM helper methods in the backend routes and controllers. |
+| **Infrastructure / Build Languages** | **Vite Config (ESM / TS)** | Defines build, alias resolver, and HMR dev-server configurations (`vite.config.ts`). |
+
 ---
 
 ## 🚀 Local Setup
