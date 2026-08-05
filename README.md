@@ -1,55 +1,43 @@
-# Planora — SaaS Event Management & Ticketing Platform
+# Planora — Workspace Event SaaS MVP
 
-**Planora** is a modern, high-fidelity SaaS Event Management and Ticketing Platform designed for corporate workspaces, local organizations, and communities to plan, host, and monetize events.
+**Planora** is a modern, high-fidelity Event Management SaaS designed for corporate workspaces, local organizations, and communities to plan, host, and share events within structured workspaces.
 
 This codebase consists of a robust TypeScript-Express backend API and a fast Vite-React frontend web application styled with Tailwind CSS v4, built for portfolio presentation and production readiness.
 
 ---
 
-## 🌟 Premium Features
+## 🌟 Premium SaaS MVP Features
 
-### 1. Advanced Scroll-Physics Navbar
-- **Collapsible Floating Pill**: A sticky header bar that dynamically contracts from a full-width header (`72rem`) into a centered glassmorphic rounded pill (`44rem`) with a backdrop blur and offset shadows on scroll.
-- **Top-Level Transparency**: Set to fully transparent at `top-0` to blend with the hero folding graphic, instantly snap-expanding back when scrolled to the top.
-- **Hover-to-Reveal tooltips**: Glassmorphic "Planning" and "Categories" dropdown panels with continuous hover padding bridges preventing mouseleave gaps.
+### 1. Multi-Tenant Workspaces (Organizations)
+- **Flexible Management**: Users can create and belong to multiple workspaces, seamlessly switching between them via a sidebar dropdown.
+- **Workspace-isolated Events**: Events are tied strictly to their respective workspaces, keeping communications and event schedules separated.
+- **Team Invitations**: Workspace owners can invite other registered users to join their workspace by email.
 
-### 2. Immersive Visual Layouts
-- **Full-Bleed Graphic Backgrounds**: Features a detailed landscape cover image aligned to the viewport height (`h-screen`) of the first fold, fading out cleanly via linear opacity blends.
-- **SaaS Mockup Previews**: A dual-card visual grid showing an interactive dark analytics card (94.2% community engagement) alongside high-contrast featured event cover thumbnails.
-- **Clean Signature Typography**: Imports Fustat and Schibsted Grotesk for display headings, Inter for interface elements, and Caveat cursive signatures for elegant visual highlights.
+### 2. Unified Workspace Dashboard
+- **Onboarding Flow**: Users without active organizations are guided to configure their initial workspace name.
+- **Members List**: Displays workspace members and their workspace-specific roles (`owner` vs `member`).
+- **Interactive Event Scheduler**: Workspace members can schedule new events using a clean form modal.
+- **Global Event Feed**: Users can browse published events in their active workspace or switch to global discovery to see public happenings across all workspaces.
 
-### 3. Core Event Functions
-- **Role-Based Control**: Three distinct account portals: Super Admins (Platform-wide controls), Org Admins (workspace-specific hosting boundaries), and Users/Hosts.
-- **Ticketing & Payments**: Integrations for free RSVPs and paid ticket pricing models.
-- **QR-Code Ticket Check-ins**: Built-in QR scanners for front-gate ticket verification.
-- **watermark footer Parallax**: A giant watermark container positioned underneath a multi-column SaaS footer (with Newsletter signups, Brand columns, and social widgets) that collapses dynamically during scroll.
+### 3. High-Fidelity UI & Typography
+- **Advanced Scroll-Physics Navbar**: Collapses from a full-width header into a glassmorphic rounded pill with backdrop blur on scroll (preserved from the original landing page).
+- **Light/Dark Canvas Theme**: Uses a clean off-white canvas theme (`#fbfbfb`) for auth pages and the public landing page, blending with a dark glassmorphic interface for the authenticated workspaces area.
+- **Sleek Fonts**: Combines Fustat and Schibsted Grotesk for display headings, Inter for interface elements, and Caveat cursive signatures for visual highlights.
 
 ---
 
-## 🛠️ Technology Stack & Languages
+## 🛠️ Technology Stack
 
-### Languages
-- **TypeScript (ESNext)**: Strong compiler checking and type definitions across frontend and backend layers.
-- **JavaScript (ES2022)**: Modern ES-modules (`type: module`).
-- **HTML5 & CSS3**: Semantic markups and Tailwind integration.
+### Backend API
+- **Node.js & Express**: Lightweight, type-safe REST API server runtime.
+- **MongoDB & Mongoose ODM**: Document database with schema indexing, validation filters, and member relationships.
+- **JSON Web Tokens (JWT)**: Client-side session tokens with secure verification.
 
-### Frontend (React application)
-- **React 19**: Modern component lifecycle, hooks, and contexts.
-- **Vite 6**: Next-generation frontend bundler for high-speed Hot Module Replacement (HMR).
-- **Tailwind CSS v4**: High-performance CSS compiler with native `@theme` directives and nested layout utility variables.
-- **Framer Motion (`motion/react`)**: Spring physics, layout transformations, and `AnimatePresence` enter/exit transitions.
-- **Recharts**: Responsive SVG charts representing event registrations and ticketing revenue metrics.
-- **GSAP (GreenSock)**: Micro-interaction animations.
-- **Three.js & OGL**: 3D web-graphics support.
+### Frontend Client
+- **React 19 & Vite 6**: React framework bundled with high-speed HMR for instant visual feedback.
+- **Tailwind CSS v4**: Theme customization using CSS variables and utility classes.
+- **Framer Motion (`motion/react`)**: Spring-physics micro-interactions and workspace modal transitions.
 - **Lucide React**: Modern SVG icon library.
-
-### Backend (Node API)
-- **Node.js**: Asynchronous backend server runtime environment.
-- **Express.js**: Lightweight REST API framework with MVC routing structures.
-- **MongoDB & Mongoose ODM**: Document database with schema models, indexing, and validation filters.
-- **JSON Web Tokens (JWT)**: Secure state auth cookies.
-- **bcryptjs**: Secure cryptographic password hashing.
-- **Cors & Helmet**: API routing security policies.
 
 ---
 
@@ -57,31 +45,39 @@ This codebase consists of a robust TypeScript-Express backend API and a fast Vit
 
 ### 1. Prerequisites
 - **Node.js** (v20 or newer)
-- **MongoDB** (Local daemon or MongoDB Atlas URL)
+- **MongoDB** (Local instance or MongoDB Atlas cluster URI)
 
 ### 2. Installation
-Clone the repository and install dependencies from the root folder:
+Clone the repository and install workspace dependencies:
 ```bash
 npm install
 ```
 
-### 3. Environment Setup
+### 3. Environment Variables
 Create a `.env` file in the root directory:
 ```env
-MONGODB_URI=mongodb://localhost:27017/planora
+MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/planora
 JWT_SECRET=your_jwt_signing_secret_here
 PORT=8080
 CORS_ORIGIN=http://localhost:5173
 ```
 
-### 4. Seed Seed Data
-Populate the database with demo accounts, organizations, and events:
+### 4. Database Seeding
+Populate the separate `planora` database with initial test user, workspaces, and demo events:
 ```bash
 npm run seed
 ```
+- **Test User Credentials**:
+  - Email: `admin@campusevents.com`
+  - Password: `admin12345`
 
-### 5. Running the Dev Environment
-Start both services in parallel:
-- In Terminal 1 (Start API): `npm run dev:server`
-- In Terminal 2 (Start Frontend): `npm run dev`
-- Open `http://localhost:5173` in your browser.
+### 5. Running local servers
+Start the backend and frontend concurrently:
+```bash
+# Terminal 1 (Run Backend server)
+npm run dev:server
+
+# Terminal 2 (Run Frontend Vite client)
+npm run dev
+```
+Open `http://localhost:5173` in your browser.
