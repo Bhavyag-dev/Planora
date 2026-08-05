@@ -11,7 +11,6 @@ interface Event {
   title: string;
   description: string;
   coverImage?: string;
-  galleryImages?: string[];
   date: string;
   venue: string;
   category?: string;
@@ -22,7 +21,7 @@ interface Event {
 export const EventDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [registering, setRegistering] = useState(false);
@@ -84,7 +83,7 @@ export const EventDetails = () => {
   };
 
   if (loading) return (
-    <div className="flex h-64 items-center justify-center">
+    <div className="flex h-64 items-center justify-center bg-zinc-950 text-white">
       <div className="flex flex-col items-center gap-4">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-purple-500 border-t-transparent" />
         <p className="text-zinc-400 font-medium">Loading event details...</p>
@@ -93,7 +92,7 @@ export const EventDetails = () => {
   );
   
   if (!event) return (
-    <div className="flex h-64 flex-col items-center justify-center text-center">
+    <div className="flex h-64 flex-col items-center justify-center text-center bg-zinc-950 text-white">
       <h2 className="text-2xl font-bold text-white mb-2">Event not found</h2>
       <p className="text-zinc-400">This event may have been removed or doesn't exist.</p>
     </div>
@@ -103,8 +102,8 @@ export const EventDetails = () => {
   const fillPercent = Math.min(100, (event.registeredCount / event.seatLimit) * 100);
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8 pb-12">
-      <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2">
+    <div className="mx-auto max-w-4xl space-y-8 pb-12 select-none text-white">
+      <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2 text-zinc-400 hover:text-white">
         <ArrowLeft size={16} />
         Back to events
       </Button>
@@ -142,22 +141,12 @@ export const EventDetails = () => {
             </div>
           </motion.div>
 
-          <div className="space-y-3">
+          <div className="space-y-3 pt-4">
             <h3 className="text-lg font-semibold text-white">About this event</h3>
             <p className="text-zinc-400 leading-relaxed whitespace-pre-wrap">
               {event.description}
             </p>
           </div>
-          {Array.isArray(event.galleryImages) && event.galleryImages.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-white">Event Gallery</h3>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {event.galleryImages.slice(0, 6).map((img, idx) => (
-                  <img key={`${img}-${idx}`} src={img} className="h-44 w-full rounded-2xl border border-white/[0.08] object-cover" />
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* RIGHT: Registration Card */}
@@ -194,11 +183,11 @@ export const EventDetails = () => {
                 <div className="flex flex-col items-center gap-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 p-5 text-center">
                   <CheckCircle2 size={28} className="text-emerald-400" />
                   <span className="font-bold text-emerald-400">You're registered!</span>
-                  <Link to="/my-registrations" className="text-sm text-emerald-300 underline underline-offset-2 hover:text-emerald-200 transition-colors">View your ticket & QR code</Link>
+                  <Link to="/my-registrations" className="text-sm text-emerald-300 underline underline-offset-2 hover:text-emerald-200 transition-colors">View your tickets</Link>
                 </div>
               ) : (
                 <Button 
-                  className="w-full" 
+                  className="w-full bg-purple-600 hover:bg-purple-500 text-white" 
                   size="lg" 
                   disabled={isFull || registering}
                   isLoading={registering}
@@ -217,25 +206,19 @@ export const EventDetails = () => {
           </motion.div>
           
           <div className="rounded-3xl border border-white/[0.06] bg-white/[0.02] p-6">
-            <h4 className="font-semibold text-white mb-4">Event Info</h4>
+            <h4 className="font-semibold text-white mb-4">Event Details</h4>
             <ul className="space-y-3 text-sm text-zinc-400">
               <li className="flex items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.05]">
                   <Users size={14} className="text-indigo-400" />
                 </div>
-                Capacity: {event.seatLimit} people
+                <span>Capacity: {event.seatLimit} people</span>
               </li>
               <li className="flex items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.05]">
                   <CheckCircle2 size={14} className="text-emerald-400" />
                 </div>
-                Instant confirmation
-              </li>
-              <li className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.05]">
-                  <Clock size={14} className="text-amber-400" />
-                </div>
-                QR code entry pass
+                <span>Instant confirmation</span>
               </li>
             </ul>
           </div>
