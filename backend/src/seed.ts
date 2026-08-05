@@ -30,8 +30,8 @@ async function seed() {
     console.log('Cleared database');
 
     // Create main test user
-    const testEmail = 'admin@campusevents.com';
-    const testPassword = 'admin12345';
+    const testEmail = 'admin@planora.com';
+    const testPassword = 'planora12345';
     
     const user = new User({
       name: 'Generic SaaS User',
