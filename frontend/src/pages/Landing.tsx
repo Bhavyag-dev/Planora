@@ -310,7 +310,7 @@ export function Landing() {
       </div>
 
       {/* Hero Section */}
-      <section className="relative flex flex-col items-center justify-center pt-40 pb-24 text-center px-6 overflow-hidden">
+      <section className="relative flex flex-col items-center justify-center min-h-screen pt-32 pb-20 text-center px-6 overflow-hidden">
         {/* Central Badge */}
         <div className="relative z-10 mb-8 inline-flex items-center gap-2 rounded-full border border-neutral-200/80 bg-white px-4 py-1.5 text-[11px] font-semibold text-neutral-700 shadow-sm hover:border-neutral-300 transition-colors duration-300 select-none">
           <span>⚡</span>
