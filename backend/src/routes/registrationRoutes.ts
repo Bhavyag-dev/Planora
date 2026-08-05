@@ -1,14 +1,19 @@
 import express from 'express';
-import QRCode from 'qrcode';
 import { Registration } from '../models/Registration';
 import { Event } from '../models/Event';
-import { User } from '../models/User';
+import { Organization } from '../models/Organization';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
-import { sendRegistrationEmail } from '../services/emailService';
 
 const router = express.Router();
 
-// User: Register for an event
+// Helper: Check if user is a member of the organization
+const checkMembership = async (organizationId: string, userId: string) => {
+  const org = await Organization.findById(organizationId);
+  if (!org) return false;
+  return org.members.some((m: any) => m.user.toString() === userId);
+};
+
+// Authenticated: Register for an event
 router.post('/register', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const { eventId } = req.body;
@@ -16,11 +21,6 @@ router.post('/register', authMiddleware, async (req: AuthRequest, res) => {
 
     const event = await Event.findById(eventId);
     if (!event) return res.status(404).json({ message: 'Event not found' });
-
-    // Multi-tenant check: User must belong to the same organization as the event
-    if (req.user?.role === 'user' && event.organization.toString() !== req.user?.organization) {
-      return res.status(403).json({ message: 'You can only register for events in your organization' });
-    }
 
     if (event.registeredCount >= event.seatLimit) {
       return res.status(400).json({ message: 'Event is full' });
@@ -31,55 +31,16 @@ router.post('/register', authMiddleware, async (req: AuthRequest, res) => {
       return res.status(400).json({ message: 'Already registered for this event' });
     }
 
-    // Generate QR Code
-    const user = await User.findById(userId);
-    const qrData = JSON.stringify({ 
-      registrationId: '', // Will be updated after save if needed
-      eventId, 
-      userId, 
-      userName: user?.name,
-      userEmail: user?.email,
-      eventTitle: event.title,
-      eventDate: event.date,
-      organizationId: event.organization,
-      timestamp: Date.now() 
-    });
-    const qrCode = await QRCode.toDataURL(qrData);
-
     const registration = new Registration({
       event: eventId,
-      user: userId,
-      organization: event.organization,
-      qrCode
+      user: userId
     });
 
     await registration.save();
-    
-    // Update QR code with registration ID
-    const finalQrData = JSON.stringify({ 
-      registrationId: registration._id,
-      eventId, 
-      userId, 
-      userName: user?.name,
-      userEmail: user?.email,
-      eventTitle: event.title,
-      eventDate: event.date,
-      organizationId: event.organization,
-      timestamp: Date.now() 
-    });
-    registration.qrCode = await QRCode.toDataURL(finalQrData);
-    await registration.save();
 
-    // Update event registered count
+    // Increment event registered count
     event.registeredCount += 1;
     await event.save();
-
-    // Send confirmation email
-    if (user) {
-      sendRegistrationEmail(user.email, user.name, event).catch(err => 
-        console.error('Failed to send registration email:', err)
-      );
-    }
 
     res.status(201).json(registration);
   } catch (err) {
@@ -88,7 +49,7 @@ router.post('/register', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-// User: Get my registrations
+// Authenticated: Get my registrations
 router.get('/my', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const registrations = await Registration.find({ user: req.user?.id }).populate('event');
@@ -98,26 +59,18 @@ router.get('/my', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-// Admin: Get event participants
-router.get('/event/:eventId', authMiddleware, async (req, res) => {
+// Authenticated: Get event participants
+router.get('/event/:eventId', authMiddleware, async (req: AuthRequest, res) => {
   try {
+    const event = await Event.findById(req.params.eventId);
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+
+    // Verify current user belongs to the event's organization
+    const isMember = await checkMembership(event.organization.toString(), req.user?.id!);
+    if (!isMember) return res.status(403).json({ message: 'Access denied: you must belong to this workspace' });
+
     const registrations = await Registration.find({ event: req.params.eventId }).populate('user', 'name email');
     res.json(registrations);
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// Admin: Mark attendance
-router.post('/attendance', authMiddleware, async (req, res) => {
-  try {
-    const { registrationId } = req.body;
-    const registration = await Registration.findById(registrationId);
-    if (!registration) return res.status(404).json({ message: 'Registration not found' });
-
-    registration.attended = true;
-    await registration.save();
-    res.json(registration);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
