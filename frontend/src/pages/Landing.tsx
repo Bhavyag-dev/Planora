@@ -356,21 +356,7 @@ export function Landing() {
         </div>
       </section>
 
-      {/* Brand Logos Bar */}
-      <section className="relative z-10 bg-[#fbfbfb] mx-auto max-w-5xl px-6 py-6 border-t border-b border-neutral-100/60 mt-4 select-none">
-        <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 text-[13px] font-bold text-neutral-300 font-mono tracking-wider">
-          <span className="hover:text-neutral-400 transition-colors">Retool</span>
-          <span className="hover:text-neutral-400 transition-colors">remote</span>
-          <span className="hover:text-neutral-400 transition-colors">ARC</span>
-          <span className="hover:text-neutral-400 transition-colors">Raycast</span>
-          <span className="hover:text-neutral-400 transition-colors">runway</span>
-          <span className="hover:text-neutral-400 transition-colors">ramp ⏿</span>
-          <span className="hover:text-neutral-400 transition-colors">HEX</span>
-          <span className="hover:text-neutral-400 transition-colors">▲ Vercel</span>
-          <span className="hover:text-neutral-400 transition-colors">descript</span>
-          <span className="hover:text-neutral-400 transition-colors">Cash App</span>
-        </div>
-      </section>
+
 
       {/* Fold 2: Unforgettable Event Panel Layout (Reference Image 2) */}
       <section className="relative z-10 bg-[#fbfbfb] mx-auto max-w-7xl px-6 py-24 border-b border-neutral-100/40">
