@@ -1,247 +1,246 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useWorkspace } from '../context/WorkspaceContext';
 import { 
   LayoutDashboard, 
   Calendar, 
   Users, 
-  Building2, 
   Settings, 
   LogOut,
-  ChevronRight,
-  Menu,
-  X,
-  CreditCard,
-  History,
-  ShieldCheck,
-  QrCode,
-  Zap
+  ChevronDown,
+  Plus,
+  Zap,
+  Building2,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 
-interface SidebarProps {
-  className?: string;
-}
-
-export const Sidebar = ({ className }: SidebarProps) => {
-  const { user, logout } = useAuth();
+export const Sidebar = () => {
+  const { logout, user } = useAuth();
+  const { workspaces, activeWorkspace, switchWorkspace, createWorkspace } = useWorkspace();
   const location = useLocation();
-  const currentPath = location.pathname + location.search;
-  const [isOpen, setIsOpen] = React.useState(true);
+  const currentPath = location.pathname;
+
+  const [showOrgDropdown, setShowOrgDropdown] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newOrgName, setNewOrgName] = useState('');
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState('');
 
   const menuItems = [
     { 
-      title: 'Overview', 
+      title: 'Dashboard', 
       icon: LayoutDashboard, 
-      path: user?.role === 'super_admin' || user?.role === 'admin' ? '/super-admin?tab=overview' : 
-            user?.role === 'college_admin' ? '/college-admin' : 
-            user?.role === 'dept_admin' || user?.role === 'spec_admin' ? '/department-admin' : '/events',
-      roles: ['super_admin', 'college_admin', 'dept_admin', 'spec_admin', 'admin']
+      path: '/dashboard'
     },
     { 
-      title: 'Colleges', 
-      icon: Building2, 
-      path: '/super-admin?tab=colleges',
-      roles: ['super_admin', 'admin']
-    },
-    { 
-      title: 'Users', 
-      icon: Users, 
-      path: '/super-admin?tab=users',
-      roles: ['super_admin', 'admin']
-    },
-    { 
-      title: 'Global Events', 
+      title: 'Events Feed', 
       icon: Calendar, 
-      path: '/super-admin?tab=events',
-      roles: ['super_admin', 'admin']
+      path: '/events'
     },
     { 
-      title: 'Payments', 
-      icon: CreditCard, 
-      path: '/super-admin?tab=payments',
-      roles: ['super_admin', 'admin']
-    },
-    { 
-      title: 'Audit Logs', 
-      icon: History, 
-      path: '/super-admin?tab=logs',
-      roles: ['super_admin', 'admin']
-    },
-    { 
-      title: 'Events', 
-      icon: Calendar, 
-      path: '/college-admin?tab=events',
-      roles: ['college_admin']
-    },
-    { 
-      title: 'Events', 
-      icon: Calendar, 
-      path: '/events',
-      roles: ['student']
-    },
-    { 
-      title: 'Departments', 
-      icon: Building2, 
-      path: '/college-admin?tab=departments',
-      roles: ['college_admin']
-    },
-    { 
-      title: 'Department Admins', 
+      title: 'My Tickets', 
       icon: Users, 
-      path: '/college-admin?tab=users',
-      roles: ['college_admin']
-    },
-    {
-      title: 'Theme Studio',
-      icon: Settings,
-      path: '/college-admin?tab=theme',
-      roles: ['college_admin']
-    },
-    { 
-      title: 'My Registrations', 
-      icon: Users, 
-      path: '/my-registrations',
-      roles: ['student']
-    },
-    { 
-      title: 'Check-in', 
-      icon: QrCode, 
-      path: '/check-in',
-      roles: ['super_admin', 'admin', 'college_admin', 'dept_admin', 'spec_admin']
-    },
-    { 
-      title: 'Platform Settings', 
-      icon: Settings, 
-      path: '/super-admin?tab=settings',
-      roles: ['super_admin', 'admin']
+      path: '/my-registrations'
     },
     { 
       title: 'Settings', 
       icon: Settings, 
-      path: '/settings',
-      roles: ['college_admin', 'dept_admin', 'spec_admin', 'student']
-    },
+      path: '/settings'
+    }
   ];
 
-  const filteredItems = menuItems.filter(item => item.roles.includes(user?.role || ''));
-  const platformItems = filteredItems.filter(item => item.path.startsWith('/super-admin'));
-  const generalItems = filteredItems.filter(item => !item.path.startsWith('/super-admin'));
+  const handleCreateOrg = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newOrgName.trim()) return;
+    setCreating(true);
+    setError('');
+    try {
+      await createWorkspace(newOrgName);
+      setNewOrgName('');
+      setShowCreateModal(false);
+    } catch (err: any) {
+      setError(err.message || 'Failed to create workspace');
+    } finally {
+      setCreating(false);
+    }
+  };
 
   return (
     <>
-      {/* Mobile Toggle */}
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-black text-white shadow-lg lg:hidden"
-      >
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
-
-      <motion.aside
-        initial={false}
-        animate={{ width: isOpen ? 260 : 80 }}
-        className={cn(
-          "fixed left-0 top-0 z-40 h-screen border-r border-white/[0.06] bg-zinc-950/80 backdrop-blur-xl transition-all duration-300 ease-in-out lg:sticky",
-          !isOpen && "hidden lg:flex lg:flex-col",
-          className
-        )}
-      >
-        <div className="flex h-16 items-center px-6 border-b border-white/[0.06]">
+      <aside className="w-64 border-r border-white/[0.06] bg-zinc-950 flex flex-col h-screen sticky top-0 shrink-0 select-none">
+        
+        {/* Brand Header */}
+        <div className="h-16 flex items-center px-6 border-b border-white/[0.06]">
           <Link to="/" className="flex items-center gap-2.5 font-bold tracking-tight group">
-            <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-purple-500/25 transition-transform duration-300 group-hover:scale-110">
+            <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-purple-500/25">
               <Zap className="text-white" size={16} fill="currentColor" />
             </div>
-            {isOpen && <span className="text-xl text-white">Campus<span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Pulse</span></span>}
+            <span className="text-xl text-white font-display">Planora</span>
           </Link>
         </div>
 
-        <nav className="flex-1 space-y-6 px-3 py-4">
-          {platformItems.length > 0 && (
-            <div className="space-y-1">
-              {isOpen && (
-                <div className="mb-2 px-3 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-                  Platform Command
-                </div>
-              )}
-              {platformItems.map((item) => {
-                const isActive = currentPath === item.path || 
-                               (item.path === '/super-admin?tab=overview' && currentPath === '/super-admin') ||
-                               (item.path === '/super-admin?tab=overview' && currentPath === '/super-admin/') ||
-                               (currentPath.startsWith('/super-admin') && item.path.startsWith('/super-admin') && currentPath.includes(item.path.split('?')[1]));
-                
-                return (
-                  <Link
-                    key={item.title}
-                    to={item.path}
-                    className={cn(
-                      "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
-                      isActive 
-                        ? "bg-white/[0.08] text-white shadow-[0_0_15px_rgba(255,255,255,0.05)] border border-white/[0.05]" 
-                        : "text-zinc-400 hover:bg-white/[0.04] hover:text-white"
-                    )}
-                  >
-                    <item.icon className={cn("h-5 w-5 flex-shrink-0 transition-colors", isActive ? "text-purple-400" : "text-zinc-500 group-hover:text-purple-400")} />
-                    {isOpen && (
-                      <span className="ml-3 flex-1">{item.title}</span>
-                    )}
-                  </Link>
-                );
-              })}
+        {/* Workspace Selector */}
+        <div className="px-4 py-4 border-b border-white/[0.06] relative">
+          <button
+            onClick={() => setShowOrgDropdown(!showOrgDropdown)}
+            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-white hover:bg-white/[0.06] transition-all focus:outline-none"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="h-7 w-7 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-300 font-bold shrink-0">
+                {activeWorkspace?.name?.charAt(0) || 'W'}
+              </div>
+              <span className="text-sm font-semibold truncate text-zinc-100">
+                {activeWorkspace?.name || 'Create a Workspace'}
+              </span>
             </div>
-          )}
+            <ChevronDown size={14} className="text-zinc-400 shrink-0" />
+          </button>
 
-          {generalItems.length > 0 && (
-            <div className="space-y-1">
-              {isOpen && platformItems.length > 0 && (
-                <div className="mb-2 px-3 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-                  User Space
+          <AnimatePresence>
+            {showOrgDropdown && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="absolute left-4 right-4 mt-2 p-1.5 rounded-xl border border-white/10 bg-zinc-900 shadow-2xl z-50 overflow-hidden"
+              >
+                <div className="max-h-48 overflow-y-auto no-scrollbar space-y-0.5">
+                  {workspaces.map(w => (
+                    <button
+                      key={w._id}
+                      onClick={() => {
+                        switchWorkspace(w._id);
+                        setShowOrgDropdown(false);
+                      }}
+                      className={cn(
+                        "w-full flex items-center gap-2 px-3 py-2 text-left text-sm rounded-lg hover:bg-white/5 transition-colors",
+                        activeWorkspace?._id === w._id ? "text-purple-400 font-bold bg-white/[0.03]" : "text-zinc-300"
+                      )}
+                    >
+                      <div className="h-5 w-5 rounded bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-bold">
+                        {w.name.charAt(0)}
+                      </div>
+                      <span className="truncate">{w.name}</span>
+                    </button>
+                  ))}
                 </div>
-              )}
-              {generalItems.map((item) => {
-                const isActive = currentPath === item.path;
-                return (
-                  <Link
-                    key={item.title}
-                    to={item.path}
-                    className={cn(
-                      "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
-                      isActive 
-                        ? "bg-white/[0.08] text-white shadow-[0_0_15px_rgba(255,255,255,0.05)] border border-white/[0.05]" 
-                        : "text-zinc-400 hover:bg-white/[0.04] hover:text-white"
-                    )}
+
+                <div className="border-t border-white/[0.06] mt-1.5 pt-1.5">
+                  <button
+                    onClick={() => {
+                      setShowCreateModal(true);
+                      setShowOrgDropdown(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm rounded-lg text-purple-300 hover:bg-purple-500/10 hover:text-white transition-all font-semibold"
                   >
-                    <item.icon className={cn("h-5 w-5 flex-shrink-0 transition-colors", isActive ? "text-purple-400" : "text-zinc-500 group-hover:text-purple-400")} />
-                    {isOpen && (
-                      <span className="ml-3 flex-1">{item.title}</span>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          )}
+                    <Plus size={14} />
+                    <span>Create Workspace</span>
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Menu Items */}
+        <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto no-scrollbar">
+          {menuItems.map(item => {
+            const isActive = currentPath === item.path;
+            return (
+              <Link
+                key={item.title}
+                to={item.path}
+                className={cn(
+                  "group flex items-center rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
+                  isActive 
+                    ? "bg-white/[0.06] text-white border border-white/[0.04]" 
+                    : "text-zinc-400 hover:bg-white/[0.03] hover:text-white"
+                )}
+              >
+                <item.icon className={cn("h-5 w-5 flex-shrink-0 mr-3 transition-colors", isActive ? "text-purple-400" : "text-zinc-500 group-hover:text-purple-400")} />
+                <span>{item.title}</span>
+              </Link>
+            );
+          })}
         </nav>
 
-        <div className="border-t border-white/[0.06] p-4">
-          <div className="flex items-center gap-3 px-2 py-3 rounded-xl hover:bg-white/[0.02] transition-colors">
-            <div className="h-8 w-8 flex-shrink-0 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-purple-500/20">
+        {/* Bottom Profile / Logout */}
+        <div className="p-4 border-t border-white/[0.06] flex items-center justify-between text-zinc-400">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-xs font-bold text-white shadow-lg shrink-0">
               {user?.name?.charAt(0) || 'U'}
             </div>
-            {isOpen && (
-              <div className="flex-1 overflow-hidden">
-                <p className="truncate text-sm font-medium text-white">{user?.name}</p>
-                <p className="truncate text-xs text-zinc-500 capitalize">{user?.role.replace('_', ' ')}</p>
-              </div>
-            )}
-            {isOpen && user?.role !== 'super_admin' && (
-              <button onClick={logout} className="text-zinc-500 hover:text-red-400 transition-colors">
-                <LogOut size={18} />
-              </button>
-            )}
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-white truncate">{user?.name}</p>
+              <p className="text-[10px] text-zinc-500 truncate">{user?.email}</p>
+            </div>
           </div>
+          <button 
+            onClick={() => logout()}
+            className="p-1.5 rounded-lg hover:bg-white/5 text-zinc-500 hover:text-red-400 transition-colors"
+            title="Log Out"
+          >
+            <LogOut size={16} />
+          </button>
         </div>
-      </motion.aside>
+
+      </aside>
+
+      {/* Create Workspace Modal */}
+      <AnimatePresence>
+        {showCreateModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-md rounded-3xl border border-white/[0.08] bg-zinc-900 p-6 shadow-2xl space-y-6 relative"
+            >
+              <button 
+                onClick={() => setShowCreateModal(false)}
+                className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors"
+              >
+                <X size={18} />
+              </button>
+
+              <div>
+                <h3 className="text-xl font-bold text-white">Create Workspace</h3>
+                <p className="text-sm text-zinc-400 mt-1">Setup a workspace for your team or organization.</p>
+              </div>
+
+              <form onSubmit={handleCreateOrg} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest pl-0.5">Workspace Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Acme Corp Workshops"
+                    value={newOrgName}
+                    onChange={e => setNewOrgName(e.target.value)}
+                    className="w-full h-11 px-4 bg-white/[0.03] border border-white/[0.08] rounded-xl focus:border-white focus:ring-1 focus:ring-white outline-none text-white text-sm transition-all"
+                  />
+                </div>
+
+                {error && (
+                  <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 p-2 rounded-lg">{error}</p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={creating}
+                  className="w-full h-11 bg-white text-black font-semibold rounded-xl text-sm transition-all hover:bg-zinc-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {creating && <div className="h-4 w-4 animate-spin rounded-full border-2 border-black border-t-transparent" />}
+                  Create Workspace
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </>
   );
 };
