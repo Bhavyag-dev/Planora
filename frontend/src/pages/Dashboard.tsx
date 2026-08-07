@@ -8,10 +8,9 @@ import {
   Users, 
   Sparkles, 
   MapPin, 
-  PlusCircle, 
-  Mail, 
   X,
-  Clock
+  Clock,
+  Check
 } from 'lucide-react';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
@@ -156,8 +155,8 @@ export function Dashboard() {
         </div>
         
         <div>
-          <h1 className="text-4xl font-extrabold text-white font-display">Setup Your Workspace</h1>
-          <p className="mt-2 text-zinc-400 text-sm">
+          <h1 className="text-4xl font-extrabold text-neutral-950 font-display">Setup Your Workspace</h1>
+          <p className="mt-2 text-neutral-500 text-sm">
             Welcome to Planora. To begin scheduling events and inviting team members, create a workspace for your community, club, or company.
           </p>
         </div>
@@ -165,11 +164,11 @@ export function Dashboard() {
         <motion.div 
           initial={{ opacity: 0, y: 15 }} 
           animate={{ opacity: 1, y: 0 }}
-          className="w-full rounded-3xl border border-white/[0.06] bg-white/[0.02] p-8 shadow-2xl backdrop-blur-xl"
+          className="w-full rounded-3xl border border-neutral-200/60 bg-white p-8 shadow-sm"
         >
           <form onSubmit={handleCreateWorkspace} className="space-y-5 text-left">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest pl-0.5">Workspace Name</label>
+              <label className="text-xs font-bold text-neutral-500 uppercase tracking-widest pl-0.5 font-display">Workspace Name</label>
               <Input
                 required
                 placeholder="e.g. Acme Corp Events"
@@ -179,10 +178,10 @@ export function Dashboard() {
             </div>
             
             {workspaceError && (
-              <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 p-2 rounded-lg">{workspaceError}</p>
+              <p className="text-xs text-red-655 bg-red-50 border border-red-200 p-2 rounded-lg">{workspaceError}</p>
             )}
 
-            <Button type="submit" className="w-full h-11" isLoading={creatingWorkspace}>
+            <Button type="submit" className="w-full h-11 cursor-pointer" isLoading={creatingWorkspace}>
               Get Started
             </Button>
           </form>
@@ -192,27 +191,27 @@ export function Dashboard() {
   }
 
   return (
-    <div className="space-y-8 pb-12 select-none">
+    <div className="space-y-8 pb-12 select-none text-neutral-900">
       
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.06] bg-white/[0.02] p-8 shadow-2xl backdrop-blur-xl">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(139,92,246,0.12),transparent_55%)]" aria-hidden="true" />
+      <div className="relative overflow-hidden rounded-3xl border border-neutral-200 bg-white p-8 shadow-xs">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(139,92,246,0.06),transparent_55%)]" aria-hidden="true" />
         <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
-            <div className="flex items-center gap-2 text-zinc-400">
-              <Sparkles size={14} className="text-purple-400" />
+            <div className="flex items-center gap-2 text-neutral-550">
+              <Sparkles size={14} className="text-purple-600" />
               <span className="text-[10px] font-bold uppercase tracking-widest">Active Workspace</span>
             </div>
-            <h1 className="mt-2 text-3xl md:text-4xl font-extrabold tracking-tight text-white font-display">
+            <h1 className="mt-2 text-3xl md:text-4xl font-extrabold tracking-tight text-neutral-950 font-display">
               {activeWorkspace?.name || 'Workspace Dashboard'}
             </h1>
-            <p className="mt-2 text-zinc-400 text-sm max-w-xl">
+            <p className="mt-2 text-neutral-500 text-sm max-w-xl">
               Organize, share, and schedule events seamlessly.
             </p>
           </div>
 
           <div className="flex gap-3">
-            <Button onClick={() => setShowEventModal(true)} className="gap-2 rounded-2xl py-3 px-5">
+            <Button onClick={() => setShowEventModal(true)} className="gap-2 rounded-2xl py-3 px-5 cursor-pointer">
               <Plus size={16} />
               Create Event
             </Button>
@@ -224,25 +223,25 @@ export function Dashboard() {
         {/* Left Side: Events List */}
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-              <Calendar className="text-purple-400" size={20} />
+            <h2 className="text-2xl font-bold text-neutral-950 tracking-tight flex items-center gap-2">
+              <Calendar className="text-purple-600" size={20} />
               <span>Workspace Events</span>
             </h2>
-            <span className="text-xs text-zinc-500 font-bold bg-white/[0.04] px-2.5 py-1 rounded-full border border-white/[0.04]">
+            <span className="text-xs text-neutral-500 font-bold bg-neutral-100 px-2.5 py-1 rounded-full border border-neutral-200/50">
               {events.length} Total
             </span>
           </div>
 
           {loadingEvents ? (
             <div className="flex h-48 items-center justify-center">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-purple-500 border-t-transparent" />
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-purple-600 border-t-transparent" />
             </div>
           ) : events.length > 0 ? (
             <div className="grid gap-4 sm:grid-cols-2">
               {events.map(ev => (
                 <div 
                   key={ev._id}
-                  className="rounded-2xl border border-white/[0.06] bg-zinc-900/30 overflow-hidden flex flex-col hover:border-white/[0.1] hover:bg-zinc-900/50 transition-all shadow-lg"
+                  className="rounded-2xl border border-neutral-200 bg-white overflow-hidden flex flex-col hover:border-neutral-300 hover:shadow-sm transition-all"
                 >
                   {ev.coverImage && (
                     <div className="h-32 w-full overflow-hidden relative">
@@ -251,20 +250,20 @@ export function Dashboard() {
                   )}
                   <div className="p-5 flex-1 flex flex-col justify-between">
                     <div>
-                      <span className="text-[10px] font-bold text-purple-400 uppercase tracking-widest bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded">
+                      <span className="text-[10px] font-bold text-purple-655 uppercase tracking-widest bg-purple-50 border border-purple-100 px-2 py-0.5 rounded">
                         {ev.category}
                       </span>
-                      <h3 className="text-lg font-bold text-white tracking-tight mt-2.5 line-clamp-1">{ev.title}</h3>
-                      <p className="text-xs text-zinc-400 mt-1 line-clamp-2">{ev.description}</p>
+                      <h3 className="text-lg font-bold text-neutral-950 tracking-tight mt-2.5 line-clamp-1">{ev.title}</h3>
+                      <p className="text-xs text-neutral-500 mt-1 line-clamp-2">{ev.description}</p>
                     </div>
 
-                    <div className="mt-4 pt-4 border-t border-white/[0.04] space-y-1.5 text-zinc-400 text-xs">
+                    <div className="mt-4 pt-4 border-t border-neutral-100 space-y-1.5 text-neutral-500 text-xs">
                       <div className="flex items-center gap-2">
-                        <Clock size={12} />
+                        <Clock size={12} className="text-neutral-400" />
                         <span>{formatDate(ev.date)}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <MapPin size={12} />
+                        <MapPin size={12} className="text-neutral-400" />
                         <span className="truncate">{ev.venue}</span>
                       </div>
                     </div>
@@ -273,11 +272,11 @@ export function Dashboard() {
               ))}
             </div>
           ) : (
-            <div className="border border-dashed border-white/[0.1] bg-white/[0.01] rounded-3xl p-12 text-center">
-              <p className="text-zinc-500 text-sm">No events scheduled in this workspace yet.</p>
+            <div className="border border-dashed border-neutral-300 bg-neutral-50/20 rounded-3xl p-12 text-center">
+              <p className="text-neutral-500 text-sm">No events scheduled in this workspace yet.</p>
               <button 
                 onClick={() => setShowEventModal(true)} 
-                className="mt-3 text-xs font-bold text-purple-400 hover:text-purple-300 hover:underline"
+                className="mt-3 text-xs font-bold text-purple-655 hover:text-purple-500 hover:underline cursor-pointer"
               >
                 Schedule your first event
               </button>
@@ -288,28 +287,28 @@ export function Dashboard() {
         {/* Right Side: Roster & Members */}
         <div className="space-y-6">
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-              <Users className="text-pink-400" size={20} />
+            <h2 className="text-2xl font-bold text-neutral-950 tracking-tight flex items-center gap-2">
+              <Users className="text-pink-600" size={20} />
               <span>Workspace Members</span>
             </h2>
 
-            <div className="rounded-3xl border border-white/[0.06] bg-white/[0.02] p-5 shadow-xl space-y-4">
+            <div className="rounded-3xl border border-neutral-200 bg-white p-5 shadow-xs space-y-4">
               <div className="space-y-3">
                 {activeWorkspace?.members.map((m: any) => (
                   <div key={m.user._id || m.user} className="flex items-center justify-between">
                     <div className="flex items-center gap-3.5 min-w-0">
-                      <div className="h-8 w-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-bold text-zinc-300 shrink-0">
+                      <div className="h-8 w-8 rounded-full bg-neutral-50 border border-neutral-200 flex items-center justify-center font-bold text-neutral-600 shrink-0">
                         {m.user.name?.charAt(0) || 'M'}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs font-semibold text-white truncate">{m.user.name}</p>
-                        <p className="text-[10px] text-zinc-500 truncate">{m.user.email}</p>
+                        <p className="text-xs font-semibold text-neutral-800 truncate">{m.user.name}</p>
+                        <p className="text-[10px] text-neutral-450 truncate">{m.user.email}</p>
                       </div>
                     </div>
                     <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${
                       m.role === 'owner' 
-                        ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' 
-                        : 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20'
+                        ? 'bg-purple-50 text-purple-655 border-purple-150' 
+                        : 'bg-neutral-50 text-neutral-550 border-neutral-200'
                     }`}>
                       {m.role}
                     </span>
@@ -319,8 +318,8 @@ export function Dashboard() {
 
               {/* Invite Member Section (Only Workspace Owners) */}
               {userRole === 'owner' && (
-                <div className="border-t border-white/[0.06] pt-4 mt-2">
-                  <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-3">Invite Team Member</h4>
+                <div className="border-t border-neutral-100 pt-4 mt-2">
+                  <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-3">Invite Team Member</h4>
                   <form onSubmit={handleInvite} className="flex gap-2">
                     <div className="flex-1">
                       <input
@@ -329,23 +328,23 @@ export function Dashboard() {
                         placeholder="colleague@domain.com"
                         value={inviteEmail}
                         onChange={e => setInviteEmail(e.target.value)}
-                        className="w-full h-9 px-3 bg-white/[0.03] border border-white/[0.08] rounded-xl focus:border-white focus:ring-1 focus:ring-white outline-none text-white text-xs transition-all"
+                        className="w-full h-9 px-3 bg-white border border-neutral-200 rounded-xl focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none text-neutral-800 text-xs transition-all placeholder:text-neutral-400"
                       />
                     </div>
                     <button
                       type="submit"
                       disabled={inviting}
-                      className="h-9 px-3.5 bg-white text-black text-xs font-bold rounded-xl hover:bg-zinc-250 transition-colors disabled:opacity-50"
+                      className="h-9 px-3.5 bg-neutral-950 text-white text-xs font-bold rounded-xl hover:bg-neutral-800 transition-colors disabled:opacity-50 cursor-pointer"
                     >
                       Invite
                     </button>
                   </form>
 
                   {inviteSuccess && (
-                    <p className="text-[10px] text-emerald-400 mt-2">Member added to workspace successfully!</p>
+                    <p className="text-[10px] text-emerald-600 mt-2">Member added to workspace successfully!</p>
                   )}
                   {inviteError && (
-                    <p className="text-[10px] text-red-400 mt-2">{inviteError}</p>
+                    <p className="text-[10px] text-red-655 mt-2">{inviteError}</p>
                   )}
                 </div>
               )}
@@ -362,23 +361,23 @@ export function Dashboard() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-lg rounded-3xl border border-white/[0.08] bg-zinc-900 p-6 shadow-2xl space-y-6 relative overflow-y-auto max-h-[90vh] no-scrollbar"
+              className="w-full max-w-lg rounded-3xl border border-neutral-200 bg-white p-6 shadow-2xl space-y-6 relative overflow-y-auto max-h-[90vh] no-scrollbar text-neutral-900"
             >
               <button 
                 onClick={() => setShowEventModal(false)}
-                className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors"
+                className="absolute top-4 right-4 text-neutral-400 hover:text-neutral-900 transition-colors cursor-pointer"
               >
                 <X size={18} />
               </button>
 
               <div>
-                <h3 className="text-xl font-bold text-white">Create New Event</h3>
-                <p className="text-sm text-zinc-400 mt-1">Schedule a meeting, meetup, or workshop for your workspace.</p>
+                <h3 className="text-xl font-bold text-neutral-950">Create New Event</h3>
+                <p className="text-sm text-neutral-500 mt-1">Schedule a meeting, meetup, or workshop for your workspace.</p>
               </div>
 
               <form onSubmit={handleCreateEvent} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest pl-0.5">Event Title</label>
+                  <label className="text-xs font-bold text-neutral-500 uppercase tracking-widest pl-0.5">Event Title</label>
                   <Input
                     required
                     placeholder="e.g. Weekly All Hands"
@@ -388,30 +387,30 @@ export function Dashboard() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest pl-0.5">Description</label>
+                  <label className="text-xs font-bold text-neutral-500 uppercase tracking-widest pl-0.5">Description</label>
                   <textarea
                     required
                     rows={3}
                     placeholder="Provide details about this event..."
                     value={newEvent.description}
                     onChange={e => setNewEvent({...newEvent, description: e.target.value})}
-                    className="w-full p-3 bg-white/[0.03] border border-white/[0.06] rounded-xl focus:border-white focus:ring-1 focus:ring-white outline-none text-white text-sm transition-all placeholder:text-zinc-550"
+                    className="w-full p-3 bg-white border border-neutral-200 rounded-xl focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none text-neutral-800 text-sm transition-all placeholder:text-neutral-400"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest pl-0.5">Date & Time</label>
+                    <label className="text-xs font-bold text-neutral-500 uppercase tracking-widest pl-0.5">Date & Time</label>
                     <input
                       type="datetime-local"
                       required
                       value={newEvent.date}
                       onChange={e => setNewEvent({...newEvent, date: e.target.value})}
-                      className="w-full h-10 px-3 bg-white/[0.03] border border-white/[0.06] rounded-xl focus:border-white focus:ring-1 focus:ring-white outline-none text-white text-xs transition-all"
+                      className="w-full h-10 px-3 bg-white border border-neutral-200 rounded-xl focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none text-neutral-850 text-xs transition-all"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest pl-0.5">Venue</label>
+                    <label className="text-xs font-bold text-neutral-500 uppercase tracking-widest pl-0.5">Venue</label>
                     <Input
                       required
                       placeholder="e.g. Conference Room A"
@@ -423,11 +422,11 @@ export function Dashboard() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest pl-0.5">Category</label>
+                    <label className="text-xs font-bold text-neutral-500 uppercase tracking-widest pl-0.5">Category</label>
                     <select
                       value={newEvent.category}
                       onChange={e => setNewEvent({...newEvent, category: e.target.value})}
-                      className="w-full h-11 bg-zinc-900 border border-white/[0.06] rounded-xl focus:border-white text-zinc-300 px-3 text-sm"
+                      className="w-full h-11 bg-white border border-neutral-200 rounded-xl focus:border-purple-500 text-neutral-800 px-3 text-sm"
                     >
                       <option value="General">General</option>
                       <option value="Workshop">Workshop</option>
@@ -436,7 +435,7 @@ export function Dashboard() {
                     </select>
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest pl-0.5">Seat Limit</label>
+                    <label className="text-xs font-bold text-neutral-500 uppercase tracking-widest pl-0.5">Seat Limit</label>
                     <Input
                       type="number"
                       required
@@ -448,7 +447,7 @@ export function Dashboard() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest pl-0.5">Cover Image URL (Optional)</label>
+                  <label className="text-xs font-bold text-neutral-500 uppercase tracking-widest pl-0.5">Cover Image URL (Optional)</label>
                   <Input
                     placeholder="https://unsplash.com/... (optional)"
                     value={newEvent.coverImage}
@@ -457,15 +456,15 @@ export function Dashboard() {
                 </div>
 
                 {eventError && (
-                  <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 p-2 rounded-lg">{eventError}</p>
+                  <p className="text-xs text-red-655 bg-red-50 border border-red-200 p-2 rounded-lg">{eventError}</p>
                 )}
 
                 <button
                   type="submit"
                   disabled={creatingEvent}
-                  className="w-full h-11 bg-white text-black font-semibold rounded-xl text-sm transition-all hover:bg-zinc-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full h-11 bg-neutral-950 text-white font-semibold rounded-xl text-sm transition-all hover:bg-neutral-800 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
-                  {creatingEvent && <div className="h-4 w-4 animate-spin rounded-full border-2 border-black border-t-transparent" />}
+                  {creatingEvent && <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />}
                   Create Event
                 </button>
               </form>
