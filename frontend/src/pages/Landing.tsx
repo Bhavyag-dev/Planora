@@ -21,7 +21,9 @@ import {
   Building2,
   Plus,
   Users,
-  Check
+  Check,
+  Ticket,
+  Zap
 } from 'lucide-react';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'motion/react';
 
@@ -34,7 +36,7 @@ export function Landing() {
   const [categoryDropdown, setCategoryDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [previewTab, setPreviewTab] = useState<'events' | 'members' | 'create'>('events');
+  const [previewTab, setPreviewTab] = useState<'events' | 'tickets' | 'create'>('events');
   
   // Navbar shrink scroll triggers (copied collapse physics from Fetchz)
   const { scrollY } = useScroll();
@@ -381,33 +383,34 @@ export function Landing() {
           {/* Right: Two Big Mockups side-by-side */}
           <div className="lg:col-span-7 grid gap-6 sm:grid-cols-2 relative z-10">
             {/* Big Mockup 1: Clean Glass-Dashboard Card */}
-            <div className="w-full h-[380px] rounded-[2rem] bg-neutral-950 p-6 flex flex-col justify-between shadow-xl border border-neutral-800 relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
-              <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-white/[0.02] blur-3xl" />
+            <div className="w-full h-[380px] rounded-[2rem] glass-red-glow p-6 flex flex-col justify-between relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
+              <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-red-650/10 blur-[50px]" />
               <div className="flex items-center justify-between text-xs text-neutral-500">
                 <span className="font-semibold text-neutral-400">workspace_stats</span>
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
               </div>
               <div className="my-auto">
-                <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest font-mono">Real-time Activity</span>
+                <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest font-mono">Real-time Activity</span>
                 <h3 className="text-4xl font-extrabold text-white tracking-tight mt-1 font-display">94.2%</h3>
                 <p className="text-[13px] text-neutral-400 mt-2 font-medium leading-relaxed">Community Engagement score across 12 workspace events this month.</p>
               </div>
-              <div className="border-t border-neutral-900 pt-4 flex items-center justify-between">
-                <span className="text-[10px] text-neutral-500 font-mono">planora_core_v1</span>
-                <Link to="/signup" className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors pointer-events-auto">View analytics ›</Link>
+              <div className="border-t border-white/[0.06] pt-4 flex items-center justify-between">
+                <span className="text-[10px] text-neutral-550 font-mono">planora_core_v1</span>
+                <Link to="/signup" className="text-xs font-bold text-red-500 hover:text-red-400 transition-colors pointer-events-auto">View analytics ›</Link>
               </div>
             </div>
 
             {/* Big Mockup 2: Premium Visual Event Card */}
-            <div className="w-full h-[380px] rounded-[2rem] overflow-hidden shadow-xl border border-neutral-200 relative group hover:scale-[1.02] transition-transform duration-300">
+            <div className="w-full h-[380px] rounded-[2rem] overflow-hidden relative group hover:scale-[1.02] transition-transform duration-300 glass-red-glow">
               <img 
                 src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80" 
                 alt="Premium Community Event" 
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+              <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-red-650/5 blur-[60px]" />
               <div className="absolute bottom-6 left-6 right-6 text-white">
-                <span className="rounded-full bg-white/20 backdrop-blur-md px-3 py-1 text-[9px] font-bold uppercase tracking-wider">Featured Meetup</span>
+                <span className="rounded-full bg-red-600/80 backdrop-blur-md px-3 py-1 text-[9px] font-bold uppercase tracking-wider text-white">Featured Meetup</span>
                 <h4 className="text-xl font-extrabold tracking-tight text-white mt-3 font-display">Creative Design Workspace Hub</h4>
                 <p className="text-xs text-neutral-300 mt-1 font-medium">Dec 26, 2026 • 65 Attendees</p>
               </div>
@@ -647,53 +650,55 @@ export function Landing() {
         </div>
 
         {/* Interactive Mockup Container */}
-        <div className="mt-12 rounded-3xl border border-neutral-200/60 bg-zinc-950 p-3 shadow-2xl relative overflow-hidden text-zinc-300">
-          
+        <div className="mt-12 rounded-3xl border border-neutral-800 bg-zinc-950 p-3 shadow-2xl relative overflow-hidden text-zinc-300">
+          {/* Red glow highlight */}
+          <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-red-650/10 blur-[60px] pointer-events-none" />
+
           {/* Mockup Tabs */}
-          <div className="flex bg-zinc-900/50 border border-white/[0.04] p-1 rounded-2xl mb-4 max-w-xs mx-auto justify-between">
+          <div className="flex bg-zinc-900/50 border border-white/[0.04] p-1 rounded-2xl mb-4 max-w-xs mx-auto justify-between relative z-10">
             <button 
               onClick={() => setPreviewTab('events')} 
               className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all cursor-pointer ${
-                previewTab === 'events' ? 'bg-white text-black shadow-lg' : 'text-zinc-400 hover:text-white'
+                previewTab === 'events' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-zinc-400 hover:text-white'
               }`}
             >
               Workspace Events
             </button>
             <button 
-              onClick={() => setPreviewTab('members')} 
+              onClick={() => setPreviewTab('tickets')} 
               className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all cursor-pointer ${
-                previewTab === 'members' ? 'bg-white text-black shadow-lg' : 'text-zinc-400 hover:text-white'
+                previewTab === 'tickets' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-zinc-400 hover:text-white'
               }`}
             >
-              Team Members
+              My Tickets
             </button>
             <button 
               onClick={() => setPreviewTab('create')} 
               className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all cursor-pointer ${
-                previewTab === 'create' ? 'bg-white text-black shadow-lg' : 'text-zinc-400 hover:text-white'
+                previewTab === 'create' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-zinc-400 hover:text-white'
               }`}
             >
               Event Creator
             </button>
           </div>
 
-          <div className="bg-zinc-900 rounded-[1.5rem] border border-white/[0.04] p-6 text-left flex gap-6 min-h-[360px]">
+          <div className="bg-zinc-900 rounded-[1.5rem] border border-white/[0.04] p-6 text-left flex gap-6 min-h-[360px] relative z-10">
             {/* Mock Sidebar */}
             <div className="w-48 border-r border-white/[0.06] pr-6 hidden md:flex flex-col justify-between">
               <div className="space-y-6">
                 <div className="flex items-center gap-2.5 font-bold tracking-tight text-white pl-2">
-                  <div className="h-6 w-6 rounded bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-[10px] font-bold text-white">
+                  <div className="h-6 w-6 rounded bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center text-[10px] font-bold text-white">
                     A
                   </div>
                   <span className="text-sm truncate">Acme Workshops</span>
                 </div>
                 <nav className="space-y-1.5 flex flex-col">
-                  <span className="flex items-center gap-2.5 text-xs text-white bg-white/5 px-2.5 py-1.5 rounded-lg"><LayoutDashboard size={14} className="text-purple-400" /> Dashboard</span>
-                  <span className="flex items-center gap-2.5 text-xs text-zinc-400 hover:text-white px-2.5 py-1.5 rounded-lg"><Calendar size={14} /> Events</span>
-                  <span className="flex items-center gap-2.5 text-xs text-zinc-400 hover:text-white px-2.5 py-1.5 rounded-lg"><Users size={14} /> Team Roster</span>
+                  <span className="flex items-center gap-2.5 text-xs text-white bg-white/5 px-2.5 py-1.5 rounded-lg"><LayoutDashboard size={14} className="text-red-500" /> Dashboard</span>
+                  <span className="flex items-center gap-2.5 text-xs text-zinc-400 hover:text-white px-2.5 py-1.5 rounded-lg"><Calendar size={14} className="text-red-500" /> Events</span>
+                  <span className="flex items-center gap-2.5 text-xs text-zinc-400 hover:text-white px-2.5 py-1.5 rounded-lg"><Ticket size={14} className="text-red-500" /> My Tickets</span>
                 </nav>
               </div>
-              <div className="text-[10px] text-zinc-500 border-t border-white/[0.06] pt-3 pl-2">
+              <div className="text-[10px] text-zinc-550 border-t border-white/[0.06] pt-3 pl-2">
                 SaaS Dashboard v1.0
               </div>
             </div>
@@ -707,67 +712,103 @@ export function Landing() {
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
-                    className="space-y-4"
+                    className="space-y-4 w-full"
                   >
                     <div className="flex items-center justify-between">
                       <h4 className="text-sm font-semibold text-white">Workspace Events</h4>
-                      <span className="text-[10px] text-purple-400 font-bold bg-purple-500/10 px-2 py-0.5 rounded">2 Scheduled</span>
+                      <span className="text-[10px] text-red-500 font-bold bg-red-500/10 px-2 py-0.5 rounded">3 Scheduled</span>
                     </div>
 
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <div className="p-4 bg-zinc-950 border border-white/[0.04] rounded-2xl space-y-2">
-                        <span className="text-[9px] font-bold text-purple-400 uppercase tracking-widest bg-purple-500/10 px-1.5 py-0.5 rounded">Workshop</span>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      {/* Event 1 */}
+                      <div className="p-4 bg-zinc-950 border border-white/[0.04] rounded-2xl space-y-2 hover:border-red-500/20 transition-colors">
+                        <span className="text-[9px] font-bold text-red-400 uppercase tracking-widest bg-red-500/10 border border-red-500/20 px-1.5 py-0.5 rounded">Workshop</span>
                         <h5 className="text-xs font-bold text-white leading-tight">Advanced React Patterns</h5>
-                        <p className="text-[10px] text-zinc-500">A deep dive into server actions and hooks...</p>
+                        <p className="text-[10px] text-zinc-500">Deep dive into hooks and rendering...</p>
                         <div className="pt-2 border-t border-white/[0.04] text-[9px] text-zinc-500 flex items-center gap-1.5">
                           <MapPin size={9} /> Acme Conf Room A
                         </div>
                       </div>
-                      <div className="p-4 bg-zinc-950 border border-white/[0.04] rounded-2xl space-y-2">
-                        <span className="text-[9px] font-bold text-pink-400 uppercase tracking-widest bg-pink-500/10 px-1.5 py-0.5 rounded">Meetup</span>
+                      {/* Event 2 */}
+                      <div className="p-4 bg-zinc-950 border border-white/[0.04] rounded-2xl space-y-2 hover:border-red-500/20 transition-colors">
+                        <span className="text-[9px] font-bold text-orange-400 uppercase tracking-widest bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.5 rounded">Meetup</span>
                         <h5 className="text-xs font-bold text-white leading-tight">AI & Analytics Forum</h5>
                         <p className="text-[10px] text-zinc-500">Exploring generative model integrations...</p>
                         <div className="pt-2 border-t border-white/[0.04] text-[9px] text-zinc-500 flex items-center gap-1.5">
-                          <MapPin size={9} /> Community Hub Workspace
+                          <MapPin size={9} /> Community Hub
+                        </div>
+                      </div>
+                      {/* Event 3 */}
+                      <div className="p-4 bg-zinc-950 border border-white/[0.04] rounded-2xl space-y-2 hover:border-red-500/20 transition-colors">
+                        <span className="text-[9px] font-bold text-amber-400 uppercase tracking-widest bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded">Masterclass</span>
+                        <h5 className="text-xs font-bold text-white leading-tight">Creative Design Systems</h5>
+                        <p className="text-[10px] text-zinc-500">Building scalable UI/UX components...</p>
+                        <div className="pt-2 border-t border-white/[0.04] text-[9px] text-zinc-500 flex items-center gap-1.5">
+                          <MapPin size={9} /> Zoom Room B
                         </div>
                       </div>
                     </div>
                   </motion.div>
                 )}
 
-                {previewTab === 'members' && (
+                {previewTab === 'tickets' && (
                   <motion.div 
-                    key="members"
+                    key="tickets"
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
-                    className="space-y-4"
+                    className="space-y-4 w-full"
                   >
                     <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-semibold text-white">Active Team Members</h4>
-                      <span className="text-[10px] text-zinc-500 bg-white/5 px-2.5 py-0.5 rounded-full">3 Collaborators</span>
+                      <h4 className="text-sm font-semibold text-white">Active Tickets</h4>
+                      <span className="text-[10px] text-red-500 font-bold bg-red-500/10 px-2 py-0.5 rounded">3 Booked</span>
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between p-2.5 bg-zinc-950 border border-white/[0.04] rounded-xl">
-                        <div className="flex items-center gap-2">
-                          <div className="h-6 w-6 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-[10px] text-white">S</div>
-                          <div>
-                            <p className="text-[10px] font-bold text-white leading-none">Sarah Chen</p>
-                            <p className="text-[9px] text-zinc-500 mt-0.5">sarah@acme.com</p>
-                          </div>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      {/* Ticket 1 */}
+                      <div className="p-4 bg-zinc-950 border border-dashed border-white/[0.08] rounded-2xl space-y-3 relative hover:border-red-500/30 transition-colors">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[8px] font-bold uppercase tracking-widest bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded">VIP Admission</span>
+                          <Zap size={11} className="text-amber-400" />
                         </div>
-                        <span className="text-[8px] font-bold uppercase tracking-widest text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded">owner</span>
+                        <div>
+                          <h5 className="text-xs font-bold text-white truncate">Advanced React Patterns</h5>
+                          <p className="text-[9px] text-zinc-500 mt-1 font-mono">Seat A-12 • Order #F9B2C</p>
+                        </div>
+                        <div className="pt-2 border-t border-white/[0.04] text-[8px] text-zinc-500 flex items-center justify-between">
+                          <span>Acme Workshops</span>
+                          <span className="text-emerald-400 font-bold">Confirmed</span>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between p-2.5 bg-zinc-950 border border-white/[0.04] rounded-xl">
-                        <div className="flex items-center gap-2">
-                          <div className="h-6 w-6 rounded-full bg-purple-500 flex items-center justify-center font-bold text-[10px] text-white">D</div>
-                          <div>
-                            <p className="text-[10px] font-bold text-white leading-none">David Miller</p>
-                            <p className="text-[9px] text-zinc-500 mt-0.5">david@acme.com</p>
-                          </div>
+                      {/* Ticket 2 */}
+                      <div className="p-4 bg-zinc-950 border border-dashed border-white/[0.08] rounded-2xl space-y-3 relative hover:border-red-500/30 transition-colors">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[8px] font-bold uppercase tracking-widest bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded">General Access</span>
+                          <Zap size={11} className="text-zinc-500" />
                         </div>
-                        <span className="text-[8px] font-bold uppercase tracking-widest text-zinc-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded">member</span>
+                        <div>
+                          <h5 className="text-xs font-bold text-white truncate">AI & Analytics Forum</h5>
+                          <p className="text-[9px] text-zinc-500 mt-1 font-mono">Seat B-45 • Order #D81A2</p>
+                        </div>
+                        <div className="pt-2 border-t border-white/[0.04] text-[8px] text-zinc-500 flex items-center justify-between">
+                          <span>Dev Meetups</span>
+                          <span className="text-emerald-400 font-bold">Confirmed</span>
+                        </div>
+                      </div>
+                      {/* Ticket 3 */}
+                      <div className="p-4 bg-zinc-950 border border-dashed border-white/[0.08] rounded-2xl space-y-3 relative hover:border-red-500/30 transition-colors">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[8px] font-bold uppercase tracking-widest bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded">Developer Pass</span>
+                          <Zap size={11} className="text-red-400" />
+                        </div>
+                        <div>
+                          <h5 className="text-xs font-bold text-white truncate">Creative Design Systems</h5>
+                          <p className="text-[9px] text-zinc-500 mt-1 font-mono">Seat C-88 • Order #A5E4F</p>
+                        </div>
+                        <div className="pt-2 border-t border-white/[0.04] text-[8px] text-zinc-500 flex items-center justify-between">
+                          <span>Ajux Design</span>
+                          <span className="text-emerald-400 font-bold">Confirmed</span>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -797,7 +838,7 @@ export function Landing() {
                           <input disabled value="100" className="w-full h-8 px-2.5 bg-zinc-950 border border-white/[0.06] rounded-lg text-xs text-zinc-450 focus:outline-none" />
                         </div>
                       </div>
-                      <button disabled className="w-full h-8 bg-white text-black font-bold text-xs rounded-lg mt-1 opacity-80 cursor-not-allowed">
+                      <button disabled className="w-full h-8 bg-red-650 hover:bg-red-555 text-white font-bold text-xs rounded-lg mt-1 opacity-80 cursor-not-allowed">
                         Create Event
                       </button>
                     </div>
@@ -807,7 +848,7 @@ export function Landing() {
 
               <div className="pt-4 border-t border-white/[0.04] mt-6 flex items-center justify-between text-[10px] text-zinc-550">
                 <span>Database Connection Status: OK</span>
-                <span className="text-purple-400 font-semibold flex items-center gap-1">
+                <span className="text-red-500 font-semibold flex items-center gap-1">
                   <Check size={10} /> Active Workspace Locked
                 </span>
               </div>
@@ -963,86 +1004,146 @@ export function Landing() {
         </div>
       </section>
 
-      {/* Pricing / FAQs target anchors for navigation */}
-      <section id="pricing" className="mx-auto max-w-7xl px-6 py-16 border-t border-neutral-100/80 bg-white rounded-[2rem] my-12 shadow-sm border border-neutral-100">
-        <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-3xl font-extrabold tracking-tight text-neutral-900 font-display">Simple Pricing for Organizers</h2>
-          <p className="text-xs text-neutral-400 mt-2">No setup costs. Only pay when you host paid events.</p>
-          
-          <div className="grid gap-6 md:grid-cols-2 mt-10">
-            <div className="rounded-2xl border border-neutral-100 p-6 text-left flex flex-col justify-between">
+      {/* Pricing / FAQs target anchors for navigation - Light Glassmorphic Style */}
+      <section id="pricing" className="mx-auto max-w-7xl px-6 py-20 relative overflow-hidden bg-white/70 backdrop-blur-md rounded-[2.5rem] my-16 shadow-md border border-neutral-200/50 select-none">
+        {/* Background glow effects */}
+        <div className="absolute top-0 left-1/4 h-80 w-80 rounded-full bg-purple-500/5 blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-pink-500/5 blur-[120px] pointer-events-none" />
+        
+        {/* Large semi-transparent background heading */}
+        <div className="absolute top-8 inset-x-0 text-center pointer-events-none select-none z-0">
+          <span className="text-[12vw] font-black uppercase tracking-widest text-neutral-900/[0.02] font-display block select-none leading-none">
+            Pricing
+          </span>
+        </div>
+
+        <div className="relative z-10 max-w-5xl mx-auto text-center space-y-12">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <h2 className="text-3xl font-extrabold tracking-tight text-neutral-950 font-display">Simple Pricing for Organizers</h2>
+            <p className="text-xs text-neutral-500">No setup costs. Only pay when you host paid events.</p>
+          </div>
+
+          {/* Two pricing cards grid */}
+          <div className="grid gap-8 md:grid-cols-2 mt-8 max-w-4xl mx-auto">
+            
+            {/* Card 1: Free Events */}
+            <div className="rounded-3xl border border-neutral-200 bg-white/60 p-8 backdrop-blur-md text-left flex flex-col justify-between hover:border-purple-500/30 hover:shadow-lg transition-all duration-300 relative group">
               <div>
-                <h3 className="font-bold text-neutral-900">Free Events</h3>
-                <p className="text-xs text-neutral-400 mt-1">For open meetups, community gatherings, or forums.</p>
-                <div className="text-2xl font-extrabold text-neutral-950 mt-4 font-display">₹0 <span className="text-xs text-neutral-400 font-normal">/ event</span></div>
+                {/* Badge */}
+                <div className="flex justify-start mb-4">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                    🟢 Core Community
+                  </span>
+                </div>
+                
+                <h3 className="text-xl font-extrabold text-neutral-950 font-display">Free Events</h3>
+                <p className="text-xs text-neutral-500 mt-1">For open meetups, community gatherings, or forums.</p>
+                
+                <ul className="text-xs text-neutral-600 mt-8 space-y-3.5 font-medium">
+                  <li className="flex items-center gap-2">
+                    <span className="text-purple-600 font-bold">✓</span> Unlimited RSVPs
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-purple-600 font-bold">✓</span> QR Code Check-ins
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-purple-600 font-bold">✓</span> Workspace Isolation
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-purple-600 font-bold">✓</span> Public Event Feed
+                  </li>
+                </ul>
               </div>
-              <ul className="text-xs text-neutral-500 mt-6 space-y-2">
-                <li className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-green-500" /> Unlimited RSVPs</li>
-                <li className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-green-500" /> QR Check-ins</li>
-              </ul>
+              
+              <div className="mt-10 pt-6 border-t border-neutral-100 space-y-4">
+                <div>
+                  <div className="text-4xl font-black text-neutral-950 font-display">₹0</div>
+                  <div className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider mt-0.5">per event</div>
+                </div>
+                
+                <button className="w-full py-2.5 rounded-xl border border-neutral-300 hover:border-neutral-950 hover:bg-neutral-50 text-neutral-800 font-bold text-xs transition-all flex items-center justify-center gap-1 cursor-pointer">
+                  Choose Free <span className="text-[9px]">▼</span>
+                </button>
+                
+                <div className="text-[10px] text-neutral-400 font-medium text-center bg-neutral-50 py-1.5 rounded-lg">
+                  Ideal for local communities
+                </div>
+              </div>
             </div>
 
-            <div className="rounded-2xl border border-neutral-950 bg-neutral-950 p-6 text-left text-white flex flex-col justify-between shadow-md relative overflow-hidden">
-              <span className="absolute top-3 right-3 bg-white/20 text-[9px] font-bold tracking-widest px-2 py-0.5 rounded-full uppercase">Popular</span>
-              <div>
-                <h3 className="font-bold">Paid Tickets</h3>
-                <p className="text-xs text-neutral-300 mt-1">Host concerts, sports fests, and workshops.</p>
-                <div className="text-2xl font-extrabold mt-4 font-display">5% <span className="text-xs text-neutral-300 font-normal">commission per ticket</span></div>
+            {/* Card 2: Paid Tickets */}
+            <div className="rounded-3xl border-2 border-purple-500/30 bg-white p-8 backdrop-blur-md text-left flex flex-col justify-between shadow-xl hover:border-purple-500/60 hover:shadow-purple-500/5 transition-all duration-300 relative group">
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-purple-600 text-[9px] font-black uppercase tracking-widest text-white px-3.5 py-1 rounded-full shadow-md z-20">
+                Most Popular
               </div>
-              <ul className="text-xs text-neutral-300 mt-6 space-y-2">
-                <li className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-green-400" /> Stripe Integration</li>
-                <li className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-green-400" /> Realtime revenue payouts</li>
-              </ul>
+              <div>
+                {/* Badge */}
+                <div className="flex justify-start mb-4 mt-2">
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-50 text-purple-600 border border-purple-200">
+                    ⭐ Commercial Access
+                  </span>
+                </div>
+                
+                <h3 className="text-xl font-extrabold text-neutral-950 font-display">Paid Tickets</h3>
+                <p className="text-xs text-neutral-500 mt-1">Host concerts, sports fests, and workshops.</p>
+                
+                <ul className="text-xs text-neutral-600 mt-8 space-y-3.5 font-medium">
+                  <li className="flex items-center gap-2">
+                    <span className="text-purple-600 font-bold">✓</span> Stripe Integration
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-purple-600 font-bold">✓</span> Realtime Revenue Payouts
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-purple-600 font-bold">✓</span> Ticket Sales Dashboard
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-purple-600 font-bold">✓</span> Secure Attendee Check-ins
+                  </li>
+                </ul>
+              </div>
+              
+              <div className="mt-10 pt-6 border-t border-neutral-100 space-y-4">
+                <div>
+                  <div className="text-4xl font-black text-neutral-950 font-display">5%</div>
+                  <div className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider mt-0.5">commission per ticket</div>
+                </div>
+                
+                <button className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-all shadow-md shadow-purple-600/10 flex items-center justify-center gap-1 cursor-pointer">
+                  Choose Paid <span className="text-[9px]">▼</span>
+                </button>
+                
+                <div className="text-[10px] text-neutral-400 font-medium text-center bg-neutral-50 py-1.5 rounded-lg">
+                  Flat rate. Only pay on sales.
+                </div>
+              </div>
             </div>
+            
           </div>
+
+          {/* Subtitle Section */}
+          <div className="pt-10 max-w-2xl mx-auto space-y-4 border-t border-neutral-100">
+            <h2 className="text-3xl font-black tracking-tight text-neutral-950 font-display">
+              Flawless events aren't luck. They are engineered.
+            </h2>
+            <p className="text-xs leading-relaxed text-neutral-500 font-sans max-w-xl mx-auto">
+              At Planora, we follow a simple and scalable workflow. Every feature is built with strategy, aesthetics, and performance in mind. You know what to expect, and your attendees get a premium experience.
+            </p>
+          </div>
+
+          {/* Footer Branding Bar inside the Section */}
+          <div className="pt-6 flex flex-row items-center justify-between text-[11px] text-neutral-450 border-t border-neutral-100">
+            <span className="font-black text-purple-600 text-sm tracking-tight">Planora</span>
+            <span className="font-medium text-neutral-400">Aesthetic planning. Seamless conversion.</span>
+          </div>
+
         </div>
       </section>
 
       {/* Proper Footer Container (Testimonials quote with cursive, rich menus, newsletter, social, copyright) */}
       <footer className="relative bg-[#fbfbfb] border-t border-neutral-100/60 pt-24 pb-20 z-10">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 space-y-16">
-          
-          {/* Top Highlight: Testimonial & Visual Cards */}
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-10 max-w-5xl mx-auto pb-12 border-b border-neutral-100">
-            {/* Quote block */}
-            <div className="flex-1 space-y-4 text-left">
-              <span className="text-[11px] font-bold font-mono text-neutral-400 uppercase tracking-widest select-none">
-                Planora Experience
-              </span>
-              <p className="text-2xl md:text-3xl font-medium text-neutral-800 leading-normal font-cursive">
-                " With our combined expertise and passion for organization, we promise to deliver an event that's <span className="text-neutral-400 font-normal">not just an event</span>, but a vibrant memory etched in the minds of your audience. "
-              </p>
-              <div className="flex items-center gap-3 pt-2">
-                <img 
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" 
-                  alt="Trisha Woodward" 
-                  className="h-9 w-9 rounded-full object-cover border border-neutral-200/50 shadow-sm"
-                />
-                <div>
-                  <h5 className="text-xs font-bold text-neutral-900 leading-none">Trisha Woodward</h5>
-                  <p className="text-[10px] text-neutral-400 mt-1">Co-founder at Planora</p>
-                </div>
-              </div>
-            </div>
 
-            {/* Staggered visual photo cards */}
-            <div className="flex gap-4 items-center shrink-0 mx-auto lg:mx-0">
-              <div className="w-28 aspect-square rounded-2xl overflow-hidden shadow-md border border-neutral-200/50 rotate-[-4deg] hover:rotate-0 transition-transform duration-300">
-                <img 
-                  src="https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=200&q=80" 
-                  alt="community social" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="w-24 aspect-[4/3] rounded-2xl overflow-hidden shadow-md border border-neutral-200/50 rotate-[4deg] hover:rotate-0 transition-transform duration-300">
-                <img 
-                  src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=200&q=80" 
-                  alt="event presenter" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-          </div>
 
           {/* Middle Rich 5-Column Grid */}
           <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 max-w-5xl mx-auto pt-4 text-left">
