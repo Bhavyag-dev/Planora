@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { Button } from './Button';
-import { LogOut, User as UserIcon, Zap } from 'lucide-react';
+import { LogOut, Zap } from 'lucide-react';
 
 export const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -23,18 +23,18 @@ export const Navbar = () => {
 
   if (!isAuthenticated) {
     return (
-      <nav className="sticky top-0 z-50 border-b border-white/[0.06] bg-zinc-950/80 backdrop-blur-2xl">
+      <nav className="sticky top-0 z-50 border-b border-neutral-100 bg-white/80 backdrop-blur-2xl">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link to="/" className="flex items-center gap-2.5 group font-bold tracking-tight text-white">
+          <Link to="/" className="flex items-center gap-2.5 group font-bold tracking-tight text-neutral-900">
             <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-purple-500/25 transition-transform duration-300 group-hover:scale-110">
               <Zap className="text-white" size={16} fill="currentColor" />
             </div>
-            <span className="text-xl text-white font-display">Planora</span>
+            <span className="text-xl text-neutral-900 font-display">Planora</span>
           </Link>
 
           <div className="flex items-center gap-4">
             <Link to="/login">
-              <Button variant="ghost" size="sm" className="text-zinc-400 hover:bg-white/5 hover:text-white">Login</Button>
+              <Button variant="ghost" size="sm" className="text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900">Login</Button>
             </Link>
             <Link to="/signup">
               <Button size="sm" className="bg-gradient-to-r from-indigo-600 to-purple-600 border-none text-white shadow-lg shadow-purple-500/20 hover:from-indigo-500 hover:to-purple-500 transition-all border-0 ring-0">Get Started</Button>
@@ -46,10 +46,10 @@ export const Navbar = () => {
   }
 
   return (
-    <nav className="sticky top-0 z-30 flex h-16 items-center border-b border-white/[0.06] bg-zinc-950/80 px-6 backdrop-blur-2xl relative">
+    <nav className="sticky top-0 z-30 flex h-16 items-center border-b border-neutral-200 bg-white/80 px-6 backdrop-blur-2xl relative">
       <div className="flex flex-1 items-center justify-between">
         <div className="flex items-center gap-4">
-          <h2 className="text-sm font-semibold text-zinc-300">
+          <h2 className="text-sm font-semibold text-neutral-700">
             {activeWorkspace?.name || 'Workspace Dashboard'}
           </h2>
         </div>
@@ -58,23 +58,23 @@ export const Navbar = () => {
           <div className="relative" ref={dropdownRef}>
             <button 
               onClick={() => setShowDropdown(!showDropdown)}
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-xs font-bold text-white shadow-lg shadow-purple-500/20 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-transform hover:scale-105"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-xs font-bold text-white shadow-lg shadow-purple-500/20 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-transform hover:scale-105 cursor-pointer"
             >
               {user?.name?.charAt(0) || 'U'}
             </button>
             
             {showDropdown && (
-              <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-xl bg-zinc-900 border border-white/10 shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden z-50">
+              <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-xl bg-white border border-neutral-200 shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden z-50">
                 <div className="p-1">
-                  <div className="px-3 py-2 text-xs text-zinc-500 border-b border-white/[0.06] mb-1">
-                    Logged in as <span className="font-semibold text-zinc-300">{user?.name}</span>
+                  <div className="px-3 py-2 text-xs text-neutral-450 border-b border-neutral-100 mb-1">
+                    Logged in as <span className="font-semibold text-neutral-850">{user?.name}</span>
                   </div>
                   <button
                     onClick={() => {
                       setShowDropdown(false);
                       logout();
                     }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-400 rounded-lg hover:bg-white/5 transition-colors"
+                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-655 rounded-lg hover:bg-neutral-50 transition-colors cursor-pointer"
                   >
                     <LogOut size={16} />
                     <span>Logout</span>

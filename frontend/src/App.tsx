@@ -16,7 +16,7 @@ import { Dashboard } from './pages/Dashboard';
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth();
 
-  if (loading) return <div className="flex h-screen items-center justify-center bg-zinc-950 text-white">Loading...</div>;
+  if (loading) return <div className="flex h-screen items-center justify-center bg-[#fbfbfb] text-neutral-900">Loading...</div>;
   if (!isAuthenticated) return <Navigate to="/login" />;
 
   return <>{children}</>;
@@ -28,7 +28,7 @@ function PageWithLayout({ children }: { children: React.ReactNode }) {
   if (isAuthenticated) {
     return <DashboardLayout>{children}</DashboardLayout>;
   }
-  return <div className="min-h-screen bg-zinc-950 text-white">{children}</div>;
+  return <div className="min-h-screen bg-[#fbfbfb] text-neutral-900">{children}</div>;
 }
 
 export default function App() {
@@ -36,7 +36,7 @@ export default function App() {
     <Router>
       <AuthProvider>
         <WorkspaceProvider>
-          <div className="min-h-screen bg-zinc-950 font-sans text-white">
+          <div className="min-h-screen bg-[#fbfbfb] font-sans text-neutral-900">
             <Routes>
               {/* Public routes */}
               <Route path="/" element={<Landing />} />

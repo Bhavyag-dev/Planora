@@ -8,7 +8,7 @@ interface DashboardLayoutProps {
 
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   return (
-    <div className="flex min-h-screen bg-zinc-950 text-white selection:bg-purple-500/30">
+    <div className="flex min-h-screen bg-[#fbfbfb] text-neutral-900 selection:bg-purple-100">
       <Sidebar />
       <div className="flex flex-1 flex-col">
         <Navbar />

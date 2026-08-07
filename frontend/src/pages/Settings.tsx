@@ -52,24 +52,24 @@ export const Settings = () => {
   };
 
   return (
-    <div className="space-y-8 max-w-3xl min-h-[70vh]">
-      <div className="relative pb-6 border-b border-white/[0.06]">
+    <div className="space-y-8 max-w-3xl min-h-[70vh] text-neutral-900">
+      <div className="relative pb-6 border-b border-neutral-200">
         <div className="absolute bottom-0 left-0 h-px w-1/3 bg-gradient-to-r from-pink-500 to-transparent" />
-        <h1 className="text-4xl font-bold tracking-tight text-white mb-2">
-          Account <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Settings</span>
+        <h1 className="text-4xl font-extrabold tracking-tight text-neutral-950 mb-2 font-display">
+          Account <span className="bg-gradient-to-r from-purple-650 to-pink-500 bg-clip-text text-transparent">Settings</span>
         </h1>
-        <p className="text-zinc-400">Manage your profile and security credentials</p>
+        <p className="text-neutral-500 text-sm">Manage your profile and security credentials</p>
       </div>
 
       <motion.div 
         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-        className="rounded-3xl border border-white/[0.06] bg-white/[0.02] p-8 shadow-2xl backdrop-blur-xl"
+        className="rounded-3xl border border-neutral-200 bg-white p-8 shadow-xs"
       >
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Profile Details */}
           <div className="space-y-4">
-            <h3 className="text-lg font-bold text-white border-b border-white/[0.06] pb-2 flex items-center gap-2">
-              <User size={16} className="text-purple-400" />
+            <h3 className="text-lg font-bold text-neutral-900 border-b border-neutral-100 pb-2 flex items-center gap-2 font-display">
+              <User size={16} className="text-purple-650" />
               <span>Personal Information</span>
             </h3>
             <Input 
@@ -83,13 +83,13 @@ export const Settings = () => {
               value={user?.email || ''} 
               disabled
             />
-            <p className="text-xs text-zinc-550">Contact support to modify your account email address.</p>
+            <p className="text-xs text-neutral-450">Contact support to modify your account email address.</p>
           </div>
 
           {/* Password */}
           <div className="space-y-4 pt-4">
-            <h3 className="text-lg font-bold text-white border-b border-white/[0.06] pb-2 flex items-center gap-2">
-              <Lock size={16} className="text-pink-400" /> Security & Password
+            <h3 className="text-lg font-bold text-neutral-900 border-b border-neutral-100 pb-2 flex items-center gap-2 font-display">
+              <Lock size={16} className="text-pink-600" /> Security & Password
             </h3>
             <Input 
               type="password"
@@ -117,13 +117,13 @@ export const Settings = () => {
           </div>
 
           {status && (
-            <div className={`p-4 rounded-xl border text-sm ${status.type === 'error' ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-green-500/10 border-green-500/20 text-green-400'}`}>
+            <div className={`p-4 rounded-xl border text-sm ${status.type === 'error' ? 'bg-red-50 border-red-200 text-red-650' : 'bg-green-50 border-green-200 text-green-600'}`}>
               {status.message}
             </div>
           )}
 
           <div className="pt-4 flex justify-end">
-            <Button type="submit" isLoading={loading}>
+            <Button type="submit" isLoading={loading} className="cursor-pointer">
               Save Changes
             </Button>
           </div>
