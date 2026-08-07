@@ -37,6 +37,40 @@ export function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [previewTab, setPreviewTab] = useState<'events' | 'tickets' | 'create'>('events');
+
+  const footerContainerRef = useRef<HTMLDivElement>(null);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+  
+  // Track scroll of the entire footer wrapper container relative to viewport
+  const { scrollYProgress: footerScrollProgress } = useScroll({
+    target: footerContainerRef,
+    offset: ["start end", "end end"]
+  });
+  
+  // Map progress [0.8, 1.0] to Y translation [-140px, 0px]
+  const rawY = useTransform(footerScrollProgress, [0.8, 1.0], [-140, 0]);
+  // Map progress [0.8, 1.0] to Opacity [0, 0.8]
+  const rawOpacity = useTransform(footerScrollProgress, [0.8, 1.0], [0, 0.8]);
+  
+  // Apply a smooth premium spring transition with mass/lag
+  const smoothY = useSpring(rawY, {
+    stiffness: 40, // lower stiffness = heavier, slower movement
+    damping: 20,   // damping = smooth settling without bounce
+    mass: 1.5      // mass = inertia/lag
+  });
+
+  const smoothOpacity = useSpring(rawOpacity, {
+    stiffness: 50,
+    damping: 25
+  });
   
   // Navbar shrink scroll triggers (copied collapse physics from Fetchz)
   const { scrollY } = useScroll();
@@ -1140,130 +1174,134 @@ export function Landing() {
         </div>
       </section>
 
-      {/* Proper Footer Container (Testimonials quote with cursive, rich menus, newsletter, social, copyright) */}
-      <footer className="relative bg-[#fbfbfb] border-t border-neutral-100/60 pt-12 pb-20 z-10">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 space-y-12">
+      {/* Footer Wrapper Container to enable Sticky Pinned Animation */}
+      <div ref={footerContainerRef} className="relative w-full bg-[#fbfbfb] overflow-visible">
+        {/* Spacer above the footer to create the sticky scroll track */}
+        <div className="h-[12vh] w-full pointer-events-none" />
+        
+        <footer className="sticky bottom-0 z-20 bg-[#fbfbfb] border-t border-neutral-100/60 pt-10 pb-12 w-full">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8 space-y-12">
 
 
-          {/* Middle Rich 5-Column Grid */}
-          <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 max-w-5xl mx-auto pt-4 text-left">
-            
-            {/* Column 1: Brand Details */}
-            <div className="space-y-2 sm:col-span-2 lg:col-span-1">
-              <span className="text-xl font-extrabold tracking-tight text-neutral-950 font-display">
-                Planora
-              </span>
-              <p className="text-xs text-neutral-400 leading-relaxed font-sans max-w-xs">
-                The destination for flawless events. From luxurious workspace conferences to playful community meetups, we guarantee excitement at every turn.
-              </p>
-              {/* Social Circles */}
-              <div className="flex gap-2 pt-2">
-                {[
-                  { icon: Twitter, url: 'https://twitter.com/planora' },
-                  { icon: Instagram, url: 'https://instagram.com/planora' },
-                  { icon: Globe, url: 'https://planora.events' }
-                ].map((social, idx) => (
-                  <a 
-                    key={idx}
-                    href={social.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200/80 bg-white text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 transition-all shadow-sm"
-                  >
-                    <social.icon size={13} />
-                  </a>
-                ))}
+            {/* Middle Rich 5-Column Grid */}
+            <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 max-w-5xl mx-auto pt-4 text-left">
+              
+              {/* Column 1: Brand Details */}
+              <div className="space-y-2 sm:col-span-2 lg:col-span-1">
+                <span className="text-xl font-extrabold tracking-tight text-neutral-950 font-display">
+                  Planora
+                </span>
+                <p className="text-xs text-neutral-400 leading-relaxed font-sans max-w-xs">
+                  The destination for flawless events. From luxurious workspace conferences to playful community meetups, we guarantee excitement at every turn.
+                </p>
+                {/* Social Circles */}
+                <div className="flex gap-2 pt-2">
+                  {[
+                    { icon: Twitter, url: 'https://twitter.com/planora' },
+                    { icon: Instagram, url: 'https://instagram.com/planora' },
+                    { icon: Globe, url: 'https://planora.events' }
+                  ].map((social, idx) => (
+                    <a 
+                      key={idx}
+                      href={social.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200/80 bg-white text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 transition-all shadow-sm"
+                    >
+                      <social.icon size={13} />
+                    </a>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* Column 2: Product links */}
-            <div>
-              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display">Product</h4>
-              <ul className="space-y-2 text-xs">
-                <li><Link to="/events" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Browse Events</Link></li>
-                <li><a href="#pricing" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Ticket Pricing</a></li>
-                <li><Link to="/signup" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Host Account</Link></li>
-                <li><Link to="/login" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Creator Login</Link></li>
-              </ul>
-            </div>
+              {/* Column 2: Product links */}
+              <div>
+                <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display">Product</h4>
+                <ul className="space-y-2 text-xs">
+                  <li><Link to="/events" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Browse Events</Link></li>
+                  <li><a href="#pricing" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Ticket Pricing</a></li>
+                  <li><Link to="/signup" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Host Account</Link></li>
+                  <li><Link to="/login" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Creator Login</Link></li>
+                </ul>
+              </div>
 
-            {/* Column 3: Resources links */}
-            <div>
-              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display">Resources</h4>
-              <ul className="space-y-2 text-xs">
-                <li><a href="#blog" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Platform Blog</a></li>
-                <li><a href="#docs" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Help Center</a></li>
-                <li><a href="#support" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Ticket Support</a></li>
-                <li><a href="#rules" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Guidelines</a></li>
-              </ul>
-            </div>
+              {/* Column 3: Resources links */}
+              <div>
+                <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display">Resources</h4>
+                <ul className="space-y-2 text-xs">
+                  <li><a href="#blog" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Platform Blog</a></li>
+                  <li><a href="#docs" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Help Center</a></li>
+                  <li><a href="#support" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Ticket Support</a></li>
+                  <li><a href="#rules" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Guidelines</a></li>
+                </ul>
+              </div>
 
-            {/* Column 4: Company links */}
-            <div>
-              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display">Company</h4>
-              <ul className="space-y-2 text-xs">
-                <li><a href="#about" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">About Us</a></li>
-                <li><a href="#careers" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Careers</a></li>
-                <li><a href="#privacy" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Privacy Policy</a></li>
-                <li><a href="#terms" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Terms of Service</a></li>
-              </ul>
-            </div>
+              {/* Column 4: Company links */}
+              <div>
+                <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display">Company</h4>
+                <ul className="space-y-2 text-xs">
+                  <li><a href="#about" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">About Us</a></li>
+                  <li><a href="#careers" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Careers</a></li>
+                  <li><a href="#privacy" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Privacy Policy</a></li>
+                  <li><a href="#terms" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Terms of Service</a></li>
+                </ul>
+              </div>
 
-            {/* Column 5: Newsletter form */}
-            <div className="space-y-4 sm:col-span-2 lg:col-span-1">
-              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display">Newsletter</h4>
-              <p className="text-xs text-neutral-400 leading-relaxed font-sans">
-                Subscribe to get the latest workspace event announcements.
-              </p>
-              <form 
-                onSubmit={(e) => e.preventDefault()}
-                className="relative flex items-center mt-2"
-              >
-                <input 
-                  type="email" 
-                  placeholder="name@email.com" 
-                  className="w-full bg-white border border-neutral-200/80 px-4 py-2.5 pr-10 rounded-full text-xs focus:ring-1 focus:ring-neutral-400 focus:outline-none font-sans"
-                />
-                <button 
-                  type="submit"
-                  className="absolute right-1 w-8 h-8 rounded-full bg-neutral-950 text-white flex items-center justify-center hover:bg-neutral-800 transition shadow-sm"
+              {/* Column 5: Newsletter form */}
+              <div className="space-y-4 sm:col-span-2 lg:col-span-1">
+                <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display">Newsletter</h4>
+                <p className="text-xs text-neutral-400 leading-relaxed font-sans">
+                  Subscribe to get the latest workspace event announcements.
+                </p>
+                <form 
+                  onSubmit={(e) => e.preventDefault()}
+                  className="relative flex items-center mt-2"
                 >
-                  <ArrowRight size={13} />
-                </button>
-              </form>
+                  <input 
+                    type="email" 
+                    placeholder="name@email.com" 
+                    className="w-full bg-white border border-neutral-200/80 px-4 py-2.5 pr-10 rounded-full text-xs focus:ring-1 focus:ring-neutral-400 focus:outline-none font-sans"
+                  />
+                  <button 
+                    type="submit"
+                    className="absolute right-1 w-8 h-8 rounded-full bg-neutral-950 text-white flex items-center justify-center hover:bg-neutral-800 transition shadow-sm"
+                  >
+                    <ArrowRight size={13} />
+                  </button>
+                </form>
+              </div>
+
+            </div>
+
+            {/* Bottom Bar: Copyright and Coffee */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-8 pt-8 border-t border-neutral-100 max-w-5xl mx-auto">
+              <p className="text-[11px] text-neutral-400 font-sans">
+                © {new Date().getFullYear()} Planora. All rights reserved. Locally crafted for seamless communities.
+              </p>
+              
+              {/* Coffee pill */}
+              <a 
+                href="https://buymeacoffee.com/planora"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-5 py-2.5 text-xs font-bold text-neutral-800 hover:bg-neutral-50 shadow-sm transition-all pointer-events-auto"
+              >
+                <Coffee size={14} className="text-amber-600" />
+                <span>Buy us a coffee</span>
+              </a>
             </div>
 
           </div>
+        </footer>
 
-          {/* Bottom Bar: Copyright and Coffee */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8 pt-8 border-t border-neutral-100 max-w-5xl mx-auto">
-            <p className="text-[11px] text-neutral-400 font-sans">
-              © {new Date().getFullYear()} Planora. All rights reserved. Locally crafted for seamless communities.
-            </p>
-            
-            {/* Coffee pill */}
-            <a 
-              href="https://buymeacoffee.com/planora"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-5 py-2.5 text-xs font-bold text-neutral-800 hover:bg-neutral-50 shadow-sm transition-all pointer-events-auto"
-            >
-              <Coffee size={14} className="text-amber-600" />
-              <span>Buy us a coffee</span>
-            </a>
-          </div>
-
-        </div>
-      </footer>
-
-      {/* Separate Watermark block BELOW the proper footer, collapsing cleanly on scroll */}
-      <div className="relative w-full bg-[#fbfbfb] pb-12 pt-4 select-none overflow-visible z-0">
-        <div className="w-full text-center">
+        {/* Large Watermark Wordmark */}
+        <div className="relative w-full pb-2 pt-0 mt-4 select-none overflow-visible z-10 text-center pointer-events-none">
           <motion.span 
             style={{ 
-              y: (1 - scrollRatio) * -180 
+              y: prefersReducedMotion ? 0 : smoothY,
+              opacity: prefersReducedMotion ? 0.8 : smoothOpacity
             }}
-            className="inline-block font-display font-black text-[13.5vw] tracking-[0.06em] text-[#ececee]/80 uppercase leading-none transform scale-x-[1.05] origin-center z-0"
+            className="inline-block font-display font-black text-[13.5vw] tracking-[0.06em] text-[#ececee]/80 uppercase leading-none transform scale-x-[1.05] origin-center"
           >
             Planora
           </motion.span>
