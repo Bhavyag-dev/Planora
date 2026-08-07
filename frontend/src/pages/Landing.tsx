@@ -860,33 +860,6 @@ export function Landing() {
         </div>
       </section>
 
-      {/* Use Cases */}
-      <section id="use-cases" className="mx-auto max-w-7xl px-6 py-20 border-t border-neutral-100/80 bg-neutral-50/50 rounded-[2.5rem] my-12 shadow-sm border border-neutral-100">
-        <div className="text-center max-w-3xl mx-auto space-y-3">
-          <h2 className="text-4xl font-extrabold tracking-tight text-neutral-950 font-display">
-            Built for Every Event Layout
-          </h2>
-          <p className="text-sm text-neutral-500">
-            A flexible platform tailored for organizations, organizers, and networks of all scales.
-          </p>
-        </div>
-
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-16">
-          <div className="p-6 bg-white rounded-3xl border border-neutral-100 shadow-sm text-left">
-            <h4 className="font-bold text-neutral-900 text-base">Corporate Teams</h4>
-            <p className="text-xs text-neutral-400 mt-2 leading-relaxed">Coordinate team syncs, masterclasses, and executive panel discussions securely inside workspace boundaries.</p>
-          </div>
-          <div className="p-6 bg-white rounded-3xl border border-neutral-100 shadow-sm text-left">
-            <h4 className="font-bold text-neutral-900 text-base">Local Meetups</h4>
-            <p className="text-xs text-neutral-400 mt-2 leading-relaxed">Perfect for tech communities, book clubs, and developer forums looking to build local connections with RSVP lists.</p>
-          </div>
-          <div className="p-6 bg-white rounded-3xl border border-neutral-100 shadow-sm text-left">
-            <h4 className="font-bold text-neutral-900 text-base">Universities & Clubs</h4>
-            <p className="text-xs text-neutral-400 mt-2 leading-relaxed">Allow campus chapters and activity groups to invite members, schedule fests, and collect attendee list approvals.</p>
-          </div>
-        </div>
-      </section>
-
       {/* Testimonials */}
       <section id="testimonials" className="mx-auto max-w-7xl px-6 py-20 border-t border-neutral-100/80">
         <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
