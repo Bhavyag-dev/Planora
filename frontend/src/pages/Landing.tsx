@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { 
@@ -25,7 +25,8 @@ import {
   Ticket,
   Zap
 } from 'lucide-react';
-import { motion, useScroll, useMotionValueEvent, AnimatePresence, useSpring, useTransform } from 'motion/react';
+import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'motion/react';
+import { Faq02 } from '../components/Faq02';
 
 export function Landing() {
   const { isAuthenticated, user } = useAuth();
@@ -38,39 +39,7 @@ export function Landing() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [previewTab, setPreviewTab] = useState<'events' | 'tickets' | 'create'>('events');
 
-  const footerContainerRef = useRef<HTMLDivElement>(null);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mediaQuery.matches);
-    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
-  }, []);
-  
-  // Track scroll of the entire footer wrapper container relative to viewport
-  const { scrollYProgress: footerScrollProgress } = useScroll({
-    target: footerContainerRef,
-    offset: ["start end", "end end"]
-  });
-  
-  // Map progress [0.8, 1.0] to Y translation [-140px, 0px]
-  const rawY = useTransform(footerScrollProgress, [0.8, 1.0], [-140, 0]);
-  // Map progress [0.8, 1.0] to Opacity [0, 0.8]
-  const rawOpacity = useTransform(footerScrollProgress, [0.8, 1.0], [0, 0.8]);
-  
-  // Apply a smooth premium spring transition with mass/lag
-  const smoothY = useSpring(rawY, {
-    stiffness: 40, // lower stiffness = heavier, slower movement
-    damping: 20,   // damping = smooth settling without bounce
-    mass: 1.5      // mass = inertia/lag
-  });
-
-  const smoothOpacity = useSpring(rawOpacity, {
-    stiffness: 50,
-    damping: 25
-  });
   
   // Navbar shrink scroll triggers (copied collapse physics from Fetchz)
   const { scrollY } = useScroll();
@@ -974,70 +943,6 @@ export function Landing() {
         </div>
       </section>
 
-      {/* FAQs */}
-      <section id="faq" className="mx-auto max-w-4xl px-6 py-20 border-t border-neutral-100/80">
-        <div className="text-center max-w-2xl mx-auto space-y-3 mb-12">
-          <h2 className="text-4xl font-extrabold tracking-tight text-neutral-950 font-display">
-            Frequently Asked Questions
-          </h2>
-          <p className="text-sm text-neutral-500">
-            Answers to common questions about workspace limits, ticket setup, and features.
-          </p>
-        </div>
-
-        <div className="space-y-3">
-          {[
-            {
-              q: "Is Planora free to use?",
-              a: "Yes! Planora is 100% free for hosting free events with unlimited RSVPs. For paid ticketed events, we charge a flat 5% commission per ticket transaction with zero setup costs."
-            },
-            {
-              q: "How does multi-workspace support work?",
-              a: "Planora allows you to create separate workspaces for different organizations (e.g. Acme Corp, local meetups, or personal clubs). Each workspace isolates events, member roles, and settings."
-            },
-            {
-              q: "Can I invite team members to co-host events?",
-              a: "Absolutely. As a workspace owner, you can enter any team member's email in the dashboard roster. They will be added as a collaborator to co-manage the events feed."
-            },
-            {
-              q: "Are there limit counts on attendees?",
-              a: "No! Planora supports events of all scales. You can specify a custom seat limit when scheduling an event, and registrations will close automatically once the capacity is filled."
-            }
-          ].map((item, idx) => (
-            <div 
-              key={idx}
-              className="rounded-2xl border border-neutral-150 bg-white p-4 shadow-sm text-left transition-all"
-            >
-              <button
-                onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                className="w-full flex items-center justify-between font-bold text-sm text-neutral-950 focus:outline-none cursor-pointer"
-              >
-                <span>{item.q}</span>
-                <ChevronDown 
-                  size={16} 
-                  className={`text-neutral-400 transition-transform duration-200 ${openFaq === idx ? 'rotate-180' : ''}`} 
-                />
-              </button>
-              <AnimatePresence initial={false}>
-                {openFaq === idx && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25, ease: 'easeInOut' }}
-                    className="overflow-hidden"
-                  >
-                    <p className="text-xs text-neutral-500 leading-relaxed mt-2.5 pt-2.5 border-t border-neutral-100">
-                      {item.a}
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* Pricing / FAQs target anchors for navigation - Light Glassmorphic Style */}
       <section id="pricing" className="mx-auto max-w-7xl px-6 py-20 relative overflow-hidden bg-white/70 backdrop-blur-md rounded-[2.5rem] my-16 shadow-md border border-neutral-200/50 select-none">
         {/* Background glow effects */}
@@ -1174,139 +1079,131 @@ export function Landing() {
         </div>
       </section>
 
-      {/* Footer Wrapper Container to enable Sticky Pinned Animation */}
-      <div ref={footerContainerRef} className="relative w-full bg-[#fbfbfb] overflow-visible">
-        {/* Spacer above the footer to create the sticky scroll track */}
-        <div className="h-[12vh] w-full pointer-events-none" />
-        
-        <footer className="sticky bottom-0 z-20 bg-[#fbfbfb] border-t border-neutral-100/60 pt-10 pb-12 w-full">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8 space-y-12">
+      {/* FAQs */}
+      <Faq02 />
 
+      {/* Proper Footer Container (Testimonials quote with cursive, rich menus, newsletter, social, copyright) */}
+      <footer className="relative bg-[#fbfbfb] border-t border-neutral-100/60 pt-12 pb-16 w-full overflow-hidden z-10">
+        {/* Relative z-10 wrapper content so footer text renders on top of Planora watermark */}
+        <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
 
-            {/* Middle Rich 5-Column Grid */}
-            <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 max-w-5xl mx-auto pt-4 text-left">
-              
-              {/* Column 1: Brand Details */}
-              <div className="space-y-2 sm:col-span-2 lg:col-span-1">
-                <span className="text-xl font-extrabold tracking-tight text-neutral-950 font-display">
-                  Planora
-                </span>
-                <p className="text-xs text-neutral-400 leading-relaxed font-sans max-w-xs">
-                  The destination for flawless events. From luxurious workspace conferences to playful community meetups, we guarantee excitement at every turn.
-                </p>
-                {/* Social Circles */}
-                <div className="flex gap-2 pt-2">
-                  {[
-                    { icon: Twitter, url: 'https://twitter.com/planora' },
-                    { icon: Instagram, url: 'https://instagram.com/planora' },
-                    { icon: Globe, url: 'https://planora.events' }
-                  ].map((social, idx) => (
-                    <a 
-                      key={idx}
-                      href={social.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200/80 bg-white text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 transition-all shadow-sm"
-                    >
-                      <social.icon size={13} />
-                    </a>
-                  ))}
-                </div>
-              </div>
-
-              {/* Column 2: Product links */}
-              <div>
-                <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display">Product</h4>
-                <ul className="space-y-2 text-xs">
-                  <li><Link to="/events" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Browse Events</Link></li>
-                  <li><a href="#pricing" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Ticket Pricing</a></li>
-                  <li><Link to="/signup" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Host Account</Link></li>
-                  <li><Link to="/login" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Creator Login</Link></li>
-                </ul>
-              </div>
-
-              {/* Column 3: Resources links */}
-              <div>
-                <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display">Resources</h4>
-                <ul className="space-y-2 text-xs">
-                  <li><a href="#blog" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Platform Blog</a></li>
-                  <li><a href="#docs" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Help Center</a></li>
-                  <li><a href="#support" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Ticket Support</a></li>
-                  <li><a href="#rules" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Guidelines</a></li>
-                </ul>
-              </div>
-
-              {/* Column 4: Company links */}
-              <div>
-                <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display">Company</h4>
-                <ul className="space-y-2 text-xs">
-                  <li><a href="#about" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">About Us</a></li>
-                  <li><a href="#careers" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Careers</a></li>
-                  <li><a href="#privacy" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Privacy Policy</a></li>
-                  <li><a href="#terms" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Terms of Service</a></li>
-                </ul>
-              </div>
-
-              {/* Column 5: Newsletter form */}
-              <div className="space-y-4 sm:col-span-2 lg:col-span-1">
-                <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display">Newsletter</h4>
-                <p className="text-xs text-neutral-400 leading-relaxed font-sans">
-                  Subscribe to get the latest workspace event announcements.
-                </p>
-                <form 
-                  onSubmit={(e) => e.preventDefault()}
-                  className="relative flex items-center mt-2"
-                >
-                  <input 
-                    type="email" 
-                    placeholder="name@email.com" 
-                    className="w-full bg-white border border-neutral-200/80 px-4 py-2.5 pr-10 rounded-full text-xs focus:ring-1 focus:ring-neutral-400 focus:outline-none font-sans"
-                  />
-                  <button 
-                    type="submit"
-                    className="absolute right-1 w-8 h-8 rounded-full bg-neutral-950 text-white flex items-center justify-center hover:bg-neutral-800 transition shadow-sm"
+          {/* Middle Rich 5-Column Grid */}
+          <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 max-w-5xl mx-auto pt-4 text-left items-start">
+            
+            {/* Column 1: Brand Details */}
+            <div className="space-y-2 sm:col-span-2 lg:col-span-1">
+              <span className="text-xl font-extrabold tracking-tight text-neutral-950 font-display block leading-none">
+                Planora
+              </span>
+              <p className="text-xs text-neutral-400 leading-relaxed font-sans max-w-xs">
+                The destination for flawless events. From luxurious workspace conferences to playful community meetups, we guarantee excitement at every turn.
+              </p>
+              {/* Social Circles */}
+              <div className="flex gap-2 pt-2">
+                {[
+                  { icon: Twitter, url: 'https://twitter.com/planora' },
+                  { icon: Instagram, url: 'https://instagram.com/planora' },
+                  { icon: Globe, url: 'https://planora.events' }
+                ].map((social, idx) => (
+                  <a 
+                    key={idx}
+                    href={social.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200/80 bg-white text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 transition-all shadow-sm"
                   >
-                    <ArrowRight size={13} />
-                  </button>
-                </form>
+                    <social.icon size={13} />
+                  </a>
+                ))}
               </div>
-
             </div>
 
-            {/* Bottom Bar: Copyright and Coffee */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-8 pt-8 border-t border-neutral-100 max-w-5xl mx-auto">
-              <p className="text-[11px] text-neutral-400 font-sans">
-                © {new Date().getFullYear()} Planora. All rights reserved. Locally crafted for seamless communities.
+            {/* Column 2: Product links */}
+            <div>
+              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display leading-none">Product</h4>
+              <ul className="space-y-2 text-xs">
+                <li><Link to="/events" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Browse Events</Link></li>
+                <li><a href="#pricing" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Ticket Pricing</a></li>
+                <li><Link to="/signup" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Host Account</Link></li>
+                <li><Link to="/login" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Creator Login</Link></li>
+              </ul>
+            </div>
+
+            {/* Column 3: Resources links */}
+            <div>
+              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display leading-none">Resources</h4>
+              <ul className="space-y-2 text-xs">
+                <li><a href="#blog" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Platform Blog</a></li>
+                <li><a href="#docs" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Help Center</a></li>
+                <li><a href="#support" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Ticket Support</a></li>
+                <li><a href="#rules" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Guidelines</a></li>
+              </ul>
+            </div>
+
+            {/* Column 4: Company links */}
+            <div>
+              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display leading-none">Company</h4>
+              <ul className="space-y-2 text-xs">
+                <li><a href="#about" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">About Us</a></li>
+                <li><a href="#careers" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Careers</a></li>
+                <li><a href="#privacy" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Privacy Policy</a></li>
+                <li><a href="#terms" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Terms of Service</a></li>
+              </ul>
+            </div>
+
+            {/* Column 5: Newsletter form */}
+            <div className="space-y-4 sm:col-span-2 lg:col-span-1">
+              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display leading-none">Newsletter</h4>
+              <p className="text-xs text-neutral-400 leading-relaxed font-sans">
+                Subscribe to get the latest workspace event announcements.
               </p>
-              
-              {/* Coffee pill */}
-              <a 
-                href="https://buymeacoffee.com/planora"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-5 py-2.5 text-xs font-bold text-neutral-800 hover:bg-neutral-50 shadow-sm transition-all pointer-events-auto"
+              <form 
+                onSubmit={(e) => e.preventDefault()}
+                className="relative flex items-center mt-2 w-full"
               >
-                <Coffee size={14} className="text-amber-600" />
-                <span>Buy us a coffee</span>
-              </a>
+                <input 
+                  type="email" 
+                  placeholder="name@email.com" 
+                  className="w-full bg-white border border-neutral-200/80 px-4 py-2.5 pr-10 rounded-full text-xs focus:ring-1 focus:ring-neutral-400 focus:outline-none font-sans"
+                />
+                <button 
+                  type="submit"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-neutral-950 text-white flex items-center justify-center hover:bg-neutral-800 transition shadow-sm"
+                >
+                  <ArrowRight size={13} />
+                </button>
+              </form>
             </div>
 
           </div>
-        </footer>
 
-        {/* Large Watermark Wordmark */}
-        <div className="relative w-full pb-2 pt-0 mt-4 select-none overflow-visible z-10 text-center pointer-events-none">
-          <motion.span 
-            style={{ 
-              y: prefersReducedMotion ? 0 : smoothY,
-              opacity: prefersReducedMotion ? 0.8 : smoothOpacity
-            }}
-            className="inline-block font-display font-black text-[13.5vw] tracking-[0.06em] text-[#ececee]/80 uppercase leading-none transform scale-x-[1.05] origin-center"
-          >
-            Planora
-          </motion.span>
+          {/* Bottom Bar: Copyright and Coffee */}
+          <div className="flex flex-col md:flex-row items-baseline justify-between gap-8 mt-12 pt-12 border-t border-neutral-100 max-w-5xl mx-auto">
+            <p className="text-[11px] text-neutral-400 font-sans leading-none">
+              © {new Date().getFullYear()} Planora. All rights reserved. Locally crafted for seamless communities.
+            </p>
+            
+            {/* Coffee pill */}
+            <a 
+              href="https://buymeacoffee.com/planora"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-5 py-2.5 text-xs font-bold text-neutral-800 hover:bg-neutral-50 shadow-sm transition-all pointer-events-auto leading-none"
+            >
+              <Coffee size={14} className="text-amber-600" />
+              <span>Buy us a coffee</span>
+            </a>
+          </div>
+
         </div>
-      </div>
+
+        {/* Large Static Watermark Wordmark in the background */}
+        <div className="absolute inset-0 select-none overflow-hidden z-0 flex items-center justify-center pointer-events-none">
+          <span className="inline-block font-display font-black text-[18vw] tracking-[0.06em] text-neutral-950/[0.03] uppercase leading-none transform scale-x-[1.05] origin-center">
+            Planora
+          </span>
+        </div>
+      </footer>
 
     </div>
   );
