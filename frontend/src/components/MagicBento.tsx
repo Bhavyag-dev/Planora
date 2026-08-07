@@ -516,11 +516,11 @@ const MagicBento = ({
           
           const getCategoryColor = (cat: string) => {
              const colors: Record<string, string> = {
-               'Tech': 'text-indigo-400 border-indigo-500/30',
-               'Cultural': 'text-purple-400 border-purple-500/30',
-               'Sports': 'text-amber-400 border-amber-500/30',
+               'Tech': 'text-indigo-650 border-indigo-200 bg-indigo-50/50',
+               'Cultural': 'text-purple-650 border-purple-200 bg-purple-50/50',
+               'Sports': 'text-amber-600 border-amber-200 bg-amber-50/50',
              };
-             return colors[cat] || 'text-zinc-300 border-zinc-500/30';
+             return colors[cat] || 'text-neutral-600 border-neutral-200 bg-neutral-50/50';
           };
 
           const CardContent = () => (
@@ -528,29 +528,29 @@ const MagicBento = ({
                 <Link to={`/events/${event._id}`} className="absolute inset-0 z-10" />
                 <div className="magic-bento-card__header">
                   <div className={`magic-bento-card__label ${getCategoryColor(event.category || 'General')}`}>{event.category || 'General'}</div>
-                  <div className="flex items-center gap-1.5 text-xs font-medium z-20 pointer-events-none text-zinc-400">
-                    <Users size={14} className="text-zinc-500" />
+                  <div className="flex items-center gap-1.5 text-xs font-semibold z-20 pointer-events-none text-neutral-500">
+                    <Users size={14} className="text-neutral-450" />
                     {event.seatLimit - event.registeredCount <= 0 ? (
-                      <span className="text-red-400 flex items-center gap-1">Sold Out</span>
+                      <span className="text-red-600 flex items-center gap-1">Sold Out</span>
                     ) : (
-                      <span className="text-emerald-400">{event.seatLimit - event.registeredCount} Left</span>
+                      <span className="text-emerald-650">{event.seatLimit - event.registeredCount} Left</span>
                     )}
                   </div>
                 </div>
                 <div className="magic-bento-card__content mt-4">
-                  <h2 className="magic-bento-card__title group-hover:text-purple-300 transition-colors">{event.title}</h2>
+                  <h2 className="magic-bento-card__title group-hover:text-purple-650 transition-colors">{event.title}</h2>
                   <p className="magic-bento-card__description">{event.description}</p>
                   
                   <div className="mt-6 flex flex-col gap-2 relative z-20 pointer-events-none">
-                     <div className="flex items-center gap-2 text-sm text-zinc-300">
-                       <Calendar size={14} className="text-purple-400" /> {formatDate(event.date)}
+                     <div className="flex items-center gap-2 text-sm text-neutral-600">
+                       <Calendar size={14} className="text-purple-600" /> {formatDate(event.date)}
                      </div>
-                     <div className="flex items-center gap-2 text-sm text-zinc-300">
-                       <MapPin size={14} className="text-pink-400" /> <span className="truncate">{event.venue}</span>
+                     <div className="flex items-center gap-2 text-sm text-neutral-600">
+                       <MapPin size={14} className="text-pink-655" /> <span className="truncate">{event.venue}</span>
                      </div>
                   </div>
                   
-                  <div className="absolute bottom-6 right-6 text-indigo-400 opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+                  <div className="absolute bottom-6 right-6 text-indigo-650 opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
                      <ArrowRight size={18} />
                   </div>
                 </div>
