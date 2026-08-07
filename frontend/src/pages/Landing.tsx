@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { 
@@ -25,7 +25,7 @@ import {
   Ticket,
   Zap
 } from 'lucide-react';
-import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'motion/react';
+import { motion, useScroll, useMotionValueEvent, AnimatePresence, useSpring, useTransform } from 'motion/react';
 
 export function Landing() {
   const { isAuthenticated, user } = useAuth();
@@ -1141,15 +1141,15 @@ export function Landing() {
       </section>
 
       {/* Proper Footer Container (Testimonials quote with cursive, rich menus, newsletter, social, copyright) */}
-      <footer className="relative bg-[#fbfbfb] border-t border-neutral-100/60 pt-24 pb-20 z-10">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 space-y-16">
+      <footer className="relative bg-[#fbfbfb] border-t border-neutral-100/60 pt-12 pb-20 z-10">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 space-y-12">
 
 
           {/* Middle Rich 5-Column Grid */}
           <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 max-w-5xl mx-auto pt-4 text-left">
             
             {/* Column 1: Brand Details */}
-            <div className="space-y-4 sm:col-span-2 lg:col-span-1">
+            <div className="space-y-2 sm:col-span-2 lg:col-span-1">
               <span className="text-xl font-extrabold tracking-tight text-neutral-950 font-display">
                 Planora
               </span>
@@ -1257,13 +1257,13 @@ export function Landing() {
       </footer>
 
       {/* Separate Watermark block BELOW the proper footer, collapsing cleanly on scroll */}
-      <div className="relative w-full bg-[#fbfbfb] pb-12 pt-4 border-t border-neutral-100/40 select-none overflow-hidden z-0">
+      <div className="relative w-full bg-[#fbfbfb] pb-12 pt-4 select-none overflow-visible z-0">
         <div className="w-full text-center">
           <motion.span 
             style={{ 
-              y: -scrollRatio * 35 
+              y: (1 - scrollRatio) * -180 
             }}
-            className="inline-block font-display font-black text-[13.5vw] tracking-[0.06em] text-[#ececee]/80 uppercase leading-none transform scale-x-[1.05] origin-center"
+            className="inline-block font-display font-black text-[13.5vw] tracking-[0.06em] text-[#ececee]/80 uppercase leading-none transform scale-x-[1.05] origin-center z-0"
           >
             Planora
           </motion.span>
