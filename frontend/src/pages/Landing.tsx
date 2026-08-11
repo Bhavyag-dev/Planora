@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'motion/react';
 import { Faq02 } from '../components/Faq02';
+import { AccordionGallery } from '../components/AccordionGallery';
 
 export function Landing() {
   const { isAuthenticated, user } = useAuth();
@@ -347,159 +348,173 @@ export function Landing() {
         </p>
       </section>
 
-      {/* Fold 2: Unforgettable Event Panel Layout (Reference Image 2) */}
-      <section className="w-full bg-[#fbfbfb] relative z-10 py-24 border-b border-neutral-100/40">
-        <div className="mx-auto max-w-7xl px-6 grid gap-12 lg:grid-cols-12 items-center">
-          {/* Left Text details */}
-          <div className="lg:col-span-5 space-y-6">
-            <h2 className="text-4xl font-extrabold text-neutral-900 leading-[1.1] tracking-tight font-display sm:text-5xl">
-              Together, let's<br />
-              make this event<br />
-              unforgettable!<br />
-              with <span className="text-neutral-400 font-normal font-cursive text-3.5xl block sm:inline leading-none">ultimate planning experience!</span>
-            </h2>
-            <p className="text-[14px] leading-relaxed text-neutral-500 font-sans">
-              Our passion for creating colorful and energetic events means every single meetup, workshop, and conference is a masterpiece of fun. Get ready for a workspace filled with vivid memories and vibrant celebrations.
-            </p>
-            <Link 
-              to="/signup" 
-              className="inline-flex items-center gap-2 rounded-full bg-neutral-950 px-6 py-3 text-xs font-semibold text-white hover:bg-neutral-800 transition-colors shadow-sm"
-            >
-              Learn more <ArrowRight size={14} />
-            </Link>
-          </div>
 
-          {/* Right: Two Big Mockups side-by-side */}
-          <div className="lg:col-span-7 grid gap-6 sm:grid-cols-2 relative z-10">
-            {/* Big Mockup 1: Clean Glass-Dashboard Card */}
-            <div className="w-full h-[380px] rounded-[2rem] glass-red-glow p-6 flex flex-col justify-between relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
-              <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-red-650/10 blur-[50px]" />
-              <div className="flex items-center justify-between text-xs text-neutral-500">
-                <span className="font-semibold text-neutral-400">workspace_stats</span>
-                <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-              </div>
-              <div className="my-auto">
-                <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest font-mono">Real-time Activity</span>
-                <h3 className="text-4xl font-extrabold text-white tracking-tight mt-1 font-display">94.2%</h3>
-                <p className="text-[13px] text-neutral-400 mt-2 font-medium leading-relaxed">Community Engagement score across 12 workspace events this month.</p>
-              </div>
-              <div className="border-t border-white/[0.06] pt-4 flex items-center justify-between">
-                <span className="text-[10px] text-neutral-550 font-mono">planora_core_v1</span>
-                <Link to="/signup" className="text-xs font-bold text-red-500 hover:text-red-400 transition-colors pointer-events-auto">View analytics ›</Link>
-              </div>
-            </div>
-
-            {/* Big Mockup 2: Premium Visual Event Card */}
-            <div className="w-full h-[380px] rounded-[2rem] overflow-hidden relative group hover:scale-[1.02] transition-transform duration-300 glass-red-glow">
-              <img 
-                src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80" 
-                alt="Premium Community Event" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-              <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-red-650/5 blur-[60px]" />
-              <div className="absolute bottom-6 left-6 right-6 text-white">
-                <span className="rounded-full bg-red-600/80 backdrop-blur-md px-3 py-1 text-[9px] font-bold uppercase tracking-wider text-white">Featured Meetup</span>
-                <h4 className="text-xl font-extrabold tracking-tight text-white mt-3 font-display">Creative Design Workspace Hub</h4>
-                <p className="text-xs text-neutral-300 mt-1 font-medium">Dec 26, 2026 • 65 Attendees</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Dynamic Live Events Section */}
       <section className="w-full bg-[#fbfbfb] relative z-10 py-16 border-t border-neutral-100/60">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-neutral-100/80 pb-6">
-          <div>
-            <div className="inline-flex items-center gap-1 text-[11px] font-bold text-neutral-400 uppercase tracking-widest mb-1.5">
-              <Sparkles size={12} className="text-amber-500" /> Discover Exciting Happenings
+            <div>
+              <div className="inline-flex items-center gap-1 text-[11px] font-bold text-neutral-400 uppercase tracking-widest mb-1.5">
+                <Sparkles size={12} className="text-amber-500" /> Discover Exciting Happenings
+              </div>
+              <h2 className="text-3xl font-extrabold tracking-tight text-neutral-950 font-display">
+                Upcoming Sparkling Events
+              </h2>
             </div>
-            <h2 className="text-3xl font-extrabold tracking-tight text-neutral-950 font-display">
-              Upcoming Sparkling Events
-            </h2>
+            <Link 
+              to="/events" 
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-900 hover:text-neutral-600 transition-colors"
+            >
+              View all {events.length > 0 ? `(${events.length})` : ''} events 
+              <ArrowRight size={14} />
+            </Link>
           </div>
-          <Link 
-            to="/events" 
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-900 hover:text-neutral-600 transition-colors"
-          >
-            View all {events.length > 0 ? `(${events.length})` : ''} events 
-            <ArrowRight size={14} />
-          </Link>
-        </div>
 
-        {loadingEvents ? (
-          <div className="flex h-40 items-center justify-center text-sm font-medium text-neutral-400">
-            Loading brilliant events...
+          {/* Interactive Accordion Gallery Showcase */}
+          <div className="mb-12">
+            <AccordionGallery
+              items={
+                events.length > 0
+                  ? events.slice(0, 5).map((e) => ({
+                      image: e.coverImage || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80',
+                      label: e.title,
+                      link: `/events/${e._id}`,
+                      alt: e.title
+                    }))
+                  : [
+                      { image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80', label: 'Tech Summit 2026', link: '/events' },
+                      { image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80', label: 'Design Workshop', link: '/events' },
+                      { image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80', label: 'Music & Culture Fest', link: '/events' },
+                      { image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80', label: 'Startup Pitch Night', link: '/events' },
+                      { image: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1200&q=80', label: 'Developer Hackathon', link: '/events' }
+                    ]
+              }
+              defaultIndex={2}
+              expandRatio={0.52}
+              trigger="hover"
+              height={460}
+              radius={24}
+              gap={12}
+              grayscale={true}
+              accentColor="#ffffff"
+              overlayColor="#060010"
+            />
           </div>
-        ) : events.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-neutral-200 bg-white p-12 text-center">
-            <Calendar className="mx-auto text-neutral-300 mb-3" size={32} />
-            <h3 className="text-[15px] font-semibold text-neutral-900">No active events found</h3>
-            <p className="text-xs text-neutral-400 mt-1 max-w-sm mx-auto">
-              Ready to host your own events? Register or login to create events.
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {events.map((event) => (
-              <Link 
-                key={event._id}
-                to={`/events/${event._id}`}
-                className="group flex flex-col bg-white rounded-3xl border border-neutral-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
-              >
-                {/* Event Image */}
-                <div className="relative aspect-[16/10] bg-neutral-50 overflow-hidden">
-                  {event.coverImage ? (
-                    <img 
-                      src={event.coverImage} 
-                      alt={event.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-103"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-neutral-300 bg-neutral-100">
-                      <Calendar size={32} />
-                    </div>
-                  )}
-                  {/* Category Badge */}
-                  <span className="absolute top-4 left-4 rounded-full bg-white/90 backdrop-blur-sm border border-neutral-100 px-3 py-1 text-[11px] font-bold text-neutral-900 uppercase tracking-wider shadow-sm">
-                    {event.category}
-                  </span>
-                </div>
 
-                {/* Event Details */}
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-lg font-bold text-neutral-900 group-hover:text-neutral-600 transition-colors leading-tight font-display">
-                    {event.title}
-                  </h3>
-                  <p className="text-xs text-neutral-400 font-medium mt-1 flex items-center gap-1">
-                    <Calendar size={13} />
-                    {new Date(event.date).toLocaleDateString(undefined, { 
-                      weekday: 'short', 
-                      month: 'short', 
-                      day: 'numeric',
-                      year: 'numeric'
-                    })}
-                  </p>
-                  <p className="text-xs text-neutral-500 mt-3 line-clamp-2 leading-relaxed">
-                    {event.description}
-                  </p>
-
-                  <div className="mt-auto pt-4 border-t border-neutral-50 flex items-center justify-between text-xs font-semibold text-neutral-900">
-                    <span className="flex items-center gap-1 text-neutral-500">
-                      <MapPin size={13} />
-                      {event.venue}
-                    </span>
-                    <span className="text-neutral-900">
-                      {event.price === 0 ? 'Free' : `₹${event.price}`}
+          {loadingEvents ? (
+            <div className="flex h-40 items-center justify-center text-sm font-medium text-neutral-400">
+              Loading brilliant events...
+            </div>
+          ) : events.length === 0 ? (
+            <div className="rounded-3xl border border-dashed border-neutral-200 bg-white p-12 text-center">
+              <Calendar className="mx-auto text-neutral-300 mb-3" size={32} />
+              <h3 className="text-[15px] font-semibold text-neutral-900">No active events found</h3>
+              <p className="text-xs text-neutral-400 mt-1 max-w-sm mx-auto">
+                Ready to host your own events? Register or login to create events.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {events.map((event) => (
+                <Link 
+                  key={event._id}
+                  to={`/events/${event._id}`}
+                  className="group flex flex-col bg-white rounded-3xl border border-neutral-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
+                >
+                  {/* Event Image */}
+                  <div className="relative aspect-[16/10] bg-neutral-50 overflow-hidden">
+                    {event.coverImage ? (
+                      <img 
+                        src={event.coverImage} 
+                        alt={event.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-103"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-neutral-300 bg-neutral-100">
+                        <Calendar size={32} />
+                      </div>
+                    )}
+                    {/* Category Badge */}
+                    <span className="absolute top-4 left-4 rounded-full bg-white/90 backdrop-blur-sm border border-neutral-100 px-3 py-1 text-[11px] font-bold text-neutral-900 uppercase tracking-wider shadow-sm">
+                      {event.category}
                     </span>
                   </div>
-                </div>
-              </Link>
-            ))}
+
+                  {/* Event Details */}
+                  <div className="p-6 flex flex-col flex-grow">
+                    <h3 className="text-lg font-bold text-neutral-900 group-hover:text-neutral-600 transition-colors leading-tight font-display">
+                      {event.title}
+                    </h3>
+                    <p className="text-xs text-neutral-400 font-medium mt-1 flex items-center gap-1">
+                      <Calendar size={13} />
+                      {new Date(event.date).toLocaleDateString(undefined, { 
+                        weekday: 'short', 
+                        month: 'short', 
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </p>
+                    <p className="text-xs text-neutral-500 mt-3 line-clamp-2 leading-relaxed">
+                      {event.description}
+                    </p>
+
+                    <div className="mt-auto pt-4 border-t border-neutral-50 flex items-center justify-between text-xs font-semibold text-neutral-900">
+                      <span className="flex items-center gap-1 text-neutral-500">
+                        <MapPin size={13} />
+                        {event.venue}
+                      </span>
+                      <span className="text-neutral-900">
+                        {event.price === 0 ? 'Free' : `₹${event.price}`}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section id="how-it-works" className="mx-auto max-w-7xl px-6 py-20 border-t border-neutral-100/80 bg-neutral-50/50 rounded-[2.5rem] my-12 shadow-inner">
+        <div className="text-center max-w-2xl mx-auto space-y-3">
+          <h2 className="text-4xl font-extrabold tracking-tight text-neutral-950 font-display">Hosting in Four Simple Steps</h2>
+          <p className="text-sm text-neutral-500">Go from account setup to a live workspace event in under five minutes.</p>
+        </div>
+
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 mt-16 relative">
+          {/* Step 1 */}
+          <div className="space-y-4 text-left p-6 rounded-3xl bg-white border border-neutral-100 shadow-sm relative">
+            <span className="absolute top-4 right-4 text-neutral-100 font-display font-black text-4xl select-none">01</span>
+            <div className="h-8 w-8 rounded-xl bg-neutral-950 text-white flex items-center justify-center text-xs font-bold font-mono">1</div>
+            <h3 className="font-bold text-neutral-900 text-base mt-2">Create Workspace</h3>
+            <p className="text-xs text-neutral-400 leading-relaxed">Create a custom workspace (e.g. Acme Corp Dev) to isolate your event activities.</p>
           </div>
-        )}
+
+          {/* Step 2 */}
+          <div className="space-y-4 text-left p-6 rounded-3xl bg-white border border-neutral-100 shadow-sm relative">
+            <span className="absolute top-4 right-4 text-neutral-100 font-display font-black text-4xl select-none">02</span>
+            <div className="h-8 w-8 rounded-xl bg-neutral-950 text-white flex items-center justify-center text-xs font-bold font-mono">2</div>
+            <h3 className="font-bold text-neutral-900 text-base mt-2">Schedule Event</h3>
+            <p className="text-xs text-neutral-400 leading-relaxed">Enter details, seat capacities, venue, category, and cover image to create an event.</p>
+          </div>
+
+          {/* Step 3 */}
+          <div className="space-y-4 text-left p-6 rounded-3xl bg-white border border-neutral-100 shadow-sm relative">
+            <span className="absolute top-4 right-4 text-neutral-100 font-display font-black text-4xl select-none">03</span>
+            <div className="h-8 w-8 rounded-xl bg-neutral-950 text-white flex items-center justify-center text-xs font-bold font-mono">3</div>
+            <h3 className="font-bold text-neutral-900 text-base mt-2">Invite & Share</h3>
+            <p className="text-xs text-neutral-400 leading-relaxed">Share the registration URL, invite workspace colleagues, or open it up for global attendees.</p>
+          </div>
+
+          {/* Step 4 */}
+          <div className="space-y-4 text-left p-6 rounded-3xl bg-white border border-neutral-100 shadow-sm relative">
+            <span className="absolute top-4 right-4 text-neutral-100 font-display font-black text-4xl select-none">04</span>
+            <div className="h-8 w-8 rounded-xl bg-neutral-950 text-white flex items-center justify-center text-xs font-bold font-mono">4</div>
+            <h3 className="font-bold text-neutral-900 text-base mt-2">Track Registrations</h3>
+            <p className="text-xs text-neutral-400 leading-relaxed">Monitor attendees lists in real-time. Instantly check-in registered users.</p>
+          </div>
         </div>
       </section>
 
@@ -582,48 +597,6 @@ export function Landing() {
               </p>
             </div>
           </motion.div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section id="how-it-works" className="mx-auto max-w-7xl px-6 py-20 border-t border-neutral-100/80 bg-neutral-50/50 rounded-[2.5rem] my-12 shadow-inner">
-        <div className="text-center max-w-2xl mx-auto space-y-3">
-          <h2 className="text-4xl font-extrabold tracking-tight text-neutral-950 font-display">Hosting in Four Simple Steps</h2>
-          <p className="text-sm text-neutral-500">Go from account setup to a live workspace event in under five minutes.</p>
-        </div>
-
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 mt-16 relative">
-          {/* Step 1 */}
-          <div className="space-y-4 text-left p-6 rounded-3xl bg-white border border-neutral-100 shadow-sm relative">
-            <span className="absolute top-4 right-4 text-neutral-100 font-display font-black text-4xl select-none">01</span>
-            <div className="h-8 w-8 rounded-xl bg-neutral-950 text-white flex items-center justify-center text-xs font-bold font-mono">1</div>
-            <h3 className="font-bold text-neutral-900 text-base mt-2">Create Workspace</h3>
-            <p className="text-xs text-neutral-400 leading-relaxed">Create a custom workspace (e.g. Acme Corp Dev) to isolate your event activities.</p>
-          </div>
-
-          {/* Step 2 */}
-          <div className="space-y-4 text-left p-6 rounded-3xl bg-white border border-neutral-100 shadow-sm relative">
-            <span className="absolute top-4 right-4 text-neutral-100 font-display font-black text-4xl select-none">02</span>
-            <div className="h-8 w-8 rounded-xl bg-neutral-950 text-white flex items-center justify-center text-xs font-bold font-mono">2</div>
-            <h3 className="font-bold text-neutral-900 text-base mt-2">Schedule Event</h3>
-            <p className="text-xs text-neutral-400 leading-relaxed">Enter details, seat capacities, venue, category, and cover image to create an event.</p>
-          </div>
-
-          {/* Step 3 */}
-          <div className="space-y-4 text-left p-6 rounded-3xl bg-white border border-neutral-100 shadow-sm relative">
-            <span className="absolute top-4 right-4 text-neutral-100 font-display font-black text-4xl select-none">03</span>
-            <div className="h-8 w-8 rounded-xl bg-neutral-950 text-white flex items-center justify-center text-xs font-bold font-mono">3</div>
-            <h3 className="font-bold text-neutral-900 text-base mt-2">Invite & Share</h3>
-            <p className="text-xs text-neutral-400 leading-relaxed">Share the registration URL, invite workspace colleagues, or open it up for global attendees.</p>
-          </div>
-
-          {/* Step 4 */}
-          <div className="space-y-4 text-left p-6 rounded-3xl bg-white border border-neutral-100 shadow-sm relative">
-            <span className="absolute top-4 right-4 text-neutral-100 font-display font-black text-4xl select-none">04</span>
-            <div className="h-8 w-8 rounded-xl bg-neutral-950 text-white flex items-center justify-center text-xs font-bold font-mono">4</div>
-            <h3 className="font-bold text-neutral-900 text-base mt-2">Track Registrations</h3>
-            <p className="text-xs text-neutral-400 leading-relaxed">Monitor attendees lists in real-time. Instantly check-in registered users.</p>
-          </div>
         </div>
       </section>
 
@@ -904,9 +877,8 @@ export function Landing() {
 
       {/* Pricing / FAQs target anchors for navigation - Light Glassmorphic Style */}
       <section id="pricing" className="mx-auto max-w-7xl px-6 py-20 relative overflow-hidden bg-white/70 backdrop-blur-md rounded-[2.5rem] my-16 shadow-md border border-neutral-200/50 select-none">
-        {/* Background glow effects */}
-        <div className="absolute top-0 left-1/4 h-80 w-80 rounded-full bg-purple-500/5 blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-pink-500/5 blur-[120px] pointer-events-none" />
+        {/* Subtle monochrome glow effect */}
+        <div className="absolute top-0 left-1/4 h-80 w-80 rounded-full bg-neutral-900/[0.02] blur-[100px] pointer-events-none" />
         
         {/* Large semi-transparent background heading */}
         <div className="absolute top-8 inset-x-0 text-center pointer-events-none select-none z-0">
@@ -925,11 +897,11 @@ export function Landing() {
           <div className="grid gap-8 md:grid-cols-2 mt-8 max-w-4xl mx-auto">
             
             {/* Card 1: Free Events */}
-            <div className="rounded-3xl border border-neutral-200 bg-white/60 p-8 backdrop-blur-md text-left flex flex-col justify-between hover:border-purple-500/30 hover:shadow-lg transition-all duration-300 relative group">
+            <div className="rounded-3xl border border-neutral-200 bg-white/60 p-8 backdrop-blur-md text-left flex flex-col justify-between hover:border-neutral-400 hover:shadow-lg transition-all duration-300 relative group">
               <div>
                 {/* Badge */}
                 <div className="flex justify-start mb-4">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-100 text-neutral-800 border border-neutral-200">
                     🟢 Core Community
                   </span>
                 </div>
@@ -939,16 +911,16 @@ export function Landing() {
                 
                 <ul className="text-xs text-neutral-600 mt-8 space-y-3.5 font-medium">
                   <li className="flex items-center gap-2">
-                    <span className="text-purple-600 font-bold">✓</span> Unlimited RSVPs
+                    <span className="text-neutral-950 font-bold">✓</span> Unlimited RSVPs
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-purple-600 font-bold">✓</span> QR Code Check-ins
+                    <span className="text-neutral-950 font-bold">✓</span> QR Code Check-ins
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-purple-600 font-bold">✓</span> Workspace Isolation
+                    <span className="text-neutral-950 font-bold">✓</span> Workspace Isolation
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-purple-600 font-bold">✓</span> Public Event Feed
+                    <span className="text-neutral-950 font-bold">✓</span> Public Event Feed
                   </li>
                 </ul>
               </div>
@@ -970,14 +942,14 @@ export function Landing() {
             </div>
 
             {/* Card 2: Paid Tickets */}
-            <div className="rounded-3xl border-2 border-purple-500/30 bg-white p-8 backdrop-blur-md text-left flex flex-col justify-between shadow-xl hover:border-purple-500/60 hover:shadow-purple-500/5 transition-all duration-300 relative group">
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-purple-600 text-[9px] font-black uppercase tracking-widest text-white px-3.5 py-1 rounded-full shadow-md z-20">
+            <div className="rounded-3xl border-2 border-neutral-900 bg-white p-8 backdrop-blur-md text-left flex flex-col justify-between shadow-xl hover:border-neutral-950 transition-all duration-300 relative group">
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-neutral-950 text-[9px] font-black uppercase tracking-widest text-white px-3.5 py-1 rounded-full shadow-md z-20">
                 Most Popular
               </div>
               <div>
                 {/* Badge */}
                 <div className="flex justify-start mb-4 mt-2">
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-50 text-purple-600 border border-purple-200">
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-900 text-white">
                     ⭐ Commercial Access
                   </span>
                 </div>
@@ -987,16 +959,16 @@ export function Landing() {
                 
                 <ul className="text-xs text-neutral-600 mt-8 space-y-3.5 font-medium">
                   <li className="flex items-center gap-2">
-                    <span className="text-purple-600 font-bold">✓</span> Stripe Integration
+                    <span className="text-neutral-950 font-bold">✓</span> Stripe Integration
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-purple-600 font-bold">✓</span> Realtime Revenue Payouts
+                    <span className="text-neutral-950 font-bold">✓</span> Realtime Revenue Payouts
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-purple-600 font-bold">✓</span> Ticket Sales Dashboard
+                    <span className="text-neutral-950 font-bold">✓</span> Ticket Sales Dashboard
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-purple-600 font-bold">✓</span> Secure Attendee Check-ins
+                    <span className="text-neutral-950 font-bold">✓</span> Secure Attendee Check-ins
                   </li>
                 </ul>
               </div>
@@ -1007,7 +979,7 @@ export function Landing() {
                   <div className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider mt-0.5">commission per ticket</div>
                 </div>
                 
-                <button className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-all shadow-md shadow-purple-600/10 flex items-center justify-center gap-1 cursor-pointer">
+                <button className="w-full py-2.5 rounded-xl bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-xs transition-all shadow-md flex items-center justify-center gap-1 cursor-pointer">
                   Choose Paid <span className="text-[9px]">▼</span>
                 </button>
                 
@@ -1031,7 +1003,7 @@ export function Landing() {
 
           {/* Footer Branding Bar inside the Section */}
           <div className="pt-6 flex flex-row items-center justify-between text-[11px] text-neutral-450 border-t border-neutral-100">
-            <span className="font-black text-purple-600 text-sm tracking-tight">Planora</span>
+            <span className="font-black text-neutral-950 text-sm tracking-tight">Planora</span>
             <span className="font-medium text-neutral-400">Aesthetic planning. Seamless conversion.</span>
           </div>
 
@@ -1040,6 +1012,67 @@ export function Landing() {
 
       {/* FAQs */}
       <Faq02 />
+
+      {/* Unforgettable Event Panel Layout */}
+      <section className="w-full bg-[#fbfbfb] relative z-10 py-24 border-t border-neutral-100/80">
+        <div className="mx-auto max-w-7xl px-6 grid gap-12 lg:grid-cols-12 items-center">
+          {/* Left Text details */}
+          <div className="lg:col-span-5 space-y-6">
+            <h2 className="text-4xl font-extrabold text-neutral-900 leading-[1.1] tracking-tight font-display sm:text-5xl">
+              Together, let's<br />
+              make this event<br />
+              unforgettable!<br />
+              with <span className="text-neutral-400 font-normal font-cursive text-3.5xl block sm:inline leading-none">ultimate planning experience!</span>
+            </h2>
+            <p className="text-[14px] leading-relaxed text-neutral-500 font-sans">
+              Our passion for creating colorful and energetic events means every single meetup, workshop, and conference is a masterpiece of fun. Get ready for a workspace filled with vivid memories and vibrant celebrations.
+            </p>
+            <Link 
+              to="/signup" 
+              className="inline-flex items-center gap-2 rounded-full bg-neutral-950 px-6 py-3 text-xs font-semibold text-white hover:bg-neutral-800 transition-colors shadow-sm"
+            >
+              Learn more <ArrowRight size={14} />
+            </Link>
+          </div>
+
+          {/* Right: Two Big Mockups side-by-side */}
+          <div className="lg:col-span-7 grid gap-6 sm:grid-cols-2 relative z-10">
+            {/* Big Mockup 1: Clean Glass-Dashboard Card */}
+            <div className="w-full h-[380px] rounded-[2rem] glass-red-glow p-6 flex flex-col justify-between relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
+              <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-red-650/10 blur-[50px]" />
+              <div className="flex items-center justify-between text-xs text-neutral-500">
+                <span className="font-semibold text-neutral-400">workspace_stats</span>
+                <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+              </div>
+              <div className="my-auto">
+                <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest font-mono">Real-time Activity</span>
+                <h3 className="text-4xl font-extrabold text-white tracking-tight mt-1 font-display">94.2%</h3>
+                <p className="text-[13px] text-neutral-400 mt-2 font-medium leading-relaxed">Community Engagement score across 12 workspace events this month.</p>
+              </div>
+              <div className="border-t border-white/[0.06] pt-4 flex items-center justify-between">
+                <span className="text-[10px] text-neutral-550 font-mono">planora_core_v1</span>
+                <Link to="/signup" className="text-xs font-bold text-red-500 hover:text-red-400 transition-colors pointer-events-auto">View analytics ›</Link>
+              </div>
+            </div>
+
+            {/* Big Mockup 2: Premium Visual Event Card */}
+            <div className="w-full h-[380px] rounded-[2rem] overflow-hidden relative group hover:scale-[1.02] transition-transform duration-300 glass-red-glow">
+              <img 
+                src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80" 
+                alt="Premium Community Event" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+              <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-red-650/5 blur-[60px]" />
+              <div className="absolute bottom-6 left-6 right-6 text-white">
+                <span className="rounded-full bg-red-600/80 backdrop-blur-md px-3 py-1 text-[9px] font-bold uppercase tracking-wider text-white">Featured Meetup</span>
+                <h4 className="text-xl font-extrabold tracking-tight text-white mt-3 font-display">Creative Design Workspace Hub</h4>
+                <p className="text-xs text-neutral-300 mt-1 font-medium">Dec 26, 2026 • 65 Attendees</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Proper Footer Container (Testimonials quote with cursive, rich menus, newsletter, social, copyright) */}
       <footer className="relative bg-[#fbfbfb] border-t border-neutral-100/80 pt-20 pb-20 w-full overflow-hidden z-10">
