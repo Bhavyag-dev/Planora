@@ -153,7 +153,7 @@ export function Landing() {
             </Link>
 
             {/* Desktop Links */}
-            <div className="hidden md:flex items-center gap-6">
+            <div className="hidden md:flex items-center gap-9">
               <Link to="/" className="text-[13px] font-semibold text-neutral-600 hover:text-neutral-950 transition-colors">
                 Home
               </Link>
@@ -345,20 +345,6 @@ export function Landing() {
           Dive into the ultimate event management experience with Planora.<br />
           We specialize in helping workspaces and communities create vibrant, unforgettable happenings.
         </p>
-
-        {/* CTA Button */}
-        <div className="relative z-10 mt-10 flex flex-col items-center gap-3">
-          <Link
-            to="/events"
-            className="group inline-flex items-center gap-2 rounded-full bg-neutral-950 px-7 py-4 text-sm font-semibold text-white hover:bg-neutral-800 transition-colors duration-200 shadow-md"
-          >
-            Get Started
-            <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
-          </Link>
-          <span className="flex items-center gap-1 text-[11px] font-medium text-neutral-400 select-none mt-1">
-            ⚡ Start hosting in minutes. No credit card required.
-          </span>
-        </div>
       </section>
 
       {/* Fold 2: Unforgettable Event Panel Layout (Reference Image 2) */}
@@ -1056,23 +1042,23 @@ export function Landing() {
       <Faq02 />
 
       {/* Proper Footer Container (Testimonials quote with cursive, rich menus, newsletter, social, copyright) */}
-      <footer className="relative bg-[#fbfbfb] border-t border-neutral-100/60 pt-12 pb-16 w-full overflow-hidden z-10">
+      <footer className="relative bg-[#fbfbfb] border-t border-neutral-100/80 pt-20 pb-20 w-full overflow-hidden z-10">
         {/* Relative z-10 wrapper content so footer text renders on top of Planora watermark */}
         <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
 
-          {/* Middle Rich 5-Column Grid */}
-          <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 max-w-5xl mx-auto pt-4 text-left items-start">
+          {/* Middle Rich 12-Column Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-12 gap-10 lg:gap-12 max-w-7xl mx-auto text-left items-start">
             
-            {/* Column 1: Brand Details */}
-            <div className="space-y-2 sm:col-span-2 lg:col-span-1">
-              <span className="text-xl font-extrabold tracking-tight text-neutral-950 font-display block leading-none">
+            {/* Column 1: Brand Details (4 cols) */}
+            <div className="space-y-4 sm:col-span-2 md:col-span-4 lg:col-span-4">
+              <Link to="/" className="text-2xl font-black tracking-tight text-neutral-950 font-display block leading-none">
                 Planora
-              </span>
-              <p className="text-xs text-neutral-400 leading-relaxed font-sans max-w-xs">
+              </Link>
+              <p className="text-xs text-neutral-400 leading-relaxed font-sans max-w-sm">
                 The destination for flawless events. From luxurious workspace conferences to playful community meetups, we guarantee excitement at every turn.
               </p>
               {/* Social Circles */}
-              <div className="flex gap-2 pt-2">
+              <div className="flex items-center gap-2.5 pt-1">
                 {[
                   { icon: Twitter, url: 'https://twitter.com/planora' },
                   { icon: Instagram, url: 'https://instagram.com/planora' },
@@ -1083,7 +1069,7 @@ export function Landing() {
                     href={social.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200/80 bg-white text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 transition-all shadow-sm"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200/80 bg-white text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 hover:border-neutral-300 transition-all shadow-sm"
                   >
                     <social.icon size={13} />
                   </a>
@@ -1091,42 +1077,42 @@ export function Landing() {
               </div>
             </div>
 
-            {/* Column 2: Product links */}
-            <div>
-              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display leading-none">Product</h4>
-              <ul className="space-y-2 text-xs">
-                <li><Link to="/events" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Browse Events</Link></li>
-                <li><a href="#pricing" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Ticket Pricing</a></li>
-                <li><Link to="/signup" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Host Account</Link></li>
-                <li><Link to="/login" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Creator Login</Link></li>
+            {/* Column 2: Product links (2 cols) */}
+            <div className="space-y-4 sm:col-span-1 md:col-span-2 lg:col-span-2">
+              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest font-display leading-none">Product</h4>
+              <ul className="space-y-2.5 text-xs">
+                <li><Link to="/events" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Browse Events</Link></li>
+                <li><a href="#pricing" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Ticket Pricing</a></li>
+                <li><Link to="/signup" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Host Account</Link></li>
+                <li><Link to="/login" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Creator Login</Link></li>
               </ul>
             </div>
 
-            {/* Column 3: Resources links */}
-            <div>
-              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display leading-none">Resources</h4>
-              <ul className="space-y-2 text-xs">
-                <li><a href="#blog" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Platform Blog</a></li>
-                <li><a href="#docs" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Help Center</a></li>
-                <li><a href="#support" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Ticket Support</a></li>
-                <li><a href="#rules" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Guidelines</a></li>
+            {/* Column 3: Resources links (2 cols) */}
+            <div className="space-y-4 sm:col-span-1 md:col-span-2 lg:col-span-2">
+              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest font-display leading-none">Resources</h4>
+              <ul className="space-y-2.5 text-xs">
+                <li><a href="#blog" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Platform Blog</a></li>
+                <li><a href="#docs" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Help Center</a></li>
+                <li><a href="#support" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Ticket Support</a></li>
+                <li><a href="#rules" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Guidelines</a></li>
               </ul>
             </div>
 
-            {/* Column 4: Company links */}
-            <div>
-              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display leading-none">Company</h4>
-              <ul className="space-y-2 text-xs">
-                <li><a href="#about" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">About Us</a></li>
-                <li><a href="#careers" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Careers</a></li>
-                <li><a href="#privacy" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Privacy Policy</a></li>
-                <li><a href="#terms" className="text-neutral-500 hover:text-neutral-950 transition-colors py-1 block">Terms of Service</a></li>
+            {/* Column 4: Company links (2 cols) */}
+            <div className="space-y-4 sm:col-span-1 md:col-span-2 lg:col-span-2">
+              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest font-display leading-none">Company</h4>
+              <ul className="space-y-2.5 text-xs">
+                <li><a href="#about" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">About Us</a></li>
+                <li><a href="#careers" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Careers</a></li>
+                <li><a href="#privacy" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Privacy Policy</a></li>
+                <li><a href="#terms" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Terms of Service</a></li>
               </ul>
             </div>
 
-            {/* Column 5: Newsletter form */}
-            <div className="space-y-4 sm:col-span-2 lg:col-span-1">
-              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest mb-4 font-display leading-none">Newsletter</h4>
+            {/* Column 5: Newsletter form (2 cols) */}
+            <div className="space-y-4 sm:col-span-1 md:col-span-2 lg:col-span-2">
+              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest font-display leading-none">Newsletter</h4>
               <p className="text-xs text-neutral-400 leading-relaxed font-sans">
                 Subscribe to get the latest workspace event announcements.
               </p>
@@ -1137,11 +1123,12 @@ export function Landing() {
                 <input 
                   type="email" 
                   placeholder="name@email.com" 
-                  className="w-full bg-white border border-neutral-200/80 px-4 py-2.5 pr-10 rounded-full text-xs focus:ring-1 focus:ring-neutral-400 focus:outline-none font-sans"
+                  className="w-full bg-white border border-neutral-200/90 px-4 py-2.5 pr-10 rounded-full text-xs placeholder:text-neutral-400 focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 focus:outline-none font-sans transition-all shadow-xs"
                 />
                 <button 
                   type="submit"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-neutral-950 text-white flex items-center justify-center hover:bg-neutral-800 transition shadow-sm"
+                  aria-label="Subscribe to newsletter"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-neutral-950 text-white flex items-center justify-center hover:bg-neutral-800 transition shadow-sm cursor-pointer"
                 >
                   <ArrowRight size={13} />
                 </button>
@@ -1151,8 +1138,8 @@ export function Landing() {
           </div>
 
           {/* Bottom Bar: Copyright and Coffee */}
-          <div className="flex flex-col md:flex-row items-baseline justify-between gap-8 mt-12 pt-12 border-t border-neutral-100 max-w-5xl mx-auto">
-            <p className="text-[11px] text-neutral-400 font-sans leading-none">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mt-16 pt-8 border-t border-neutral-200/60 max-w-7xl mx-auto">
+            <p className="text-xs text-neutral-400 font-sans leading-none">
               © {new Date().getFullYear()} Planora. All rights reserved. Locally crafted for seamless communities.
             </p>
             
@@ -1161,7 +1148,7 @@ export function Landing() {
               href="https://buymeacoffee.com/planora"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-5 py-2.5 text-xs font-bold text-neutral-800 hover:bg-neutral-50 shadow-sm transition-all pointer-events-auto leading-none"
+              className="inline-flex items-center gap-2 rounded-full border border-neutral-200/90 bg-white px-5 py-2.5 text-xs font-bold text-neutral-800 hover:bg-neutral-50 hover:border-neutral-300 shadow-sm transition-all pointer-events-auto leading-none"
             >
               <Coffee size={14} className="text-amber-600" />
               <span>Buy us a coffee</span>
