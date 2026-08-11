@@ -37,6 +37,11 @@ This workspace contains Planora, a minimal multi-tenant Event Management SaaS MV
 > Keep changes small, self-contained, and buildable.
 > Commit incrementally to GitHub using **Conventional Commit** conventions (e.g., `feat(frontend): ...`, `refactor(backend): ...`, `cleanup(frontend): ...`).
 
+### ✍️ Clean & Meaningful Code Comments
+- **No Bulky ASCII Banners**: Avoid bulky box-drawing characters (`╔`, `═`, `║`, `╚`, etc.) and multi-line decorative dividers.
+- **Intent-Driven & Concise**: Write minimal, informative comments that explain non-obvious logic, complex math/shaders, or architecture decisions for other developers.
+- **Maintain Readability**: Keep comments clean, short, and close to the code they describe.
+
 ### 🛠️ Verification Commands
 Before pushing changes, ensure there are no compilation errors:
 - Compile backend & frontend types:
@@ -51,3 +56,4 @@ Before pushing changes, ensure there are no compilation errors:
   ```bash
   npm run seed
   ```
+
