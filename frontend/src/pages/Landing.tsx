@@ -402,20 +402,9 @@ export function Landing() {
             />
           </div>
 
-          {loadingEvents ? (
-            <div className="flex h-40 items-center justify-center text-sm font-medium text-neutral-400">
-              Loading brilliant events...
-            </div>
-          ) : events.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-neutral-200 bg-white p-12 text-center">
-              <Calendar className="mx-auto text-neutral-300 mb-3" size={32} />
-              <h3 className="text-[15px] font-semibold text-neutral-900">No active events found</h3>
-              <p className="text-xs text-neutral-400 mt-1 max-w-sm mx-auto">
-                Ready to host your own events? Register or login to create events.
-              </p>
-            </div>
-          ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Active Events Grid (if events exist) */}
+          {!loadingEvents && events.length > 0 && (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 pt-2">
               {events.map((event) => (
                 <Link 
                   key={event._id}
