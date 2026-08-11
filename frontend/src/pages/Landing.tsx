@@ -1159,13 +1159,9 @@ export function Landing() {
 
           </div>
 
-          {/* Bottom Bar: Copyright and Coffee */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mt-16 pt-8 border-t border-neutral-200/60 max-w-7xl mx-auto">
-            <p className="text-xs text-neutral-400 font-sans leading-none">
-              © {new Date().getFullYear()} Planora. All rights reserved. Locally crafted for seamless communities.
-            </p>
-            
-            {/* Coffee pill */}
+          {/* Bottom Bar: Divider, Buy us a coffee, and All Rights Reserved */}
+          <div className="flex flex-col items-center justify-center gap-4 mt-16 pt-8 border-t border-neutral-200/60 max-w-7xl mx-auto text-center">
+            {/* Buy us a coffee pill */}
             <a 
               href="https://buymeacoffee.com/planora"
               target="_blank"
@@ -1175,6 +1171,11 @@ export function Landing() {
               <Coffee size={14} className="text-amber-600" />
               <span>Buy us a coffee</span>
             </a>
+
+            {/* All rights reserved */}
+            <p className="text-xs text-neutral-400 font-sans leading-none">
+              © {new Date().getFullYear()} Planora. All rights reserved. Locally crafted for seamless communities.
+            </p>
           </div>
 
         </div>

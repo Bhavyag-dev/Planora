@@ -1,10 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import * as THREE from 'three';
 
-// ╔════════════════════════════════════════════════════════════════════════════╗
-// ║  CONFIGURATION — Campus Event Theme                                      ║
-// ╚════════════════════════════════════════════════════════════════════════════╝
-
+// 3D Canvas visual and particle configuration
 const CONFIG = {
   PARTICLES: {
     COUNT_DESKTOP: 80,
@@ -33,11 +30,7 @@ const CONFIG = {
   },
 };
 
-
-// ╔════════════════════════════════════════════════════════════════════════════╗
-// ║  HERO BACKGROUND COMPONENT                                                ║
-// ╚════════════════════════════════════════════════════════════════════════════╝
-
+// 3D Three.js Hero Background Component
 export const HeroBackground = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef<{
@@ -70,11 +63,7 @@ export const HeroBackground = () => {
     ringMeshes: [],
   });
 
-
-  // ════════════════════════════════════════════════════════════════════════
-  // SCENE SETUP
-  // ════════════════════════════════════════════════════════════════════════
-
+  // Scene initialization & WebGL renderer setup
   const initScene = useCallback(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -123,10 +112,7 @@ export const HeroBackground = () => {
   }, []);
 
 
-  // ════════════════════════════════════════════════════════════════════════
-  // LAYER 1: ANIMATED GRADIENT BACKGROUND
-  // ════════════════════════════════════════════════════════════════════════
-
+  // Layer 1: Animated gradient background plane
   const buildBackground = (scene: THREE.Scene) => {
     const S = stateRef.current;
     const geo = new THREE.PlaneGeometry(100, 60);
@@ -210,11 +196,7 @@ export const HeroBackground = () => {
     S.bgPlane = mesh;
   };
 
-
-  // ════════════════════════════════════════════════════════════════════════
-  // LAYER 2: FLOATING CONFETTI PARTICLES (event/celebration feel)
-  // ════════════════════════════════════════════════════════════════════════
-
+  // Layer 2: Floating confetti particles with twinkle & drift
   const buildFloatingConfetti = (scene: THREE.Scene, S: typeof stateRef.current) => {
     const count = S.isMobile ? CONFIG.PARTICLES.CONFETTI_MOBILE : CONFIG.PARTICLES.CONFETTI_DESKTOP;
     const geo = new THREE.BufferGeometry();
@@ -309,11 +291,7 @@ export const HeroBackground = () => {
     S.confettiVelocities = velocities;
   };
 
-
-  // ════════════════════════════════════════════════════════════════════════
-  // LAYER 3: GLOWING ORB LIGHTS (spotlight / stage feel)
-  // ════════════════════════════════════════════════════════════════════════
-
+  // Layer 3: Ambient glowing stage orbs
   const buildGlowOrbs = (scene: THREE.Scene, S: typeof stateRef.current) => {
     const count = S.isMobile ? 3 : 5;
     const orbColors = [0x6366f1, 0xec4899, 0x8b5cf6, 0xf59e0b, 0x06b6d4];
@@ -342,11 +320,7 @@ export const HeroBackground = () => {
     }
   };
 
-
-  // ════════════════════════════════════════════════════════════════════════
-  // LAYER 4: EVENT RINGS (abstract circular elements — like calendar/event icons)
-  // ════════════════════════════════════════════════════════════════════════
-
+  // Layer 4: Abstract rotating event rings
   const buildEventRings = (scene: THREE.Scene, S: typeof stateRef.current) => {
     const ringCount = S.isMobile ? 2 : 4;
     const ringColors = [0x6366f1, 0x8b5cf6, 0xec4899, 0x06b6d4];
@@ -379,11 +353,7 @@ export const HeroBackground = () => {
     }
   };
 
-
-  // ════════════════════════════════════════════════════════════════════════
-  // LIGHTING
-  // ════════════════════════════════════════════════════════════════════════
-
+  // Scene lighting
   const buildLighting = (scene: THREE.Scene) => {
     const ambient = new THREE.AmbientLight(0x1a103a, 0.5);
     scene.add(ambient);
@@ -401,11 +371,7 @@ export const HeroBackground = () => {
     }
   };
 
-
-  // ════════════════════════════════════════════════════════════════════════
-  // ANIMATION LOOP
-  // ════════════════════════════════════════════════════════════════════════
-
+  // Main animation loop with smooth mouse parallax and particle updates
   const animate = useCallback(() => {
     const S = stateRef.current;
     S.frameId = requestAnimationFrame(animate);
@@ -454,7 +420,6 @@ export const HeroBackground = () => {
       }
 
       S.confettiGeo.attributes.position.needsUpdate = true;
-      const mat = (S.confettiGeo as any).__points?.material as THREE.ShaderMaterial;
 
       // Update time uniform via the points object
       S.scene.children.forEach(child => {
@@ -483,11 +448,7 @@ export const HeroBackground = () => {
     S.renderer.render(S.scene, S.camera);
   }, []);
 
-
-  // ════════════════════════════════════════════════════════════════════════
-  // LIFECYCLE
-  // ════════════════════════════════════════════════════════════════════════
-
+  // Component lifecycle and listeners
   useEffect(() => {
     initScene();
     const S = stateRef.current;
