@@ -1,0 +1,74 @@
+# Planora SaaS — Platform Functionality & User Flows
+
+This document outlines the multi-tenant event management functionality of Planora, detailing user roles, onboarding logic, and core event operations.
+
+---
+
+## 🏗️ Architecture: Multi-Tenant Workspace Model
+
+Planora operates on a **multi-tenant organization model** where events, rosters, and administrative permissions are isolated within **Workspaces** (Organizations):
+
+1. **Global Users**: User accounts (`User` schema) are platform-wide. A user signs up once and can belong to multiple workspaces. There are no platform-wide "super-admin" accounts.
+2. **Workspace Isolation**: Workspaces (`Organization` schema) isolate events and rosters. Events scheduled inside a workspace are only manageable by members of that workspace.
+3. **Syndicated Discovery**: To keep the public landing page populated, any published event across all workspaces is syndicated to the public landing page (`/api/events` without workspace parameters).
+
+---
+
+## 👥 Workspace-Scoped Roles
+
+Permissions are scoped specifically to individual workspaces. A user can be an `owner` in Workspace A but a normal `member` in Workspace B.
+
+### 1. Workspace Owner (Admin)
+The user who creates a workspace is designated as the `owner`. 
+* ** Roster Management**: Can invite new members to join the workspace via email.
+* ** Event Creation & Management**: Full control to schedule, edit, or cancel workspace events.
+* ** Settings Control**: Can modify workspace-level parameters.
+
+### 2. Workspace Member (Collaborator)
+Users invited by the owner join with the `member` role.
+* ** Event Collaboration**: Can view all workspace-level events and dashboards.
+* ** General Access**: Collaborate on existing scheduled event sheets (cannot invite new members or manage billing/workspace scopes).
+
+---
+
+## 🚀 New User Onboarding Flow
+
+Here is what happens step-by-step when a new user registers:
+
+```mermaid
+graph TD
+    A[New User Signs Up] --> B[Log In to Dashboard]
+    B --> C{Has Workspaces?}
+    C -- No --> D[Show Setup Onboarding Screen]
+    C -- Yes --> E[Redirect to Active Workspace Dashboard]
+    D --> F[Enter Workspace Name]
+    F --> G[Workspace Created: User becomes Owner]
+    G --> E
+```
+
+### 1. Account Creation
+A new user signs up via the public `/signup` page by providing a name, email, and password.
+
+### 2. Onboarding Setup Screen
+Upon logging in, the system checks if the user is associated with any workspaces:
+* If **no workspace exists** for their account, they are redirected to a dedicated workspace setup onboarding screen (rather than an empty dashboard).
+* They enter a workspace name (e.g., *"Developer Hub"*, *"Acme Marketing"*).
+
+### 3. Workspace Initialization
+When they submit the workspace name:
+* A new `Organization` document is created in the database.
+* The user's account is inserted into the organization's members array with the role of `owner`.
+* The dashboard initializes, unlocking event scheduling features.
+
+---
+
+## 📅 Core Use Cases & Event Flows
+
+### 1. Workspace Event Scheduling
+* **Flow**: A workspace owner clicks **Create Event** in the dashboard and inputs details (Title, Description, Date, Venue, Category, Seat Limit, and Cover Image).
+* **Isolation**: The event is created and linked directly to the active workspace ID (`organizationId`).
+
+### 2. Public RSVPs (Attendee Flow)
+* **Flow**: Public visitors view published events on the landing page.
+* **Registration**: When an unauthenticated user clicks **Register Now**, they are prompted to log in/sign up. Once authenticated, registering creates a `Registration` entry linking their global user ID to the event ID. The seat count updates in real-time.
+* **Ticket Management**: The user can view all their confirmed bookings under **My Tickets** in their personal dashboard.
