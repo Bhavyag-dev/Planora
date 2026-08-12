@@ -192,9 +192,9 @@ export function Landing() {
       {/* Sponsors & Partners Section featuring Accordion Gallery */}
       <section className="w-full bg-[#fbfbfb] relative z-10 py-16 border-t border-neutral-100/60">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="mb-10 text-center max-w-2xl mx-auto space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-100 text-neutral-700 border border-neutral-200">
-              <Sparkles size={11} className="text-amber-500" />
+          <div className="mb-10 text-center max-w-2xl mx-auto space-y-3">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-neutral-950 text-white shadow-lg">
+              <Sparkles size={12} className="text-white" />
               <span>Our Ecosystem & Partners</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-950 font-display">
@@ -218,31 +218,31 @@ export function Landing() {
                 },
                 { 
                   image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80', 
-                  label: 'Stripe — Payment & Financial Ecosystem', 
+                  label: 'Stripe — Financial Infrastructure', 
                   link: '#', 
                   alt: 'Stripe Ecosystem',
                   isSponsored: true
                 },
                 { 
-                  image: '', 
-                  label: 'Available Sponsor Slot #1', 
-                  alt: 'Available Sponsor Slot',
-                  isSponsored: false,
-                  onSponsorClick: () => window.location.href = 'mailto:sponsors@planora.events?subject=Sponsorship%20Inquiry%20Slot%201'
+                  image: 'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?auto=format&fit=crop&w=1200&q=80', 
+                  label: 'GitHub — Open Source Ecosystem', 
+                  link: '#', 
+                  alt: 'GitHub Ecosystem',
+                  isSponsored: true
+                },
+                { 
+                  image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80', 
+                  label: 'Supabase — Realtime Platform', 
+                  link: '#', 
+                  alt: 'Supabase Platform',
+                  isSponsored: true
                 },
                 { 
                   image: '', 
-                  label: 'Available Sponsor Slot #2', 
-                  alt: 'Available Sponsor Slot',
+                  label: 'Become an Ecosystem Partner', 
+                  alt: 'Sponsor Slot',
                   isSponsored: false,
-                  onSponsorClick: () => window.location.href = 'mailto:sponsors@planora.events?subject=Sponsorship%20Inquiry%20Slot%202'
-                },
-                { 
-                  image: '', 
-                  label: 'Available Sponsor Slot #3', 
-                  alt: 'Available Sponsor Slot',
-                  isSponsored: false,
-                  onSponsorClick: () => window.location.href = 'mailto:sponsors@planora.events?subject=Sponsorship%20Inquiry%20Slot%203'
+                  onSponsorClick: () => window.location.href = 'mailto:sponsors@planora.events?subject=Sponsorship%20Inquiry'
                 }
               ]}
               defaultIndex={0}
