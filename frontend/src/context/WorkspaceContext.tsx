@@ -25,8 +25,11 @@ interface WorkspaceContextValue {
   refreshWorkspaces: () => Promise<void>;
   switchWorkspace: (workspaceId: string) => void;
   createWorkspace: (name: string, slug?: string) => Promise<Workspace>;
-  inviteMember: (email: string) => Promise<void>;
+  inviteMember: (email: string, role?: 'owner' | 'member') => Promise<void>;
+  updateMemberRole: (memberUserId: string, role: 'owner' | 'member') => Promise<void>;
   removeMember: (memberUserId: string) => Promise<void>;
+  getInviteCode: () => Promise<string>;
+  joinByInviteCode: (inviteCode: string) => Promise<void>;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
@@ -125,7 +128,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     return data as Workspace;
   }, [token]);
 
-  const inviteMember = useCallback(async (email: string) => {
+  const inviteMember = useCallback(async (email: string, role: 'owner' | 'member' = 'member') => {
     if (!token || !activeWorkspaceId) throw new Error('Workspace active context is missing');
     const res = await fetch(`/api/organizations/${activeWorkspaceId}/invite`, {
       method: 'POST',
@@ -133,12 +136,27 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({ email })
+      body: JSON.stringify({ email, role })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Invitation failed');
     
     // Refresh workspace details to show new member
+    await refreshWorkspaces();
+  }, [token, activeWorkspaceId, refreshWorkspaces]);
+
+  const updateMemberRole = useCallback(async (memberUserId: string, role: 'owner' | 'member') => {
+    if (!token || !activeWorkspaceId) throw new Error('Workspace active context is missing');
+    const res = await fetch(`/api/organizations/${activeWorkspaceId}/members/${memberUserId}/role`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ role })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to update member role');
     await refreshWorkspaces();
   }, [token, activeWorkspaceId, refreshWorkspaces]);
 
@@ -154,6 +172,34 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     await refreshWorkspaces();
   }, [token, activeWorkspaceId, refreshWorkspaces]);
 
+  const getInviteCode = useCallback(async () => {
+    if (!token || !activeWorkspaceId) throw new Error('Workspace active context is missing');
+    const res = await fetch(`/api/organizations/${activeWorkspaceId}/invite-code`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to retrieve invite code');
+    return data.inviteCode as string;
+  }, [token, activeWorkspaceId]);
+
+  const joinByInviteCode = useCallback(async (inviteCode: string) => {
+    if (!token) throw new Error('Unauthenticated');
+    const res = await fetch('/api/organizations/join-code', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ inviteCode })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to join workspace');
+    if (data.organization?._id) {
+      switchWorkspace(data.organization._id);
+    }
+    await refreshWorkspaces();
+  }, [token, refreshWorkspaces, switchWorkspace]);
+
   const value = useMemo<WorkspaceContextValue>(
     () => ({
       workspaces,
@@ -164,9 +210,12 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       switchWorkspace,
       createWorkspace,
       inviteMember,
-      removeMember
+      updateMemberRole,
+      removeMember,
+      getInviteCode,
+      joinByInviteCode
     }),
-    [workspaces, activeWorkspace, loading, error, refreshWorkspaces, switchWorkspace, createWorkspace, inviteMember, removeMember]
+    [workspaces, activeWorkspace, loading, error, refreshWorkspaces, switchWorkspace, createWorkspace, inviteMember, updateMemberRole, removeMember, getInviteCode, joinByInviteCode]
   );
 
   return <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>;
