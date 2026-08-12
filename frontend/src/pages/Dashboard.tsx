@@ -10,7 +10,8 @@ import {
   MapPin, 
   X,
   Clock,
-  Check
+  Check,
+  Trash2
 } from 'lucide-react';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
@@ -18,7 +19,7 @@ import { formatDate } from '../lib/utils';
 
 export function Dashboard() {
   const { user, token } = useAuth();
-  const { workspaces, activeWorkspace, createWorkspace, inviteMember } = useWorkspace();
+  const { workspaces, activeWorkspace, createWorkspace, inviteMember, removeMember } = useWorkspace();
 
   const [events, setEvents] = useState<any[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(false);
@@ -146,6 +147,30 @@ export function Dashboard() {
     }
   };
 
+  const handleDeleteEvent = async (eventId: string) => {
+    if (!confirm('Are you sure you want to delete this event?')) return;
+    try {
+      const res = await fetch(`/api/events/${eventId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setEvents(prev => prev.filter(e => e._id !== eventId));
+      }
+    } catch (err) {
+      console.error('Failed to delete event:', err);
+    }
+  };
+
+  const handleRemoveMember = async (memberUserId: string) => {
+    if (!confirm('Are you sure you want to remove this member from the workspace?')) return;
+    try {
+      await removeMember(memberUserId);
+    } catch (err: any) {
+      alert(err.message || 'Failed to remove member');
+    }
+  };
+
   // If no workspaces, render onboarding flow
   if (workspaces.length === 0) {
     return (
@@ -250,9 +275,18 @@ export function Dashboard() {
                   )}
                   <div className="p-5 flex-1 flex flex-col justify-between">
                     <div>
-                      <span className="text-[10px] font-bold text-purple-655 uppercase tracking-widest bg-purple-50 border border-purple-100 px-2 py-0.5 rounded">
-                        {ev.category}
-                      </span>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-bold text-purple-655 uppercase tracking-widest bg-purple-50 border border-purple-100 px-2 py-0.5 rounded">
+                          {ev.category}
+                        </span>
+                        <button
+                          onClick={() => handleDeleteEvent(ev._id)}
+                          title="Delete Event"
+                          className="p-1 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                       <h3 className="text-lg font-bold text-neutral-950 tracking-tight mt-2.5 line-clamp-1">{ev.title}</h3>
                       <p className="text-xs text-neutral-500 mt-1 line-clamp-2">{ev.description}</p>
                     </div>
@@ -294,26 +328,41 @@ export function Dashboard() {
 
             <div className="rounded-3xl border border-neutral-200 bg-white p-5 shadow-xs space-y-4">
               <div className="space-y-3">
-                {activeWorkspace?.members.map((m: any) => (
-                  <div key={m.user._id || m.user} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3.5 min-w-0">
-                      <div className="h-8 w-8 rounded-full bg-neutral-50 border border-neutral-200 flex items-center justify-center font-bold text-neutral-600 shrink-0">
-                        {m.user.name?.charAt(0) || 'M'}
+                {activeWorkspace?.members.map((m: any) => {
+                  const memberId = m.user._id || m.user;
+                  const isSelf = memberId === user?.id;
+                  return (
+                    <div key={memberId} className="flex items-center justify-between">
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <div className="h-8 w-8 rounded-full bg-neutral-50 border border-neutral-200 flex items-center justify-center font-bold text-neutral-600 shrink-0">
+                          {m.user.name?.charAt(0) || 'M'}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-neutral-800 truncate">{m.user.name}</p>
+                          <p className="text-[10px] text-neutral-450 truncate">{m.user.email}</p>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold text-neutral-800 truncate">{m.user.name}</p>
-                        <p className="text-[10px] text-neutral-450 truncate">{m.user.email}</p>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${
+                          m.role === 'owner' 
+                            ? 'bg-purple-50 text-purple-655 border-purple-150' 
+                            : 'bg-neutral-50 text-neutral-550 border-neutral-200'
+                        }`}>
+                          {m.role}
+                        </span>
+                        {userRole === 'owner' && !isSelf && (
+                          <button
+                            onClick={() => handleRemoveMember(memberId)}
+                            title="Remove Member"
+                            className="p-1 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        )}
                       </div>
                     </div>
-                    <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${
-                      m.role === 'owner' 
-                        ? 'bg-purple-50 text-purple-655 border-purple-150' 
-                        : 'bg-neutral-50 text-neutral-550 border-neutral-200'
-                    }`}>
-                      {m.role}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Invite Member Section (Only Workspace Owners) */}

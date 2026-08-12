@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Calendar, MapPin, Zap } from 'lucide-react';
+import { Calendar, MapPin, Zap, Trash2 } from 'lucide-react';
 import { formatDate } from '../lib/utils';
 
 interface Registration {
@@ -32,6 +32,21 @@ export const MyRegistrations = () => {
       setLoading(false);
     });
   }, []);
+
+  const handleCancelRegistration = async (registrationId: string) => {
+    if (!confirm('Are you sure you want to cancel this ticket registration?')) return;
+    try {
+      const res = await fetch(`/api/registrations/${registrationId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      if (res.ok) {
+        setRegistrations(prev => prev.filter(r => r._id !== registrationId));
+      }
+    } catch (err) {
+      console.error('Failed to cancel ticket:', err);
+    }
+  };
 
   if (loading) return (
     <div className="flex h-64 items-center justify-center bg-transparent text-neutral-900">
@@ -70,10 +85,18 @@ export const MyRegistrations = () => {
                  </div>
 
                 <div>
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center justify-between gap-2 mb-4">
                     <span className="px-3 py-1 text-xs font-bold uppercase tracking-widest rounded-full border bg-emerald-50 text-emerald-600 border-emerald-150">
                       Confirmed Entry
                     </span>
+                    <button
+                      onClick={() => handleCancelRegistration(reg._id)}
+                      className="flex items-center gap-1 px-3 py-1 text-xs font-semibold text-neutral-500 hover:text-red-600 hover:bg-red-50 border border-neutral-200 rounded-full transition-colors cursor-pointer"
+                      title="Cancel Ticket Registration"
+                    >
+                      <Trash2 size={13} />
+                      <span>Cancel Ticket</span>
+                    </button>
                   </div>
                   
                   <h3 className="text-2xl font-bold text-neutral-950 tracking-tight mb-4">{reg.event.title}</h3>

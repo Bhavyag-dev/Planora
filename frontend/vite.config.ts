@@ -15,6 +15,12 @@ export default defineConfig({
     allowedHosts: true,
     port: 5173,
     strictPort: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+    },
     // Set DISABLE_HMR=true to disable HMR if needed.
     hmr: process.env.DISABLE_HMR !== 'true',
   },

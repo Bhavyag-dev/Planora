@@ -91,4 +91,33 @@ router.post('/:id/invite', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
+// Authenticated: Remove a member from organization (Owner only)
+router.delete('/:id/members/:memberUserId', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const organization = await Organization.findById(req.params.id);
+    if (!organization) return res.status(404).json({ message: 'Workspace not found' });
+
+    // Verify current user is owner
+    const isOwner = organization.members.some(
+      (m: any) => m.user.toString() === req.user?.id && m.role === 'owner'
+    );
+    if (!isOwner) return res.status(403).json({ message: 'Only workspace owners can remove members' });
+
+    const targetUserId = req.params.memberUserId;
+    if (targetUserId === req.user?.id) {
+      return res.status(400).json({ message: 'Workspace owner cannot remove themselves' });
+    }
+
+    organization.members = organization.members.filter(
+      (m: any) => m.user.toString() !== targetUserId
+    ) as any;
+
+    await organization.save();
+    res.json({ message: 'Member removed successfully', organization });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 export default router;

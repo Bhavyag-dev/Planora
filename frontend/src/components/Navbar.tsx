@@ -25,11 +25,10 @@ export const Navbar = () => {
     return (
       <nav className="sticky top-0 z-50 border-b border-neutral-100 bg-white/80 backdrop-blur-2xl">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link to="/" className="flex items-center gap-2.5 group font-bold tracking-tight text-neutral-900">
-            <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-purple-500/25 transition-transform duration-300 group-hover:scale-110">
-              <Zap className="text-white" size={16} fill="currentColor" />
-            </div>
-            <span className="text-xl text-neutral-900 font-display">Planora</span>
+          <Link to="/" className="flex items-center shrink-0">
+            <span className="text-[20px] font-black tracking-tighter text-neutral-950 font-display flex items-baseline">
+              Planora<span className="text-amber-500 font-sans font-black text-[22px] leading-none ml-0.5">.</span>
+            </span>
           </Link>
 
           <div className="flex items-center gap-4">

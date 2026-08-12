@@ -76,4 +76,28 @@ router.get('/event/:eventId', authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
+// Authenticated: Cancel / delete ticket registration
+router.delete('/:id', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const registration = await Registration.findById(req.params.id);
+    if (!registration) return res.status(404).json({ message: 'Registration not found' });
+
+    if (registration.user.toString() !== req.user?.id) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const event = await Event.findById(registration.event);
+    if (event && event.registeredCount > 0) {
+      event.registeredCount -= 1;
+      await event.save();
+    }
+
+    await Registration.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Ticket registration cancelled successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 export default router;
