@@ -26,6 +26,7 @@ interface WorkspaceContextValue {
   switchWorkspace: (workspaceId: string) => void;
   createWorkspace: (name: string, slug?: string) => Promise<Workspace>;
   inviteMember: (email: string) => Promise<void>;
+  removeMember: (memberUserId: string) => Promise<void>;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
@@ -141,6 +142,18 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     await refreshWorkspaces();
   }, [token, activeWorkspaceId, refreshWorkspaces]);
 
+  const removeMember = useCallback(async (memberUserId: string) => {
+    if (!token || !activeWorkspaceId) throw new Error('Workspace active context is missing');
+    const res = await fetch(`/api/organizations/${activeWorkspaceId}/members/${memberUserId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to remove member');
+    
+    await refreshWorkspaces();
+  }, [token, activeWorkspaceId, refreshWorkspaces]);
+
   const value = useMemo<WorkspaceContextValue>(
     () => ({
       workspaces,
@@ -150,9 +163,10 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       refreshWorkspaces,
       switchWorkspace,
       createWorkspace,
-      inviteMember
+      inviteMember,
+      removeMember
     }),
-    [workspaces, activeWorkspace, loading, error, refreshWorkspaces, switchWorkspace, createWorkspace, inviteMember]
+    [workspaces, activeWorkspace, loading, error, refreshWorkspaces, switchWorkspace, createWorkspace, inviteMember, removeMember]
   );
 
   return <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>;
