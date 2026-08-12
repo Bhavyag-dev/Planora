@@ -29,6 +29,7 @@ import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'motion/
 import { Faq02 } from '../components/Faq02';
 import { AccordionGallery } from '../components/AccordionGallery';
 import CardNav from '../components/CardNav';
+import { StepperHowItWorks } from '../components/StepperHowItWorks';
 
 export function Landing() {
   const { isAuthenticated, user } = useAuth();
@@ -124,15 +125,13 @@ export function Landing() {
             ]
           },
           {
-            label: "Account",
+            label: "Contacts",
             bgColor: "#3b3b3b",
             textColor: "#ffffff",
-            links: isAuthenticated && user ? [
-              { label: "Dashboard", href: "/dashboard", ariaLabel: "Dashboard" },
-              { label: "My Tickets", href: "/tickets", ariaLabel: "My Tickets" }
-            ] : [
-              { label: "Sign In", href: "/login", ariaLabel: "Sign In" },
-              { label: "Create Account", href: "/signup", ariaLabel: "Create Account" }
+            links: [
+              { label: "Call for Sponsors", href: "mailto:sponsors@planora.events", ariaLabel: "Call for Sponsors" },
+              { label: "Contact Us", href: "mailto:hello@planora.events", ariaLabel: "Contact Us" },
+              { label: "Help & Support", href: "#faq", ariaLabel: "Help & Support" }
             ]
           }
         ]}
@@ -214,34 +213,39 @@ export function Landing() {
                   image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80', 
                   label: 'Vercel — Cloud Infrastructure', 
                   link: '#', 
-                  alt: 'Vercel Infrastructure' 
+                  alt: 'Vercel Infrastructure',
+                  isSponsored: true
                 },
                 { 
                   image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80', 
                   label: 'Stripe — Payment & Financial Ecosystem', 
                   link: '#', 
-                  alt: 'Stripe Ecosystem' 
+                  alt: 'Stripe Ecosystem',
+                  isSponsored: true
                 },
                 { 
-                  image: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80', 
-                  label: 'OpenAI — Intelligence Partner', 
-                  link: '#', 
-                  alt: 'OpenAI Intelligence' 
+                  image: '', 
+                  label: 'Available Sponsor Slot #1', 
+                  alt: 'Available Sponsor Slot',
+                  isSponsored: false,
+                  onSponsorClick: () => window.location.href = 'mailto:sponsors@planora.events?subject=Sponsorship%20Inquiry%20Slot%201'
                 },
                 { 
-                  image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80', 
-                  label: 'Linear — Workflow Systems', 
-                  link: '#', 
-                  alt: 'Linear Workflow' 
+                  image: '', 
+                  label: 'Available Sponsor Slot #2', 
+                  alt: 'Available Sponsor Slot',
+                  isSponsored: false,
+                  onSponsorClick: () => window.location.href = 'mailto:sponsors@planora.events?subject=Sponsorship%20Inquiry%20Slot%202'
                 },
                 { 
-                  image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=1200&q=80', 
-                  label: 'Notion — Knowledge & Workspace Hub', 
-                  link: '#', 
-                  alt: 'Notion Hub' 
+                  image: '', 
+                  label: 'Available Sponsor Slot #3', 
+                  alt: 'Available Sponsor Slot',
+                  isSponsored: false,
+                  onSponsorClick: () => window.location.href = 'mailto:sponsors@planora.events?subject=Sponsorship%20Inquiry%20Slot%203'
                 }
               ]}
-              defaultIndex={2}
+              defaultIndex={0}
               expandRatio={0.52}
               trigger="hover"
               height={460}
@@ -255,46 +259,14 @@ export function Landing() {
         </div>
       </section>
 
-      {/* How It Works */}
+      {/* Interactive How It Works Stepper Section */}
       <section id="how-it-works" className="mx-auto max-w-7xl px-6 py-20 border-t border-neutral-100/80 bg-neutral-50/50 rounded-[2.5rem] my-12 shadow-inner">
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <h2 className="text-4xl font-extrabold tracking-tight text-neutral-950 font-display">Hosting in Four Simple Steps</h2>
-          <p className="text-sm text-neutral-500">Go from account setup to a live workspace event in under five minutes.</p>
+          <p className="text-sm text-neutral-500 font-medium">Go from account setup to a live workspace event in under five minutes.</p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 mt-16 relative">
-          {/* Step 1 */}
-          <div className="space-y-4 text-left p-6 rounded-3xl bg-white border border-neutral-100 shadow-sm relative">
-            <span className="absolute top-4 right-4 text-neutral-100 font-display font-black text-4xl select-none">01</span>
-            <div className="h-8 w-8 rounded-xl bg-neutral-950 text-white flex items-center justify-center text-xs font-bold font-mono">1</div>
-            <h3 className="font-bold text-neutral-900 text-base mt-2">Create Workspace</h3>
-            <p className="text-xs text-neutral-400 leading-relaxed">Create a custom workspace (e.g. Acme Corp Dev) to isolate your event activities.</p>
-          </div>
-
-          {/* Step 2 */}
-          <div className="space-y-4 text-left p-6 rounded-3xl bg-white border border-neutral-100 shadow-sm relative">
-            <span className="absolute top-4 right-4 text-neutral-100 font-display font-black text-4xl select-none">02</span>
-            <div className="h-8 w-8 rounded-xl bg-neutral-950 text-white flex items-center justify-center text-xs font-bold font-mono">2</div>
-            <h3 className="font-bold text-neutral-900 text-base mt-2">Schedule Event</h3>
-            <p className="text-xs text-neutral-400 leading-relaxed">Enter details, seat capacities, venue, category, and cover image to create an event.</p>
-          </div>
-
-          {/* Step 3 */}
-          <div className="space-y-4 text-left p-6 rounded-3xl bg-white border border-neutral-100 shadow-sm relative">
-            <span className="absolute top-4 right-4 text-neutral-100 font-display font-black text-4xl select-none">03</span>
-            <div className="h-8 w-8 rounded-xl bg-neutral-950 text-white flex items-center justify-center text-xs font-bold font-mono">3</div>
-            <h3 className="font-bold text-neutral-900 text-base mt-2">Invite & Share</h3>
-            <p className="text-xs text-neutral-400 leading-relaxed">Share the registration URL, invite workspace colleagues, or open it up for global attendees.</p>
-          </div>
-
-          {/* Step 4 */}
-          <div className="space-y-4 text-left p-6 rounded-3xl bg-white border border-neutral-100 shadow-sm relative">
-            <span className="absolute top-4 right-4 text-neutral-100 font-display font-black text-4xl select-none">04</span>
-            <div className="h-8 w-8 rounded-xl bg-neutral-950 text-white flex items-center justify-center text-xs font-bold font-mono">4</div>
-            <h3 className="font-bold text-neutral-900 text-base mt-2">Track Registrations</h3>
-            <p className="text-xs text-neutral-400 leading-relaxed">Monitor attendees lists in real-time. Instantly check-in registered users.</p>
-          </div>
-        </div>
+        <StepperHowItWorks />
       </section>
 
       {/* Feature Showcase */}
