@@ -31,8 +31,6 @@ import { AccordionGallery } from '../components/AccordionGallery';
 
 export function Landing() {
   const { isAuthenticated, user } = useAuth();
-  const [events, setEvents] = useState<any[]>([]);
-  const [loadingEvents, setLoadingEvents] = useState(true);
   const [langDropdown, setLangDropdown] = useState(false);
   const [planningDropdown, setPlanningDropdown] = useState(false);
   const [categoryDropdown, setCategoryDropdown] = useState(false);
@@ -40,8 +38,6 @@ export function Landing() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [previewTab, setPreviewTab] = useState<'events' | 'tickets' | 'create'>('events');
 
-
-  
   // Navbar shrink scroll triggers (copied collapse physics from Fetchz)
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
@@ -57,25 +53,6 @@ export function Landing() {
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
-  }, []);
-
-  // Fetch events from API
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await fetch('/api/events');
-        if (response.ok) {
-          const data = await response.json();
-          // Show only published events
-          setEvents(data.filter((e: any) => e.status === 'published').slice(0, 6));
-        }
-      } catch (err) {
-        console.error('Failed to fetch events:', err);
-      } finally {
-        setLoadingEvents(false);
-      }
-    };
-    fetchEvents();
   }, []);
 
   // Safe bottom collapse tracker (does not reflow layout or cause page height jitter)
@@ -146,10 +123,10 @@ export function Landing() {
         >
           {/* Main Navbar Row */}
           <div className="flex items-center justify-between w-full">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 shrink-0 pl-2">
-              <span className="text-[22px] font-black tracking-tight text-neutral-950 font-display">
-                Planora
+            {/* Logo Wordmark */}
+            <Link to="/" className="flex items-center shrink-0 pl-1">
+              <span className="text-[22px] font-black tracking-tighter text-neutral-950 font-display flex items-baseline">
+                Planora<span className="text-amber-500 font-sans font-black text-[24px] leading-none ml-0.5">.</span>
               </span>
             </Link>
 
@@ -169,50 +146,22 @@ export function Landing() {
                 onMouseLeave={() => setPlanningDropdown(false)}
               >
                 <button 
-                  className="flex items-center gap-1 text-[13px] font-semibold text-neutral-600 hover:text-neutral-950 transition-colors focus:outline-none"
+                  className="flex items-center gap-1 text-[13px] font-semibold text-neutral-600 hover:text-neutral-950 transition-colors focus:outline-none cursor-pointer"
                 >
                   Planning <ChevronDown size={13} className={`transition-transform duration-200 ${planningDropdown ? 'rotate-180' : ''}`} />
                 </button>
                 {planningDropdown && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2.5 w-44 z-50 pointer-events-auto">
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2.5 w-48 z-50 pointer-events-auto">
                     <div className="rounded-2xl border border-white/60 bg-white/55 p-2 shadow-xl backdrop-blur-xl animate-in fade-in duration-200">
-                      <Link to="/events" onClick={() => setPlanningDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-white/40 hover:text-neutral-950 transition-colors duration-150">
-                        Browse Events
+                      <Link to="/dashboard" onClick={() => setPlanningDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-white/40 hover:text-neutral-950 transition-colors duration-150">
+                        Create & Schedule Event
                       </Link>
-                      <Link to="/signup" onClick={() => setPlanningDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-white/40 hover:text-neutral-950 transition-colors duration-150">
-                        Host Profile
+                      <Link to="/dashboard" onClick={() => setPlanningDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-white/40 hover:text-neutral-950 transition-colors duration-150">
+                        Workspace Management
                       </Link>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Categories Dropdown */}
-              <div 
-                className="relative"
-                onMouseEnter={() => {
-                  setCategoryDropdown(true);
-                  setPlanningDropdown(false);
-                }}
-                onMouseLeave={() => setCategoryDropdown(false)}
-              >
-                <button 
-                  className="flex items-center gap-1 text-[13px] font-semibold text-neutral-600 hover:text-neutral-950 transition-colors focus:outline-none"
-                >
-                  Categories <ChevronDown size={13} className={`transition-transform duration-200 ${categoryDropdown ? 'rotate-180' : ''}`} />
-                </button>
-                {categoryDropdown && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2.5 w-44 z-50 pointer-events-auto">
-                    <div className="rounded-2xl border border-white/60 bg-white/55 p-2 shadow-xl backdrop-blur-xl animate-in fade-in duration-200">
-                      <Link to="/events?cat=Technical" onClick={() => setCategoryDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-white/40 hover:text-neutral-950 transition-colors duration-150">
-                        Technical & Talks
-                      </Link>
-                      <Link to="/events?cat=Workshop" onClick={() => setCategoryDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-white/40 hover:text-neutral-950 transition-colors duration-150">
-                        Workshops
-                      </Link>
-                      <Link to="/events?cat=Cultural" onClick={() => setCategoryDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-white/40 hover:text-neutral-950 transition-colors duration-150">
-                        Cultural fests
-                      </Link>
+                      <a href="#how-it-works" onClick={() => setPlanningDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-white/40 hover:text-neutral-950 transition-colors duration-150">
+                        How Hosting Works
+                      </a>
                     </div>
                   </div>
                 )}
@@ -269,9 +218,9 @@ export function Landing() {
                 <Link to="/" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold text-neutral-700 hover:text-neutral-950">
                   Home
                 </Link>
-                <Link to="/events" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold text-neutral-700 hover:text-neutral-950">
-                  Browse Events
-                </Link>
+                <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold text-neutral-700 hover:text-neutral-950">
+                  Hosting
+                </a>
                 <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold text-neutral-700 hover:text-neutral-950">
                   Pricing
                 </a>
@@ -350,46 +299,57 @@ export function Landing() {
 
 
 
-      {/* Dynamic Live Events Section */}
+      {/* Sponsors & Partners Section featuring Accordion Gallery */}
       <section className="w-full bg-[#fbfbfb] relative z-10 py-16 border-t border-neutral-100/60">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-neutral-100/80 pb-6">
-            <div>
-              <div className="inline-flex items-center gap-1 text-[11px] font-bold text-neutral-400 uppercase tracking-widest mb-1.5">
-                <Sparkles size={12} className="text-amber-500" /> Discover Exciting Happenings
-              </div>
-              <h2 className="text-3xl font-extrabold tracking-tight text-neutral-950 font-display">
-                Upcoming Sparkling Events
-              </h2>
+          <div className="mb-10 text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-100 text-neutral-700 border border-neutral-200">
+              <Sparkles size={11} className="text-amber-500" />
+              <span>Our Ecosystem & Partners</span>
             </div>
-            <Link 
-              to="/events" 
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-900 hover:text-neutral-600 transition-colors"
-            >
-              View all {events.length > 0 ? `(${events.length})` : ''} events 
-              <ArrowRight size={14} />
-            </Link>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-950 font-display">
+              Backed by the people building the future
+            </h2>
+            <p className="text-xs sm:text-sm text-neutral-500 font-medium">
+              Supported by visionary companies, innovation hubs, and community leaders worldwide.
+            </p>
           </div>
 
-          {/* Interactive Accordion Gallery Showcase */}
-          <div className="mb-12">
+          {/* Interactive Accordion Gallery Sponsor Showcase */}
+          <div>
             <AccordionGallery
-              items={
-                events.length > 0
-                  ? events.slice(0, 5).map((e) => ({
-                      image: e.coverImage || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80',
-                      label: e.title,
-                      link: `/events/${e._id}`,
-                      alt: e.title
-                    }))
-                  : [
-                      { image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80', label: 'Tech Summit 2026', link: '/events' },
-                      { image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80', label: 'Design Workshop', link: '/events' },
-                      { image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80', label: 'Music & Culture Fest', link: '/events' },
-                      { image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80', label: 'Startup Pitch Night', link: '/events' },
-                      { image: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1200&q=80', label: 'Developer Hackathon', link: '/events' }
-                    ]
-              }
+              items={[
+                { 
+                  image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80', 
+                  label: 'Vercel — Cloud Infrastructure', 
+                  link: '#', 
+                  alt: 'Vercel Infrastructure' 
+                },
+                { 
+                  image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80', 
+                  label: 'Stripe — Payment & Financial Ecosystem', 
+                  link: '#', 
+                  alt: 'Stripe Ecosystem' 
+                },
+                { 
+                  image: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80', 
+                  label: 'OpenAI — Intelligence Partner', 
+                  link: '#', 
+                  alt: 'OpenAI Intelligence' 
+                },
+                { 
+                  image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80', 
+                  label: 'Linear — Workflow Systems', 
+                  link: '#', 
+                  alt: 'Linear Workflow' 
+                },
+                { 
+                  image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=1200&q=80', 
+                  label: 'Notion — Knowledge & Workspace Hub', 
+                  link: '#', 
+                  alt: 'Notion Hub' 
+                }
+              ]}
               defaultIndex={2}
               expandRatio={0.52}
               trigger="hover"
@@ -401,67 +361,6 @@ export function Landing() {
               overlayColor="#060010"
             />
           </div>
-
-          {/* Active Events Grid (if events exist) */}
-          {!loadingEvents && events.length > 0 && (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 pt-2">
-              {events.map((event) => (
-                <Link 
-                  key={event._id}
-                  to={`/events/${event._id}`}
-                  className="group flex flex-col bg-white rounded-3xl border border-neutral-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
-                >
-                  {/* Event Image */}
-                  <div className="relative aspect-[16/10] bg-neutral-50 overflow-hidden">
-                    {event.coverImage ? (
-                      <img 
-                        src={event.coverImage} 
-                        alt={event.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-103"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-neutral-300 bg-neutral-100">
-                        <Calendar size={32} />
-                      </div>
-                    )}
-                    {/* Category Badge */}
-                    <span className="absolute top-4 left-4 rounded-full bg-white/90 backdrop-blur-sm border border-neutral-100 px-3 py-1 text-[11px] font-bold text-neutral-900 uppercase tracking-wider shadow-sm">
-                      {event.category}
-                    </span>
-                  </div>
-
-                  {/* Event Details */}
-                  <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-lg font-bold text-neutral-900 group-hover:text-neutral-600 transition-colors leading-tight font-display">
-                      {event.title}
-                    </h3>
-                    <p className="text-xs text-neutral-400 font-medium mt-1 flex items-center gap-1">
-                      <Calendar size={13} />
-                      {new Date(event.date).toLocaleDateString(undefined, { 
-                        weekday: 'short', 
-                        month: 'short', 
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
-                    </p>
-                    <p className="text-xs text-neutral-500 mt-3 line-clamp-2 leading-relaxed">
-                      {event.description}
-                    </p>
-
-                    <div className="mt-auto pt-4 border-t border-neutral-50 flex items-center justify-between text-xs font-semibold text-neutral-900">
-                      <span className="flex items-center gap-1 text-neutral-500">
-                        <MapPin size={13} />
-                        {event.venue}
-                      </span>
-                      <span className="text-neutral-900">
-                        {event.price === 0 ? 'Free' : `₹${event.price}`}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
         </div>
       </section>
 
@@ -1103,7 +1002,7 @@ export function Landing() {
             <div className="space-y-4 sm:col-span-1 md:col-span-2 lg:col-span-2">
               <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest font-display leading-none">Product</h4>
               <ul className="space-y-2.5 text-xs">
-                <li><Link to="/events" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Browse Events</Link></li>
+                <li><Link to="/dashboard" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Workspace Events</Link></li>
                 <li><a href="#pricing" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Ticket Pricing</a></li>
                 <li><Link to="/signup" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Host Account</Link></li>
                 <li><Link to="/login" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Creator Login</Link></li>
