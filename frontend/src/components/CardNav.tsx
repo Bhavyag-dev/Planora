@@ -1,6 +1,6 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import './CardNav.css';
 
@@ -21,7 +21,6 @@ export interface CardNavItem {
 export interface CardNavProps {
   logo?: string;
   logoAlt?: string;
-  logoText?: string;
   items: CardNavItem[];
   className?: string;
   ease?: string;
@@ -37,7 +36,6 @@ export interface CardNavProps {
 export const CardNav: React.FC<CardNavProps> = ({
   logo,
   logoAlt = 'Logo',
-  logoText = 'Planora.',
   items,
   className = '',
   ease = 'power3.out',
@@ -51,11 +49,13 @@ export const CardNav: React.FC<CardNavProps> = ({
 }) => {
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const navRef = useRef<HTMLElement | null>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const tlRef = useRef<gsap.core.Timeline | null>(null);
+  const location = useLocation();
 
-  const calculateHeight = () => {
+  const calculateHeight = useCallback(() => {
     const navEl = navRef.current;
     if (!navEl) return 260;
 
@@ -73,7 +73,7 @@ export const CardNav: React.FC<CardNavProps> = ({
         contentEl.style.position = 'static';
         contentEl.style.height = 'auto';
 
-        contentEl.offsetHeight;
+        contentEl.offsetHeight; // force reflow
 
         const topBar = 60;
         const padding = 16;
@@ -88,85 +88,106 @@ export const CardNav: React.FC<CardNavProps> = ({
       }
     }
     return 260;
-  };
+  }, []);
 
-  const createTimeline = () => {
+  const openMenu = useCallback(() => {
     const navEl = navRef.current;
-    if (!navEl) return null;
+    if (!navEl) return;
 
-    gsap.set(navEl, { height: 60, overflow: 'hidden' });
-    gsap.set(cardsRef.current, { y: 50, opacity: 0 });
+    setIsExpanded(true);
+    setIsHamburgerOpen(true);
 
-    const tl = gsap.timeline({ paused: true });
+    const targetHeight = calculateHeight();
+    const validCards = cardsRef.current.filter(Boolean);
 
-    tl.to(navEl, {
-      height: calculateHeight,
+    gsap.killTweensOf([navEl, ...validCards]);
+
+    gsap.to(navEl, {
+      height: targetHeight,
       duration: 0.4,
-      ease
+      ease,
+      overwrite: 'auto'
     });
 
-    tl.to(cardsRef.current, { y: 0, opacity: 1, duration: 0.4, ease, stagger: 0.08 }, '-=0.1');
+    gsap.fromTo(
+      validCards,
+      { y: 35, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.4, ease, stagger: 0.06, overwrite: 'auto' }
+    );
+  }, [calculateHeight, ease]);
 
-    return tl;
-  };
+  const closeMenu = useCallback(() => {
+    const navEl = navRef.current;
+    if (!navEl) return;
 
-  useLayoutEffect(() => {
-    const tl = createTimeline();
-    tlRef.current = tl;
+    setIsHamburgerOpen(false);
+    const validCards = cardsRef.current.filter(Boolean);
 
-    return () => {
-      tl?.kill();
-      tlRef.current = null;
-    };
-  }, [ease, items]);
+    gsap.killTweensOf([navEl, ...validCards]);
 
-  useLayoutEffect(() => {
-    const handleResize = () => {
-      if (!tlRef.current) return;
+    gsap.to(validCards, {
+      y: 20,
+      opacity: 0,
+      duration: 0.2,
+      ease: 'power2.in',
+      overwrite: 'auto'
+    });
 
-      if (isExpanded) {
-        const newHeight = calculateHeight();
-        gsap.set(navRef.current, { height: newHeight });
-
-        tlRef.current.kill();
-        const newTl = createTimeline();
-        if (newTl) {
-          newTl.progress(1);
-          tlRef.current = newTl;
-        }
-      } else {
-        tlRef.current.kill();
-        const newTl = createTimeline();
-        if (newTl) {
-          tlRef.current = newTl;
-        }
+    gsap.to(navEl, {
+      height: 60,
+      duration: 0.35,
+      ease,
+      overwrite: 'auto',
+      onComplete: () => {
+        setIsExpanded(false);
       }
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [isExpanded]);
+    });
+  }, [ease]);
 
   const toggleMenu = () => {
-    const tl = tlRef.current;
-    if (!tl) return;
-    if (!isExpanded) {
-      setIsHamburgerOpen(true);
-      setIsExpanded(true);
-      tl.play(0);
+    if (isExpanded) {
+      closeMenu();
     } else {
-      setIsHamburgerOpen(false);
-      tl.eventCallback('onReverseComplete', () => setIsExpanded(false));
-      tl.reverse();
+      openMenu();
     }
   };
+
+  // Close menu on route changes
+  useEffect(() => {
+    if (isExpanded) {
+      closeMenu();
+    }
+  }, [location.pathname, closeMenu]);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (isExpanded && containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        closeMenu();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isExpanded, closeMenu]);
+
+  // Handle window resize dynamically
+  useEffect(() => {
+    const handleResize = () => {
+      if (isExpanded && navRef.current) {
+        const newHeight = calculateHeight();
+        gsap.to(navRef.current, { height: newHeight, duration: 0.2, ease: 'power2.out' });
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isExpanded, calculateHeight]);
 
   const setCardRef = (i: number) => (el: HTMLDivElement | null) => {
     if (el) cardsRef.current[i] = el;
   };
 
   return (
-    <div className={`card-nav-container ${className}`}>
+    <div ref={containerRef} className={`card-nav-container ${className}`}>
       <nav ref={navRef} className={`card-nav ${isExpanded ? 'open' : ''}`} style={{ backgroundColor: baseColor }}>
         <div className="card-nav-top">
           <div
@@ -188,12 +209,13 @@ export const CardNav: React.FC<CardNavProps> = ({
             <div className="hamburger-line" />
           </div>
 
-          <Link to="/" className="logo-container">
+          <Link to="/" className="logo-container" onClick={() => isExpanded && closeMenu()}>
             {logo ? (
               <img src={logo} alt={logoAlt} className="logo" />
             ) : (
-              <span className="text-[20px] font-black tracking-tighter text-neutral-950 font-display flex items-baseline">
-                Planora<span className="text-amber-500 font-sans font-black text-[22px] leading-none ml-0.5">.</span>
+              <span className="text-[27px] font-black tracking-tighter text-neutral-950 font-display flex items-baseline leading-none">
+                Planora
+                <span className="inline-block w-1.5 h-1.5 bg-red-600 rounded-none ml-0.5 shrink-0" />
               </span>
             )}
           </Link>
@@ -201,7 +223,10 @@ export const CardNav: React.FC<CardNavProps> = ({
           {ctaHref.startsWith('/') ? (
             <Link
               to={ctaHref}
-              onClick={onCtaClick}
+              onClick={() => {
+                if (onCtaClick) onCtaClick();
+                if (isExpanded) closeMenu();
+              }}
               className="card-nav-cta-button"
               style={{ backgroundColor: buttonBgColor, color: buttonTextColor }}
             >
@@ -210,7 +235,10 @@ export const CardNav: React.FC<CardNavProps> = ({
           ) : (
             <button
               type="button"
-              onClick={onCtaClick}
+              onClick={() => {
+                if (onCtaClick) onCtaClick();
+                if (isExpanded) closeMenu();
+              }}
               className="card-nav-cta-button"
               style={{ backgroundColor: buttonBgColor, color: buttonTextColor }}
             >
@@ -240,7 +268,7 @@ export const CardNav: React.FC<CardNavProps> = ({
                         aria-label={lnk.ariaLabel}
                         onClick={() => {
                           if (lnk.onClick) lnk.onClick();
-                          toggleMenu();
+                          closeMenu();
                         }}
                       >
                         <ArrowUpRight className="nav-card-link-icon" aria-hidden="true" size={14} />
@@ -256,7 +284,7 @@ export const CardNav: React.FC<CardNavProps> = ({
                       aria-label={lnk.ariaLabel}
                       onClick={() => {
                         if (lnk.onClick) lnk.onClick();
-                        toggleMenu();
+                        closeMenu();
                       }}
                     >
                       <ArrowUpRight className="nav-card-link-icon" aria-hidden="true" size={14} />
