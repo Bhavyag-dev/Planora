@@ -645,58 +645,125 @@ export function Landing() {
       </section>
 
       {/* Testimonials */}
-      <section id="testimonials" className="mx-auto max-w-7xl px-6 py-20 border-t border-neutral-100/80">
+      <section id="testimonials" className="mx-auto max-w-7xl px-6 py-20 border-t border-neutral-100/80 overflow-hidden">
         <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
-          <h2 className="text-4xl font-extrabold tracking-tight text-neutral-950 font-display">
+          <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-neutral-950 font-display">
             Loved by Event Organizers
           </h2>
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm sm:text-base text-neutral-500 font-medium max-w-xl mx-auto">
             Hear from community builders who switched to Planora to coordinate their scheduling.
           </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-3">
-          {/* Card 1 */}
-          <div className="rounded-3xl border border-neutral-100 bg-white p-6 shadow-sm flex flex-col justify-between text-left space-y-6">
-            <p className="text-xs text-neutral-550 leading-relaxed font-medium italic">
-              "Planora solved our workspace scheduling immediately. We can switch between internal department activities and global meetups without any configuration overhead."
-            </p>
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-full bg-neutral-955 text-white font-bold flex items-center justify-center text-xs">SC</div>
-              <div>
-                <h5 className="text-xs font-bold text-neutral-900">Sarah Chen</h5>
-                <p className="text-[10px] text-neutral-400">Tech Ops Lead at Acme Corp</p>
-              </div>
-            </div>
-          </div>
+        {/* Continuous Unlimited Moving Marquee Reviews */}
+        <div className="relative w-full overflow-hidden py-4 select-none">
+          {/* Left & Right Gradient Fade Masks */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-white to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-28 bg-gradient-to-l from-white to-transparent z-10" />
 
-          {/* Card 2 */}
-          <div className="rounded-3xl border border-neutral-100 bg-white p-6 shadow-sm flex flex-col justify-between text-left space-y-6">
-            <p className="text-xs text-neutral-550 leading-relaxed font-medium italic">
-              "Switching between our local developer workspace and national events is seamless. Team invitations and simple free RSVPs have saved us hours of email coordination."
-            </p>
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-full bg-neutral-955 text-white font-bold flex items-center justify-center text-xs">DM</div>
-              <div>
-                <h5 className="text-xs font-bold text-neutral-900">David Miller</h5>
-                <p className="text-[10px] text-neutral-400">Dev Community Organizer</p>
+          {/* Marquee Motion Track */}
+          <motion.div
+            className="flex gap-6 w-max"
+            animate={{ x: ['0%', '-50%'] }}
+            transition={{
+              ease: 'linear',
+              duration: 40,
+              repeat: Infinity
+            }}
+          >
+            {[
+              {
+                quote: "Planora solved our workspace scheduling immediately. We can switch between internal department activities and global meetups without any configuration overhead.",
+                name: "Sarah Chen",
+                role: "Tech Ops Lead at Acme Corp",
+                initials: "SC"
+              },
+              {
+                quote: "Switching between our local developer workspace and national events is seamless. Team invitations and simple free RSVPs have saved us hours of email coordination.",
+                name: "David Miller",
+                role: "Dev Community Organizer",
+                initials: "DM"
+              },
+              {
+                quote: "Clean design, fast RSVP, and zero ticketing clutter. Our student activities team coordinates fests with instant confirmations. Highly recommended.",
+                name: "Dr. Marcus Vance",
+                role: "Student Coordinator",
+                initials: "MV"
+              },
+              {
+                quote: "Having workspace-scoped permissions for 12 sub-teams was essential for us. Planora handled multi-tenancy effortlessly without security leaks.",
+                name: "Elena Rostova",
+                role: "VP of Engineering at CloudScale",
+                initials: "ER"
+              },
+              {
+                quote: "We host bi-weekly startup pitch nights. The live RSVP tracker and one-click shareable event links are absolute game changers for guest management.",
+                name: "Priya Sharma",
+                role: "Founder at FounderX Meetups",
+                initials: "PS"
+              },
+              {
+                quote: "Extremely sleek UI, zero clutter, and ultra-fast loading speed. Our community attendees love how effortless registering for events has become.",
+                name: "Alex Rivera",
+                role: "Community Director at DesignCraft",
+                initials: "AR"
+              },
+              {
+                quote: "Planora solved our workspace scheduling immediately. We can switch between internal department activities and global meetups without any configuration overhead.",
+                name: "Sarah Chen",
+                role: "Tech Ops Lead at Acme Corp",
+                initials: "SC"
+              },
+              {
+                quote: "Switching between our local developer workspace and national events is seamless. Team invitations and simple free RSVPs have saved us hours of email coordination.",
+                name: "David Miller",
+                role: "Dev Community Organizer",
+                initials: "DM"
+              },
+              {
+                quote: "Clean design, fast RSVP, and zero ticketing clutter. Our student activities team coordinates fests with instant confirmations. Highly recommended.",
+                name: "Dr. Marcus Vance",
+                role: "Student Coordinator",
+                initials: "MV"
+              },
+              {
+                quote: "Having workspace-scoped permissions for 12 sub-teams was essential for us. Planora handled multi-tenancy effortlessly without security leaks.",
+                name: "Elena Rostova",
+                role: "VP of Engineering at CloudScale",
+                initials: "ER"
+              },
+              {
+                quote: "We host bi-weekly startup pitch nights. The live RSVP tracker and one-click shareable event links are absolute game changers for guest management.",
+                name: "Priya Sharma",
+                role: "Founder at FounderX Meetups",
+                initials: "PS"
+              },
+              {
+                quote: "Extremely sleek UI, zero clutter, and ultra-fast loading speed. Our community attendees love how effortless registering for events has become.",
+                name: "Alex Rivera",
+                role: "Community Director at DesignCraft",
+                initials: "AR"
+              }
+            ].map((review, idx) => (
+              <div 
+                key={idx}
+                className="w-[360px] sm:w-[400px] shrink-0 rounded-3xl border border-neutral-200/90 bg-white p-7 shadow-sm hover:shadow-xl hover:border-neutral-400 transition-all duration-300 flex flex-col justify-between space-y-6 text-left"
+              >
+                <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed font-medium italic">
+                  "{review.quote}"
+                </p>
+                <div className="flex items-center gap-3 pt-4 border-t border-neutral-100">
+                  <div className="h-9 w-9 rounded-full bg-neutral-950 text-white font-bold flex items-center justify-center text-xs shadow-sm">
+                    {review.initials}
+                  </div>
+                  <div>
+                    <h5 className="text-xs font-extrabold text-neutral-950 font-display">{review.name}</h5>
+                    <p className="text-[10px] text-neutral-400 font-medium">{review.role}</p>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-
-          {/* Card 3 */}
-          <div className="rounded-3xl border border-neutral-100 bg-white p-6 shadow-sm flex flex-col justify-between text-left space-y-6">
-            <p className="text-xs text-neutral-550 leading-relaxed font-medium italic">
-              "Clean design, fast RSVP, and zero ticketing clutter. Our student activities team coordinates fests with instant confirmations. Highly recommended."
-            </p>
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-full bg-neutral-955 text-white font-bold flex items-center justify-center text-xs">MV</div>
-              <div>
-                <h5 className="text-xs font-bold text-neutral-900">Dr. Marcus Vance</h5>
-                <p className="text-[10px] text-neutral-400">Student Coordinator</p>
-              </div>
-            </div>
-          </div>
+            ))}
+          </motion.div>
         </div>
       </section>
 
