@@ -26,7 +26,7 @@ export const Navbar = () => {
       <nav className="sticky top-0 z-50 border-b border-neutral-100 bg-white/80 backdrop-blur-2xl">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link to="/" className="flex items-center shrink-0">
-            <span className="text-[27px] font-black tracking-tighter text-neutral-950 font-display flex items-baseline leading-none">
+            <span className="text-[28px] font-[900] tracking-tighter text-neutral-950 font-display flex items-baseline leading-none">
               Planora
               <span className="inline-block w-1.5 h-1.5 bg-red-600 rounded-none ml-0.5 shrink-0" />
             </span>

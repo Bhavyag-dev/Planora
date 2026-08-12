@@ -213,7 +213,7 @@ export const CardNav: React.FC<CardNavProps> = ({
             {logo ? (
               <img src={logo} alt={logoAlt} className="logo" />
             ) : (
-              <span className="text-[27px] font-black tracking-tighter text-neutral-950 font-display flex items-baseline leading-none">
+              <span className="text-[28px] font-[900] tracking-tighter text-neutral-950 font-display flex items-baseline leading-none">
                 Planora
                 <span className="inline-block w-1.5 h-1.5 bg-red-600 rounded-none ml-0.5 shrink-0" />
               </span>
