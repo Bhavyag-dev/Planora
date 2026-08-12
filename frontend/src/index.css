@@ -7,6 +7,12 @@
   --font-serif-italic: "Playfair Display", serif;
 }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+  -webkit-overflow-scrolling: touch;
+}
+
 @layer base {
   body {
     @apply bg-[#fbfbfb] text-neutral-900 antialiased;

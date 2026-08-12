@@ -130,8 +130,7 @@ export function Landing() {
             textColor: "#ffffff",
             links: [
               { label: "Create Event", href: "/dashboard", ariaLabel: "Create Event" },
-              { label: "Workspace Dashboard", href: "/dashboard", ariaLabel: "Workspace Dashboard" },
-              { label: "Explore Events", href: "/events", ariaLabel: "Explore Events" }
+              { label: "Workspace Dashboard", href: "/dashboard", ariaLabel: "Workspace Dashboard" }
             ]
           },
           {
@@ -155,7 +154,7 @@ export function Landing() {
       />
 
       {/* Full-Bleed Page Level Background Gallery Tunnel from Originkit (Original #131313 Dark Theme) */}
-      <div className="absolute top-0 inset-x-0 h-screen z-0 overflow-hidden pointer-events-auto select-none bg-[#131313]">
+      <div className="absolute top-0 inset-x-0 h-screen z-0 overflow-hidden pointer-events-none select-none bg-[#131313]">
         <GalleryTunnel
           images={HERO_TUNNEL_IMAGES.map(src => ({ src }))}
           background="#131313"
@@ -174,36 +173,46 @@ export function Landing() {
       </div>
 
       {/* Hero Section */}
-      <section className="relative z-20 flex flex-col items-center justify-center min-h-screen pt-32 pb-20 text-center px-6 overflow-hidden">
-        {/* Central Badge */}
-        <div className="relative z-10 mb-8 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-4 py-1.5 text-[11px] font-semibold text-white shadow-lg select-none">
-          <span>⚡</span>
-          <span className="text-neutral-400">→</span>
-          <span className="flex items-center gap-1">
-            <span className="inline-block h-4 w-4 rounded-full bg-white/20 bg-[url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80')] bg-cover" />
-            Planora Events
-          </span>
-          <span className="text-neutral-400">→</span>
-          <span>🔍</span>
-        </div>
-
-        {/* Heading with text-shadow glow for maximum readability against background */}
-        <h1 
+      <section className="relative z-20 flex flex-col items-center justify-center min-h-screen pt-36 pb-24 text-center px-6 overflow-hidden">
+        
+        {/* Clean, High-Impact Main Heading */}
+        <motion.h1 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
           style={{ textShadow: '0 4px 30px rgba(0, 0, 0, 0.95), 0 8px 60px rgba(0, 0, 0, 0.85)' }}
-          className="relative z-10 max-w-5xl text-4xl font-extrabold tracking-tight text-white leading-[1.12] sm:text-5xl md:text-6xl lg:text-[4.6rem] font-display"
+          className="relative z-10 max-w-4xl text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.12] font-display"
         >
-          Radiant <span className="font-cursive text-neutral-300 font-normal capitalize tracking-normal text-[1.05em] inline-block mr-1">Events</span>,<br />
-          Seamless Organization <span className="font-cursive text-neutral-300 font-normal lowercase tracking-normal text-[1.05em] inline-block mr-1">easy!</span>
-        </h1>
+          Host Extraordinary Events.<br />
+          <span className="text-neutral-300 font-normal font-sans text-[0.88em] tracking-normal block mt-2">Workspace Operations Made Effortless.</span>
+        </motion.h1>
 
         {/* Subtitle */}
-        <p 
+        <motion.p 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
           style={{ textShadow: '0 2px 20px rgba(0, 0, 0, 0.95)' }}
-          className="relative z-10 mt-8 max-w-2xl text-[15px] font-medium text-neutral-300 leading-relaxed font-sans"
+          className="relative z-10 mt-6 max-w-2xl text-sm sm:text-base font-normal text-neutral-300 leading-relaxed font-sans"
         >
-          Dive into the ultimate event management experience with Planora.<br />
-          We specialize in helping workspaces and communities create vibrant, unforgettable happenings.
-        </p>
+          Planora empowers organizations, tech communities, and teams to schedule meetups, control capacities, and manage RSVPs with zero friction.
+        </motion.p>
+
+        {/* Hero CTA Button Group */}
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="relative z-10 mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md"
+        >
+          <Link
+            to={isAuthenticated && user ? '/dashboard' : '/signup'}
+            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-white text-black font-extrabold text-sm hover:bg-neutral-200 transition-all duration-200 shadow-xl flex items-center justify-center gap-2 group cursor-pointer"
+          >
+            <span>{isAuthenticated && user ? 'Go to Dashboard' : 'Get Started Free'}</span>
+            <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
+          </Link>
+        </motion.div>
       </section>
 
 
