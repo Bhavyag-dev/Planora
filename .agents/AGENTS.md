@@ -32,6 +32,10 @@ This workspace contains Planora, a minimal multi-tenant Event Management SaaS MV
 > Do **NOT** modify, edit, or replace the public landing page ([Landing.tsx](file:///Users/bhavyag/Projects/CampusFlow/frontend/src/pages/Landing.tsx)).
 > Keep the current landing page exactly as it is, including its copy, structure, glassmorphic floating scroll pill header, and watermarked parallax footer.
 
+### 🚫 No Badge/Pill Buttons Above Headings
+> [!CAUTION]
+> **NEVER** add badge-like, pill-like, or status button features above any headings or section text anywhere on the landing page or across the application (e.g. `Next-Gen Event & Workspace Management`, `Core Capabilities`, `⚡ → ...`). Keep section headers clean and typography-focused without decorative top badges.
+
 ### ⚙️ Incremental Commit Flow
 > [!TIP]
 > Keep changes small, self-contained, and buildable.
