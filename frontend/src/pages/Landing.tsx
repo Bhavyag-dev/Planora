@@ -260,7 +260,7 @@ export function Landing() {
       </section>
 
       {/* Interactive How It Works Stepper Section */}
-      <section id="how-it-works" className="mx-auto max-w-7xl px-6 py-20 border-t border-neutral-100/80 bg-neutral-50/50 rounded-[2.5rem] my-12 shadow-inner">
+      <section id="how-it-works" className="mx-auto max-w-7xl px-6 py-20 bg-neutral-50/50 rounded-[2.5rem] my-12">
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <h2 className="text-4xl font-extrabold tracking-tight text-neutral-950 font-display">Hosting in Four Simple Steps</h2>
           <p className="text-sm text-neutral-500 font-medium">Go from account setup to a live workspace event in under five minutes.</p>
