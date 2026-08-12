@@ -30,6 +30,16 @@ import { Faq02 } from '../components/Faq02';
 import { AccordionGallery } from '../components/AccordionGallery';
 import CardNav from '../components/CardNav';
 import { StepperHowItWorks } from '../components/StepperHowItWorks';
+import GalleryTunnel from '../components/originkit/ui/hero-13/gallery-tunnel';
+
+const HERO_TUNNEL_IMAGES = [
+  '/originkit/hero-13/potrait-1.png',
+  '/originkit/hero-13/potrait-2.png',
+  '/originkit/hero-13/potrait-3.png',
+  '/originkit/hero-13/potrait-4.png',
+  '/originkit/hero-13/potrait-5.png',
+  '/originkit/hero-13/potrait-6.png',
+];
 
 export function Landing() {
   const { isAuthenticated, user } = useAuth();
@@ -144,24 +154,33 @@ export function Landing() {
         ease="power3.out"
       />
 
-      {/* Full-Bleed Page Level Background Image spanning absolute top-0 */}
-      <div className="absolute top-0 inset-x-0 h-screen z-0 overflow-hidden pointer-events-none select-none">
-        <img 
-          src="/morning.png" 
-          alt="Event Background" 
-          className="w-full h-full object-cover opacity-[0.88] filter saturate-[1.1] contrast-[1.02]" 
+      {/* Full-Bleed Page Level Background Gallery Tunnel from Originkit (Original #131313 Dark Theme) */}
+      <div className="absolute top-0 inset-x-0 h-screen z-0 overflow-hidden pointer-events-auto select-none bg-[#131313]">
+        <GalleryTunnel
+          images={HERO_TUNNEL_IMAGES.map(src => ({ src }))}
+          background="#131313"
+          lineColor="#B0B0B0"
+          lineOpacity={0}
+          grid={8}
+          speed={50}
+          boost={100}
+          fade={100}
+          label={false}
+          cellMode="square"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fbfbfb]/20 to-[#fbfbfb]" />
+        {/* Radial vignette blur behind hero text for legibility */}
+        <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[75vh] w-[90vw] max-w-4xl bg-[#131313]/85 blur-[50px] z-10" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-[#131313] z-10" />
       </div>
 
       {/* Hero Section */}
-      <section className="relative flex flex-col items-center justify-center min-h-screen pt-32 pb-20 text-center px-6 overflow-hidden">
+      <section className="relative z-20 flex flex-col items-center justify-center min-h-screen pt-32 pb-20 text-center px-6 overflow-hidden">
         {/* Central Badge */}
-        <div className="relative z-10 mb-8 inline-flex items-center gap-2 rounded-full border border-neutral-200/80 bg-white px-4 py-1.5 text-[11px] font-semibold text-neutral-700 shadow-sm hover:border-neutral-300 transition-colors duration-300 select-none">
+        <div className="relative z-10 mb-8 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-4 py-1.5 text-[11px] font-semibold text-white shadow-lg select-none">
           <span>⚡</span>
           <span className="text-neutral-400">→</span>
           <span className="flex items-center gap-1">
-            <span className="inline-block h-4 w-4 rounded-full bg-neutral-100 bg-[url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80')] bg-cover" />
+            <span className="inline-block h-4 w-4 rounded-full bg-white/20 bg-[url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80')] bg-cover" />
             Planora Events
           </span>
           <span className="text-neutral-400">→</span>
@@ -170,17 +189,17 @@ export function Landing() {
 
         {/* Heading with text-shadow glow for maximum readability against background */}
         <h1 
-          style={{ textShadow: '0 2px 16px rgba(255, 255, 255, 0.95), 0 4px 40px rgba(255, 255, 255, 0.85)' }}
-          className="relative z-10 max-w-5xl text-4xl font-extrabold tracking-tight text-neutral-800 leading-[1.12] sm:text-5xl md:text-6xl lg:text-[4.6rem] font-display"
+          style={{ textShadow: '0 4px 30px rgba(0, 0, 0, 0.95), 0 8px 60px rgba(0, 0, 0, 0.85)' }}
+          className="relative z-10 max-w-5xl text-4xl font-extrabold tracking-tight text-white leading-[1.12] sm:text-5xl md:text-6xl lg:text-[4.6rem] font-display"
         >
-          Radiant <span className="font-cursive text-neutral-700 font-normal capitalize tracking-normal text-[1.05em] inline-block mr-1">Events</span>,<br />
-          Seamless Organization <span className="font-cursive text-neutral-700 font-normal lowercase tracking-normal text-[1.05em] inline-block mr-1">easy!</span>
+          Radiant <span className="font-cursive text-neutral-300 font-normal capitalize tracking-normal text-[1.05em] inline-block mr-1">Events</span>,<br />
+          Seamless Organization <span className="font-cursive text-neutral-300 font-normal lowercase tracking-normal text-[1.05em] inline-block mr-1">easy!</span>
         </h1>
 
         {/* Subtitle */}
         <p 
-          style={{ textShadow: '0 2px 10px rgba(255, 255, 255, 0.95)' }}
-          className="relative z-10 mt-8 max-w-2xl text-[15px] font-semibold text-neutral-850 leading-relaxed font-sans"
+          style={{ textShadow: '0 2px 20px rgba(0, 0, 0, 0.95)' }}
+          className="relative z-10 mt-8 max-w-2xl text-[15px] font-medium text-neutral-300 leading-relaxed font-sans"
         >
           Dive into the ultimate event management experience with Planora.<br />
           We specialize in helping workspaces and communities create vibrant, unforgettable happenings.
