@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
+import { Plus } from 'lucide-react';
 import './AccordionGallery.css';
 
 export interface AccordionGalleryItem {
@@ -7,6 +8,8 @@ export interface AccordionGalleryItem {
   label?: string;
   link?: string;
   alt?: string;
+  isSponsored?: boolean;
+  onSponsorClick?: () => void;
 }
 
 export interface AccordionGalleryProps {
@@ -239,10 +242,39 @@ export const AccordionGallery: React.FC<AccordionGalleryProps> = ({
           >
             <span className="ag-panel__frame">
               <span className="ag-panel__media" ref={(el: any) => { mediaRefs.current[i] = el; }}>
-                <img src={item.image} alt={item.alt || item.label || ''} draggable="false" />
+                {item.image ? (
+                  <img src={item.image} alt={item.alt || item.label || ''} draggable="false" />
+                ) : (
+                  <div className="w-full h-full bg-[#0b0914] bg-gradient-to-b from-[#131024] via-[#0b0914] to-[#05040a]" />
+                )}
               </span>
               <span className="ag-panel__overlay" aria-hidden="true" />
             </span>
+            {/* Top-left Sponsored badge - only rendered if item is sponsored */}
+            {item.isSponsored && (
+              <span className="ag-panel__badge">
+                <span className="ag-panel__badge-dot" />
+                Sponsored
+              </span>
+            )}
+
+            {/* Center Sponsor Button for empty / unsponsored slots */}
+            {!item.isSponsored && (
+              <div className="ag-panel__center-cta">
+                <button
+                  type="button"
+                  className="ag-panel__sponsor-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    if (item.onSponsorClick) item.onSponsorClick();
+                  }}
+                >
+                  <Plus size={14} />
+                  <span>Sponsor Spot</span>
+                </button>
+              </div>
+            )}
             {showLabels && (
               <span className="ag-panel__label" aria-hidden="true">
                 <span className="ag-panel__bar" ref={(el: any) => { barRefs.current[i] = el; }} />
