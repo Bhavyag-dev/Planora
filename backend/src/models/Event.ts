@@ -7,6 +7,7 @@ const eventSchema = new mongoose.Schema({
   date: { type: Date, required: true },
   venue: { type: String, required: true },
   category: { type: String, required: true, default: 'General' },
+  status: { type: String, enum: ['draft', 'published'], default: 'published' },
   seatLimit: { type: Number, required: true },
   registeredCount: { type: Number, default: 0 },
   organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true },

@@ -128,7 +128,7 @@ export const StepperHowItWorks: React.FC = () => {
                     <span className="text-sm font-mono font-black">{step.id}</span>
                   )}
                   {isActive && (
-                    <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-500 ring-2 ring-white" />
+                    <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-neutral-950 ring-2 ring-white" />
                   )}
                 </div>
 
@@ -152,7 +152,7 @@ export const StepperHowItWorks: React.FC = () => {
       </div>
 
       {/* Interactive Step Content Box */}
-      <div className="bg-white rounded-3xl border border-neutral-200/80 p-6 md:p-10 shadow-xl shadow-neutral-100/80 overflow-hidden relative">
+      <div className="bg-white/90 backdrop-blur-xl rounded-3xl border border-neutral-200/90 p-6 md:p-10 shadow-2xl shadow-neutral-200/60 overflow-hidden relative">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeStep}
@@ -232,17 +232,14 @@ export const StepperHowItWorks: React.FC = () => {
 
             {/* Right Column: Visual Mockup Card */}
             <div className="lg:col-span-6">
-              <div className="relative rounded-2xl bg-neutral-950 p-6 sm:p-8 text-white shadow-2xl overflow-hidden border border-neutral-800">
-                {/* Background Ambient Glow */}
-                <div className="absolute -top-20 -right-20 w-60 h-60 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
+              <div className="relative rounded-2xl bg-black p-6 sm:p-8 text-white shadow-2xl overflow-hidden border border-neutral-800/90 backdrop-blur-md">
 
                 {/* Step Mockup 1: Workspace Creation */}
                 {currentStep.previewType === 'workspace' && (
                   <div className="space-y-5 relative z-10">
                     <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
                       <div className="flex items-center gap-2.5">
-                        <div className="h-8 w-8 rounded-xl bg-white/10 flex items-center justify-center font-bold text-xs text-white">
+                        <div className="h-8 w-8 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center font-bold text-xs text-white">
                           P
                         </div>
                         <div>
@@ -250,7 +247,7 @@ export const StepperHowItWorks: React.FC = () => {
                           <p className="text-[10px] text-neutral-400">Workspace Owner Admin</p>
                         </div>
                       </div>
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-white/10 text-white border border-white/20">
                         Active Workspace
                       </span>
                     </div>
@@ -261,15 +258,15 @@ export const StepperHowItWorks: React.FC = () => {
                         <span className="font-bold text-white">12 Invited</span>
                       </div>
                       <div className="h-2 w-full bg-neutral-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-indigo-500 w-3/4 rounded-full" />
+                        <div className="h-full bg-white w-3/4 rounded-full" />
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between pt-2 text-[11px] text-neutral-400">
                       <span className="flex items-center gap-1.5">
-                        <ShieldCheck size={14} className="text-emerald-400" /> Multi-Tenant Scope
+                        <ShieldCheck size={14} className="text-white" /> Multi-Tenant Scope
                       </span>
-                      <span className="text-neutral-500">Planora SaaS</span>
+                      <span className="text-neutral-400">Planora SaaS</span>
                     </div>
                   </div>
                 )}
@@ -281,9 +278,9 @@ export const StepperHowItWorks: React.FC = () => {
                       <img 
                         src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80" 
                         alt="Event Mockup" 
-                        className="w-full h-full object-cover opacity-80"
+                        className="w-full h-full object-cover opacity-80 grayscale contrast-125"
                       />
-                      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-white/90 text-neutral-950 backdrop-blur-sm">
+                      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-white text-black backdrop-blur-sm">
                         Technical
                       </span>
                     </div>
@@ -302,7 +299,7 @@ export const StepperHowItWorks: React.FC = () => {
 
                     <div className="flex items-center justify-between pt-2 text-xs font-bold border-t border-neutral-800">
                       <span className="text-neutral-400">Seat Capacity: 250</span>
-                      <span className="text-emerald-400">Status: Published</span>
+                      <span className="text-white font-mono">Status: Published</span>
                     </div>
                   </div>
                 )}
@@ -315,7 +312,7 @@ export const StepperHowItWorks: React.FC = () => {
                       <p className="text-[11px] text-neutral-400">Share with guests or workspace members</p>
                     </div>
 
-                    <div className="flex items-center gap-2 p-2 rounded-xl bg-white/10 border border-white/15">
+                    <div className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/15">
                       <input 
                         type="text" 
                         readOnly 
@@ -325,11 +322,11 @@ export const StepperHowItWorks: React.FC = () => {
                       <button
                         type="button"
                         onClick={handleCopy}
-                        className="px-3 py-1.5 rounded-lg bg-white text-neutral-950 text-xs font-bold flex items-center gap-1 hover:bg-neutral-200 transition"
+                        className="px-3 py-1.5 rounded-lg bg-white text-black text-xs font-bold flex items-center gap-1 hover:bg-neutral-200 transition"
                       >
                         {copied ? (
                           <>
-                            <CheckCircle2 size={13} className="text-emerald-600" />
+                            <CheckCircle2 size={13} className="text-black" />
                             <span>Copied</span>
                           </>
                         ) : (
@@ -343,11 +340,11 @@ export const StepperHowItWorks: React.FC = () => {
 
                     <div className="grid grid-cols-2 gap-3 pt-2">
                       <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-center">
-                        <Ticket size={18} className="mx-auto mb-1 text-indigo-400" />
+                        <Ticket size={18} className="mx-auto mb-1 text-white" />
                         <p className="text-[11px] font-bold text-white">Instant Tickets</p>
                       </div>
                       <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-center">
-                        <Zap size={18} className="mx-auto mb-1 text-amber-400" />
+                        <Zap size={18} className="mx-auto mb-1 text-white" />
                         <p className="text-[11px] font-bold text-white">Zero Ticket Fees</p>
                       </div>
                     </div>
@@ -359,8 +356,8 @@ export const StepperHowItWorks: React.FC = () => {
                   <div className="space-y-5 relative z-10">
                     <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
                       <span className="text-xs font-bold text-white">Live RSVP Analytics</span>
-                      <span className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-400">
-                        <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" /> Live Tracking
+                      <span className="flex items-center gap-1.5 text-[10px] font-bold text-white">
+                        <span className="h-2 w-2 rounded-full bg-white animate-pulse" /> Live Tracking
                       </span>
                     </div>
 
@@ -371,13 +368,13 @@ export const StepperHowItWorks: React.FC = () => {
                       </div>
                       <div className="p-4 rounded-xl bg-white/5 border border-white/10">
                         <p className="text-[11px] text-neutral-400">Available Seats</p>
-                        <p className="text-2xl font-black text-emerald-400 mt-1">66</p>
+                        <p className="text-2xl font-black text-white mt-1">66</p>
                       </div>
                     </div>
 
-                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-xs text-emerald-300">
+                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between text-xs text-neutral-200">
                       <span>Recent RSVP: Alex Johnson</span>
-                      <span className="font-mono text-[10px] text-emerald-400">2 mins ago</span>
+                      <span className="font-mono text-[10px] text-neutral-400">2 mins ago</span>
                     </div>
                   </div>
                 )}
