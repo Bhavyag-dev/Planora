@@ -44,7 +44,6 @@ const HERO_TUNNEL_IMAGES = [
 export function Landing() {
   const { isAuthenticated, user } = useAuth();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [previewTab, setPreviewTab] = useState<'events' | 'tickets' | 'create'>('events');
 
   // Navbar shrink scroll triggers (copied collapse physics from Fetchz)
   const { scrollY } = useScroll();
@@ -453,225 +452,6 @@ export function Landing() {
         </div>
       </section>
 
-      {/* Dashboard Preview Mockup */}
-      <section id="preview" className="mx-auto max-w-7xl px-6 py-20 border-t border-neutral-100/80">
-        <div className="text-center max-w-3xl mx-auto space-y-3">
-          <h2 className="text-4xl font-extrabold tracking-tight text-neutral-950 font-display">
-            A Minimal, Clean Interface
-          </h2>
-          <p className="text-sm text-neutral-500 max-w-xl mx-auto">
-            Interact with the mockup tabs below to preview the actual dashboard workspace.
-          </p>
-        </div>
-
-        {/* Interactive Mockup Container */}
-        <div className="mt-12 rounded-3xl border border-neutral-800 bg-zinc-950 p-3 shadow-2xl relative overflow-hidden text-zinc-300">
-          {/* Red glow highlight */}
-          <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-red-650/10 blur-[60px] pointer-events-none" />
-
-          {/* Mockup Tabs */}
-          <div className="flex bg-zinc-900/50 border border-white/[0.04] p-1 rounded-2xl mb-4 max-w-xs mx-auto justify-between relative z-10">
-            <button 
-              onClick={() => setPreviewTab('events')} 
-              className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all cursor-pointer ${
-                previewTab === 'events' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-zinc-400 hover:text-white'
-              }`}
-            >
-              Workspace Events
-            </button>
-            <button 
-              onClick={() => setPreviewTab('tickets')} 
-              className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all cursor-pointer ${
-                previewTab === 'tickets' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-zinc-400 hover:text-white'
-              }`}
-            >
-              My Tickets
-            </button>
-            <button 
-              onClick={() => setPreviewTab('create')} 
-              className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all cursor-pointer ${
-                previewTab === 'create' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-zinc-400 hover:text-white'
-              }`}
-            >
-              Event Creator
-            </button>
-          </div>
-
-          <div className="bg-zinc-900 rounded-[1.5rem] border border-white/[0.04] p-6 text-left flex gap-6 min-h-[360px] relative z-10">
-            {/* Mock Sidebar */}
-            <div className="w-48 border-r border-white/[0.06] pr-6 hidden md:flex flex-col justify-between">
-              <div className="space-y-6">
-                <div className="flex items-center gap-2.5 font-bold tracking-tight text-white pl-2">
-                  <div className="h-6 w-6 rounded bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center text-[10px] font-bold text-white">
-                    A
-                  </div>
-                  <span className="text-sm truncate">Acme Workshops</span>
-                </div>
-                <nav className="space-y-1.5 flex flex-col">
-                  <span className="flex items-center gap-2.5 text-xs text-white bg-white/5 px-2.5 py-1.5 rounded-lg"><LayoutDashboard size={14} className="text-red-500" /> Dashboard</span>
-                  <span className="flex items-center gap-2.5 text-xs text-zinc-400 hover:text-white px-2.5 py-1.5 rounded-lg"><Calendar size={14} className="text-red-500" /> Events</span>
-                  <span className="flex items-center gap-2.5 text-xs text-zinc-400 hover:text-white px-2.5 py-1.5 rounded-lg"><Ticket size={14} className="text-red-500" /> My Tickets</span>
-                </nav>
-              </div>
-              <div className="text-[10px] text-zinc-550 border-t border-white/[0.06] pt-3 pl-2">
-                SaaS Dashboard v1.0
-              </div>
-            </div>
-
-            {/* Mock Dashboard Area */}
-            <div className="flex-1 flex flex-col justify-between">
-              <AnimatePresence mode="wait">
-                {previewTab === 'events' && (
-                  <motion.div 
-                    key="events"
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                    className="space-y-4 w-full"
-                  >
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-semibold text-white">Workspace Events</h4>
-                      <span className="text-[10px] text-red-500 font-bold bg-red-500/10 px-2 py-0.5 rounded">3 Scheduled</span>
-                    </div>
-
-                    <div className="grid gap-3 sm:grid-cols-3">
-                      {/* Event 1 */}
-                      <div className="p-4 bg-zinc-950 border border-white/[0.04] rounded-2xl space-y-2 hover:border-red-500/20 transition-colors">
-                        <span className="text-[9px] font-bold text-red-400 uppercase tracking-widest bg-red-500/10 border border-red-500/20 px-1.5 py-0.5 rounded">Workshop</span>
-                        <h5 className="text-xs font-bold text-white leading-tight">Advanced React Patterns</h5>
-                        <p className="text-[10px] text-zinc-500">Deep dive into hooks and rendering...</p>
-                        <div className="pt-2 border-t border-white/[0.04] text-[9px] text-zinc-500 flex items-center gap-1.5">
-                          <MapPin size={9} /> Acme Conf Room A
-                        </div>
-                      </div>
-                      {/* Event 2 */}
-                      <div className="p-4 bg-zinc-950 border border-white/[0.04] rounded-2xl space-y-2 hover:border-red-500/20 transition-colors">
-                        <span className="text-[9px] font-bold text-orange-400 uppercase tracking-widest bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.5 rounded">Meetup</span>
-                        <h5 className="text-xs font-bold text-white leading-tight">AI & Analytics Forum</h5>
-                        <p className="text-[10px] text-zinc-500">Exploring generative model integrations...</p>
-                        <div className="pt-2 border-t border-white/[0.04] text-[9px] text-zinc-500 flex items-center gap-1.5">
-                          <MapPin size={9} /> Community Hub
-                        </div>
-                      </div>
-                      {/* Event 3 */}
-                      <div className="p-4 bg-zinc-950 border border-white/[0.04] rounded-2xl space-y-2 hover:border-red-500/20 transition-colors">
-                        <span className="text-[9px] font-bold text-amber-400 uppercase tracking-widest bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded">Masterclass</span>
-                        <h5 className="text-xs font-bold text-white leading-tight">Creative Design Systems</h5>
-                        <p className="text-[10px] text-zinc-500">Building scalable UI/UX components...</p>
-                        <div className="pt-2 border-t border-white/[0.04] text-[9px] text-zinc-500 flex items-center gap-1.5">
-                          <MapPin size={9} /> Zoom Room B
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {previewTab === 'tickets' && (
-                  <motion.div 
-                    key="tickets"
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                    className="space-y-4 w-full"
-                  >
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-semibold text-white">Active Tickets</h4>
-                      <span className="text-[10px] text-red-500 font-bold bg-red-500/10 px-2 py-0.5 rounded">3 Booked</span>
-                    </div>
-
-                    <div className="grid gap-3 sm:grid-cols-3">
-                      {/* Ticket 1 */}
-                      <div className="p-4 bg-zinc-950 border border-dashed border-white/[0.08] rounded-2xl space-y-3 relative hover:border-red-500/30 transition-colors">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[8px] font-bold uppercase tracking-widest bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded">VIP Admission</span>
-                          <Zap size={11} className="text-amber-400" />
-                        </div>
-                        <div>
-                          <h5 className="text-xs font-bold text-white truncate">Advanced React Patterns</h5>
-                          <p className="text-[9px] text-zinc-500 mt-1 font-mono">Seat A-12 • Order #F9B2C</p>
-                        </div>
-                        <div className="pt-2 border-t border-white/[0.04] text-[8px] text-zinc-500 flex items-center justify-between">
-                          <span>Acme Workshops</span>
-                          <span className="text-emerald-400 font-bold">Confirmed</span>
-                        </div>
-                      </div>
-                      {/* Ticket 2 */}
-                      <div className="p-4 bg-zinc-950 border border-dashed border-white/[0.08] rounded-2xl space-y-3 relative hover:border-red-500/30 transition-colors">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[8px] font-bold uppercase tracking-widest bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded">General Access</span>
-                          <Zap size={11} className="text-zinc-500" />
-                        </div>
-                        <div>
-                          <h5 className="text-xs font-bold text-white truncate">AI & Analytics Forum</h5>
-                          <p className="text-[9px] text-zinc-500 mt-1 font-mono">Seat B-45 • Order #D81A2</p>
-                        </div>
-                        <div className="pt-2 border-t border-white/[0.04] text-[8px] text-zinc-500 flex items-center justify-between">
-                          <span>Dev Meetups</span>
-                          <span className="text-emerald-400 font-bold">Confirmed</span>
-                        </div>
-                      </div>
-                      {/* Ticket 3 */}
-                      <div className="p-4 bg-zinc-950 border border-dashed border-white/[0.08] rounded-2xl space-y-3 relative hover:border-red-500/30 transition-colors">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[8px] font-bold uppercase tracking-widest bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded">Developer Pass</span>
-                          <Zap size={11} className="text-red-400" />
-                        </div>
-                        <div>
-                          <h5 className="text-xs font-bold text-white truncate">Creative Design Systems</h5>
-                          <p className="text-[9px] text-zinc-500 mt-1 font-mono">Seat C-88 • Order #A5E4F</p>
-                        </div>
-                        <div className="pt-2 border-t border-white/[0.04] text-[8px] text-zinc-500 flex items-center justify-between">
-                          <span>Ajux Design</span>
-                          <span className="text-emerald-400 font-bold">Confirmed</span>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {previewTab === 'create' && (
-                  <motion.div 
-                    key="create"
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                    className="space-y-3 max-w-sm"
-                  >
-                    <h4 className="text-sm font-semibold text-white">Schedule Workspace Event</h4>
-                    <div className="space-y-2">
-                      <div className="space-y-1">
-                        <span className="text-[8px] font-bold uppercase text-zinc-550 tracking-wider">Event Title</span>
-                        <input disabled placeholder="e.g. Design Sync" className="w-full h-8 px-2.5 bg-zinc-950 border border-white/[0.06] rounded-lg text-xs text-zinc-450 focus:outline-none" />
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="space-y-1">
-                          <span className="text-[8px] font-bold uppercase text-zinc-550 tracking-wider">Venue</span>
-                          <input disabled placeholder="e.g. Zoom Link" className="w-full h-8 px-2.5 bg-zinc-950 border border-white/[0.06] rounded-lg text-xs text-zinc-450 focus:outline-none" />
-                        </div>
-                        <div className="space-y-1">
-                          <span className="text-[8px] font-bold uppercase text-zinc-550 tracking-wider">Seat Limit</span>
-                          <input disabled value="100" className="w-full h-8 px-2.5 bg-zinc-950 border border-white/[0.06] rounded-lg text-xs text-zinc-450 focus:outline-none" />
-                        </div>
-                      </div>
-                      <button disabled className="w-full h-8 bg-red-650 hover:bg-red-555 text-white font-bold text-xs rounded-lg mt-1 opacity-80 cursor-not-allowed">
-                        Create Event
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              <div className="pt-4 border-t border-white/[0.04] mt-6 flex items-center justify-between text-[10px] text-zinc-550">
-                <span>Database Connection Status: OK</span>
-                <span className="text-red-500 font-semibold flex items-center gap-1">
-                  <Check size={10} /> Active Workspace Locked
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Testimonials */}
       <section id="testimonials" className="mx-auto max-w-7xl px-6 py-20 border-t border-neutral-100/80 overflow-hidden">
         <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
@@ -994,24 +774,24 @@ export function Landing() {
         </div>
       </section>
 
-      {/* Proper Footer Container (Testimonials quote with cursive, rich menus, newsletter, social, copyright) */}
-      <footer className="relative bg-[#fbfbfb] border-t border-neutral-100/80 pt-20 pb-20 w-full overflow-hidden z-10">
+      {/* Proper Footer Container */}
+      <footer className="relative bg-[#fbfbfb] border-t border-neutral-200/80 pt-20 pb-16 w-full overflow-hidden z-10">
         {/* Relative z-10 wrapper content so footer text renders on top of Planora watermark */}
         <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
 
-          {/* Middle Rich 12-Column Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-12 gap-10 lg:gap-12 max-w-7xl mx-auto text-left items-start">
+          {/* Spacious 5-Column Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10 lg:gap-12 max-w-7xl mx-auto text-left items-start">
             
-            {/* Column 1: Brand Details (4 cols) */}
-            <div className="space-y-4 sm:col-span-2 md:col-span-4 lg:col-span-4">
+            {/* Column 1: Brand Details */}
+            <div className="space-y-4">
               <Link to="/" className="text-2xl font-black tracking-tight text-neutral-950 font-display block leading-none">
                 Planora
               </Link>
-              <p className="text-xs text-neutral-400 leading-relaxed font-sans max-w-sm">
-                The destination for flawless events. From luxurious workspace conferences to playful community meetups, we guarantee excitement at every turn.
+              <p className="text-xs text-neutral-500 leading-relaxed font-sans">
+                The destination for flawless events. Built for modern workspaces, organizations, and tech communities.
               </p>
               {/* Social Circles */}
-              <div className="flex items-center gap-2.5 pt-1">
+              <div className="flex items-center gap-2 pt-1">
                 {[
                   { icon: Twitter, url: 'https://twitter.com/planora' },
                   { icon: Instagram, url: 'https://instagram.com/planora' },
@@ -1022,7 +802,7 @@ export function Landing() {
                     href={social.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200/80 bg-white text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 hover:border-neutral-300 transition-all shadow-sm"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-950 hover:text-white hover:border-neutral-950 transition-all shadow-xs"
                   >
                     <social.icon size={13} />
                   </a>
@@ -1030,58 +810,58 @@ export function Landing() {
               </div>
             </div>
 
-            {/* Column 2: Product links (2 cols) */}
-            <div className="space-y-4 sm:col-span-1 md:col-span-2 lg:col-span-2">
-              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest font-display leading-none">Product</h4>
-              <ul className="space-y-2.5 text-xs">
-                <li><Link to="/dashboard" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Workspace Events</Link></li>
-                <li><a href="#pricing" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Ticket Pricing</a></li>
-                <li><Link to="/signup" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Host Account</Link></li>
-                <li><Link to="/login" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Creator Login</Link></li>
+            {/* Column 2: Product Links */}
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold text-neutral-950 uppercase tracking-widest font-display leading-none">Product</h4>
+              <ul className="space-y-3 text-xs">
+                <li><Link to="/dashboard" className="text-neutral-500 hover:text-neutral-950 transition-colors inline-block font-medium">Workspace Events</Link></li>
+                <li><a href="#pricing" className="text-neutral-500 hover:text-neutral-950 transition-colors inline-block font-medium">Ticket Pricing</a></li>
+                <li><Link to="/signup" className="text-neutral-500 hover:text-neutral-950 transition-colors inline-block font-medium">Host Account</Link></li>
+                <li><Link to="/login" className="text-neutral-500 hover:text-neutral-950 transition-colors inline-block font-medium">Creator Login</Link></li>
               </ul>
             </div>
 
-            {/* Column 3: Resources links (2 cols) */}
-            <div className="space-y-4 sm:col-span-1 md:col-span-2 lg:col-span-2">
-              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest font-display leading-none">Resources</h4>
-              <ul className="space-y-2.5 text-xs">
-                <li><a href="#blog" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Platform Blog</a></li>
-                <li><a href="#docs" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Help Center</a></li>
-                <li><a href="#support" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Ticket Support</a></li>
-                <li><a href="#rules" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Guidelines</a></li>
+            {/* Column 3: Resources Links */}
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold text-neutral-950 uppercase tracking-widest font-display leading-none">Resources</h4>
+              <ul className="space-y-3 text-xs">
+                <li><a href="#blog" className="text-neutral-500 hover:text-neutral-950 transition-colors inline-block font-medium">Platform Blog</a></li>
+                <li><a href="#docs" className="text-neutral-500 hover:text-neutral-950 transition-colors inline-block font-medium">Help Center</a></li>
+                <li><a href="#support" className="text-neutral-500 hover:text-neutral-950 transition-colors inline-block font-medium">Ticket Support</a></li>
+                <li><a href="#rules" className="text-neutral-500 hover:text-neutral-950 transition-colors inline-block font-medium">Guidelines</a></li>
               </ul>
             </div>
 
-            {/* Column 4: Company links (2 cols) */}
-            <div className="space-y-4 sm:col-span-1 md:col-span-2 lg:col-span-2">
-              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest font-display leading-none">Company</h4>
-              <ul className="space-y-2.5 text-xs">
-                <li><a href="#about" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">About Us</a></li>
-                <li><a href="#careers" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Careers</a></li>
-                <li><a href="#privacy" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Privacy Policy</a></li>
-                <li><a href="#terms" className="text-neutral-500 hover:text-neutral-950 transition-colors py-0.5 inline-block font-medium">Terms of Service</a></li>
+            {/* Column 4: Company Links */}
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold text-neutral-950 uppercase tracking-widest font-display leading-none">Company</h4>
+              <ul className="space-y-3 text-xs">
+                <li><a href="#about" className="text-neutral-500 hover:text-neutral-950 transition-colors inline-block font-medium">About Us</a></li>
+                <li><a href="#careers" className="text-neutral-500 hover:text-neutral-950 transition-colors inline-block font-medium">Careers</a></li>
+                <li><a href="#privacy" className="text-neutral-500 hover:text-neutral-950 transition-colors inline-block font-medium">Privacy Policy</a></li>
+                <li><a href="#terms" className="text-neutral-500 hover:text-neutral-950 transition-colors inline-block font-medium">Terms of Service</a></li>
               </ul>
             </div>
 
-            {/* Column 5: Newsletter form (2 cols) */}
-            <div className="space-y-4 sm:col-span-1 md:col-span-2 lg:col-span-2">
-              <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest font-display leading-none">Newsletter</h4>
-              <p className="text-xs text-neutral-400 leading-relaxed font-sans">
-                Subscribe to get the latest workspace event announcements.
+            {/* Column 5: Newsletter Form */}
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold text-neutral-950 uppercase tracking-widest font-display leading-none">Newsletter</h4>
+              <p className="text-xs text-neutral-500 leading-relaxed font-sans">
+                Subscribe for workspace updates and event highlights.
               </p>
               <form 
                 onSubmit={(e) => e.preventDefault()}
-                className="relative flex items-center mt-2 w-full"
+                className="relative flex items-center mt-2 w-full max-w-xs"
               >
                 <input 
                   type="email" 
                   placeholder="name@email.com" 
-                  className="w-full bg-white border border-neutral-200/90 px-4 py-2.5 pr-10 rounded-full text-xs placeholder:text-neutral-400 focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 focus:outline-none font-sans transition-all shadow-xs"
+                  className="w-full bg-white border border-neutral-200 px-4 py-2.5 pr-10 rounded-full text-xs text-neutral-800 placeholder:text-neutral-400 focus:border-neutral-950 focus:ring-1 focus:ring-neutral-950 focus:outline-none font-sans transition-all shadow-xs"
                 />
                 <button 
                   type="submit"
                   aria-label="Subscribe to newsletter"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-neutral-950 text-white flex items-center justify-center hover:bg-neutral-800 transition shadow-sm cursor-pointer"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-neutral-950 text-white flex items-center justify-center hover:bg-neutral-800 transition shadow-xs cursor-pointer"
                 >
                   <ArrowRight size={13} />
                 </button>
@@ -1091,22 +871,23 @@ export function Landing() {
           </div>
 
           {/* Bottom Bar: Divider, Buy us a coffee, and All Rights Reserved */}
-          <div className="flex flex-col items-center justify-center gap-4 mt-16 pt-8 border-t border-neutral-200/60 max-w-7xl mx-auto text-center">
-            {/* Buy us a coffee pill */}
-            <a 
-              href="https://buymeacoffee.com/planora"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-neutral-200/90 bg-white px-5 py-2.5 text-xs font-bold text-neutral-800 hover:bg-neutral-50 hover:border-neutral-300 shadow-sm transition-all pointer-events-auto leading-none"
-            >
-              <Coffee size={14} className="text-amber-600" />
-              <span>Buy us a coffee</span>
-            </a>
-
-            {/* All rights reserved */}
-            <p className="text-xs text-neutral-400 font-sans leading-none">
-              © {new Date().getFullYear()} Planora. All rights reserved. Locally crafted for seamless communities.
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mt-16 pt-8 border-t border-neutral-200/80 max-w-7xl mx-auto">
+            <p className="text-xs text-neutral-500 font-sans leading-none order-2 sm:order-1">
+              © {new Date().getFullYear()} Planora Inc. All rights reserved.
             </p>
+
+            {/* Buy us a coffee pill */}
+            <div className="flex items-center gap-4 order-1 sm:order-2">
+              <a 
+                href="https://buymeacoffee.com/planora"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-4 py-2 text-xs font-bold text-neutral-800 hover:bg-neutral-50 hover:border-neutral-300 shadow-xs transition-all pointer-events-auto leading-none"
+              >
+                <Coffee size={14} className="text-amber-600" />
+                <span>Buy us a coffee</span>
+              </a>
+            </div>
           </div>
 
         </div>
