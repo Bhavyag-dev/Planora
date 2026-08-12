@@ -278,7 +278,7 @@ export const StepperHowItWorks: React.FC = () => {
                       <img 
                         src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80" 
                         alt="Event Mockup" 
-                        className="w-full h-full object-cover opacity-80 grayscale contrast-125"
+                        className="w-full h-full object-cover opacity-90"
                       />
                       <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-white text-black backdrop-blur-sm">
                         Technical
