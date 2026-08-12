@@ -267,83 +267,161 @@ export function Landing() {
 
       {/* Feature Showcase */}
       <section id="features" className="mx-auto max-w-7xl px-6 py-20 border-t border-neutral-100/80">
-        <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full border border-neutral-200/85 bg-neutral-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
-            <Sparkles size={12} className="text-purple-600" />
-            Core Capabilities
-          </div>
-          <h2 className="text-4xl font-extrabold tracking-tight text-neutral-950 font-display">
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-neutral-950 font-display leading-tight">
             Designed for Flawless Workspace Execution
           </h2>
-          <p className="text-sm text-neutral-500 max-w-xl mx-auto">
+          <p className="text-sm sm:text-base text-neutral-500 font-medium max-w-xl mx-auto leading-relaxed">
             Everything you need to host internal meetups, community conferences, and team activities in one place.
           </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 mt-16">
-          {/* Card 1 */}
+        {/* Bento Grid */}
+        <div className="grid gap-6 md:grid-cols-12 mt-16">
+          
+          {/* Bento Card 1: Large Dark Glass Hero Card (7 Cols) */}
           <motion.div 
-            whileHover={{ y: -5 }}
-            className="rounded-3xl border border-neutral-100 bg-white p-6 shadow-sm flex flex-col justify-between"
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.2 }}
+            className="md:col-span-7 rounded-3xl bg-neutral-950 p-8 sm:p-10 text-white shadow-2xl border border-neutral-800 flex flex-col justify-between overflow-hidden relative"
           >
-            <div className="space-y-4">
-              <div className="h-10 w-10 rounded-2xl bg-indigo-55 border border-indigo-100 flex items-center justify-center text-indigo-650">
+            <div className="space-y-4 relative z-10">
+              <div className="h-10 w-10 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-white">
                 <Building2 size={20} />
               </div>
-              <h3 className="font-bold text-neutral-900 text-lg">Multi-Tenant Workspaces</h3>
-              <p className="text-xs text-neutral-400 leading-relaxed">
-                Create and manage isolated environments for each team, community chapter, or campus club under one global account profile.
+              <h3 className="text-2xl font-extrabold text-white font-display tracking-tight">
+                Multi-Tenant Workspace Scope
+              </h3>
+              <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed max-w-md">
+                Create and manage isolated environments for each team, community chapter, or company department under one global profile with scoped permissions.
               </p>
+            </div>
+
+            {/* Micro Widget: Workspace Selector Pill List */}
+            <div className="mt-8 pt-6 border-t border-neutral-800 space-y-3 relative z-10">
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="h-7 w-7 rounded-lg bg-white text-black font-bold text-xs flex items-center justify-center">
+                    A
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-white">Acme Corp Workshops</p>
+                    <p className="text-[10px] text-neutral-400">12 Members • Active Scope</p>
+                  </div>
+                </div>
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-white text-black font-mono">
+                  Owner
+                </span>
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/10 opacity-60">
+                <div className="flex items-center gap-3">
+                  <div className="h-7 w-7 rounded-lg bg-neutral-800 text-white font-bold text-xs flex items-center justify-center">
+                    D
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-white">Dev Community Meetups</p>
+                    <p className="text-[10px] text-neutral-400">48 Members</p>
+                  </div>
+                </div>
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-neutral-800 text-neutral-300 font-mono">
+                  Member
+                </span>
+              </div>
             </div>
           </motion.div>
 
-          {/* Card 2 */}
+          {/* Bento Card 2: Light Clean Card (5 Cols) */}
           <motion.div 
-            whileHover={{ y: -5 }}
-            className="rounded-3xl border border-neutral-100 bg-white p-6 shadow-sm flex flex-col justify-between"
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.2 }}
+            className="md:col-span-5 rounded-3xl bg-white p-8 sm:p-10 border border-neutral-200/90 shadow-sm flex flex-col justify-between hover:border-neutral-300 hover:shadow-xl transition-all"
           >
             <div className="space-y-4">
-              <div className="h-10 w-10 rounded-2xl bg-purple-55 border border-purple-100 flex items-center justify-center text-purple-650">
+              <div className="h-10 w-10 rounded-2xl bg-neutral-950 text-white flex items-center justify-center">
                 <UserPlus size={20} />
               </div>
-              <h3 className="font-bold text-neutral-900 text-lg">Instant Team Invites</h3>
-              <p className="text-xs text-neutral-400 leading-relaxed">
-                Invite team members by email directly from the workspace roster to co-host, edit event settings, or coordinate guest lists.
+              <h3 className="text-xl font-extrabold text-neutral-950 font-display tracking-tight">
+                Instant Team Invites
+              </h3>
+              <p className="text-xs sm:text-sm text-neutral-500 leading-relaxed">
+                Invite workspace members directly by email to co-host events, edit schedules, and coordinate attendee guest lists seamlessly.
               </p>
+            </div>
+
+            {/* Micro Widget: Member List */}
+            <div className="mt-8 pt-6 border-t border-neutral-100 space-y-2.5">
+              <div className="flex items-center justify-between text-xs text-neutral-700 font-semibold p-2.5 rounded-xl bg-neutral-50 border border-neutral-100">
+                <span>admin@planora.events</span>
+                <span className="text-[10px] font-bold font-mono uppercase bg-neutral-950 text-white px-2 py-0.5 rounded-md">Owner</span>
+              </div>
+              <div className="flex items-center justify-between text-xs text-neutral-500 font-medium p-2.5 rounded-xl bg-neutral-50 border border-neutral-100">
+                <span>alex.dev@acme.com</span>
+                <span className="text-[10px] font-bold font-mono uppercase bg-neutral-200 text-neutral-800 px-2 py-0.5 rounded-md">Member</span>
+              </div>
             </div>
           </motion.div>
 
-          {/* Card 3 */}
+          {/* Bento Card 3: Light Clean Card (5 Cols) */}
           <motion.div 
-            whileHover={{ y: -5 }}
-            className="rounded-3xl border border-neutral-100 bg-white p-6 shadow-sm flex flex-col justify-between"
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.2 }}
+            className="md:col-span-5 rounded-3xl bg-white p-8 sm:p-10 border border-neutral-200/90 shadow-sm flex flex-col justify-between hover:border-neutral-300 hover:shadow-xl transition-all"
           >
             <div className="space-y-4">
-              <div className="h-10 w-10 rounded-2xl bg-pink-55 border border-pink-100 flex items-center justify-center text-pink-650">
+              <div className="h-10 w-10 rounded-2xl bg-neutral-950 text-white flex items-center justify-center">
                 <Share2 size={20} />
               </div>
-              <h3 className="font-bold text-neutral-900 text-lg">Unified Hosting Control</h3>
-              <p className="text-xs text-neutral-400 leading-relaxed">
-                Schedule workshops, panel discussions, or hackathons with ease. Setup seat limits to prevent capacity issues.
+              <h3 className="text-xl font-extrabold text-neutral-950 font-display tracking-tight">
+                Unified Seat & RSVP Controls
+              </h3>
+              <p className="text-xs sm:text-sm text-neutral-500 leading-relaxed">
+                Define exact venue capacities, prevent overbooking, track confirmed attendees live, and manage ticket allocations.
               </p>
+            </div>
+
+            {/* Micro Widget: Capacity Meter */}
+            <div className="mt-8 pt-6 border-t border-neutral-100 space-y-2">
+              <div className="flex justify-between items-center text-xs font-bold text-neutral-900">
+                <span>Seat Allocation</span>
+                <span className="font-mono">184 / 250 RSVPs</span>
+              </div>
+              <div className="h-2.5 w-full bg-neutral-100 rounded-full overflow-hidden">
+                <div className="h-full bg-neutral-950 rounded-full w-3/4" />
+              </div>
             </div>
           </motion.div>
 
-          {/* Card 4 */}
+          {/* Bento Card 4: Light Clean Card (7 Cols) */}
           <motion.div 
-            whileHover={{ y: -5 }}
-            className="rounded-3xl border border-neutral-100 bg-white p-6 shadow-sm flex flex-col justify-between"
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.2 }}
+            className="md:col-span-7 rounded-3xl bg-white p-8 sm:p-10 border border-neutral-200/90 shadow-sm flex flex-col justify-between hover:border-neutral-300 hover:shadow-xl transition-all"
           >
             <div className="space-y-4">
-              <div className="h-10 w-10 rounded-2xl bg-emerald-55 border border-emerald-100 flex items-center justify-center text-emerald-650">
+              <div className="h-10 w-10 rounded-2xl bg-neutral-950 text-white flex items-center justify-center">
                 <Globe size={20} />
               </div>
-              <h3 className="font-bold text-neutral-900 text-lg">Global Discover</h3>
-              <p className="text-xs text-neutral-400 leading-relaxed">
-                Publish events locally to active workspaces, or make them public to allow discoverability and open registration.
+              <h3 className="text-xl sm:text-2xl font-extrabold text-neutral-950 font-display tracking-tight">
+                Public & Private Visibility Scope
+              </h3>
+              <p className="text-xs sm:text-sm text-neutral-500 leading-relaxed">
+                Publish internal team syncs privately scoped to your workspace, or broadcast public events openly to the global landing page.
               </p>
             </div>
+
+            {/* Micro Widget: Visibility Toggle Mockup */}
+            <div className="mt-8 pt-6 border-t border-neutral-100 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold text-neutral-900">Event Publication State</p>
+                <p className="text-[11px] text-neutral-400">Discoverable on landing page & workspace feed</p>
+              </div>
+              <div className="flex items-center gap-2 p-1.5 rounded-full bg-neutral-950 text-white px-3 text-[10px] font-bold font-mono uppercase">
+                <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
+                <span>Published</span>
+              </div>
+            </div>
           </motion.div>
+
         </div>
       </section>
 
