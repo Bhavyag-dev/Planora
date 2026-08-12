@@ -28,13 +28,10 @@ import {
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'motion/react';
 import { Faq02 } from '../components/Faq02';
 import { AccordionGallery } from '../components/AccordionGallery';
+import CardNav from '../components/CardNav';
 
 export function Landing() {
   const { isAuthenticated, user } = useAuth();
-  const [langDropdown, setLangDropdown] = useState(false);
-  const [planningDropdown, setPlanningDropdown] = useState(false);
-  const [categoryDropdown, setCategoryDropdown] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [previewTab, setPreviewTab] = useState<'events' | 'tickets' | 'create'>('events');
 
@@ -103,156 +100,50 @@ export function Landing() {
   return (
     <div className="min-h-screen bg-[#fbfbfb] text-neutral-900 font-sans antialiased selection:bg-neutral-200 overflow-x-hidden">
       
-      {/* Floating Collapsible Navbar (Physics and collapse styles copied from Fetchz) */}
-      <div className={`fixed inset-x-0 top-0 z-50 pointer-events-none ${scrolled ? 'px-4 sm:px-8 md:px-16 pt-4' : 'px-0 pt-0'}`}>
-        <motion.nav
-          initial={false}
-          animate={{
-            borderRadius: scrolled ? "9999px" : "0px",
-            boxShadow: scrolled ? "0 8px 32px rgba(0,0,0,0.06)" : "0 0px 0px rgba(0,0,0,0)",
-            paddingLeft: scrolled ? (isDesktop ? "1.5rem" : "1.25rem") : "2rem",
-            paddingRight: scrolled ? (isDesktop ? "1.5rem" : "1.25rem") : "2rem",
-            maxWidth: scrolled ? (isDesktop ? "44rem" : "92%") : "100%",
-            backgroundColor: scrolled ? "rgba(251, 251, 251, 0.85)" : "rgba(251, 251, 251, 0)",
-            backdropFilter: scrolled ? "blur(18px)" : "blur(0px)",
-            border: scrolled ? "1px solid rgba(0, 0, 0, 0.08)" : "1px solid rgba(0, 0, 0, 0)",
-          }}
-          style={{ marginLeft: "auto", marginRight: "auto" }}
-          transition={{ type: "spring", stiffness: 130, damping: 23 }}
-          className="pointer-events-auto w-full flex flex-col justify-center py-3.5 text-neutral-900 z-50"
-        >
-          {/* Main Navbar Row */}
-          <div className="flex items-center justify-between w-full">
-            {/* Logo Wordmark */}
-            <Link to="/" className="flex items-center shrink-0 pl-1">
-              <span className="text-[22px] font-black tracking-tighter text-neutral-950 font-display flex items-baseline">
-                Planora<span className="text-amber-500 font-sans font-black text-[24px] leading-none ml-0.5">.</span>
-              </span>
-            </Link>
-
-            {/* Desktop Links */}
-            <div className="hidden md:flex items-center gap-9">
-              <Link to="/" className="text-[13px] font-semibold text-neutral-600 hover:text-neutral-950 transition-colors">
-                Home
-              </Link>
-              
-              {/* Planning Dropdown */}
-              <div 
-                className="relative"
-                onMouseEnter={() => {
-                  setPlanningDropdown(true);
-                  setCategoryDropdown(false);
-                }}
-                onMouseLeave={() => setPlanningDropdown(false)}
-              >
-                <button 
-                  className="flex items-center gap-1 text-[13px] font-semibold text-neutral-600 hover:text-neutral-950 transition-colors focus:outline-none cursor-pointer"
-                >
-                  Planning <ChevronDown size={13} className={`transition-transform duration-200 ${planningDropdown ? 'rotate-180' : ''}`} />
-                </button>
-                {planningDropdown && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2.5 w-48 z-50 pointer-events-auto">
-                    <div className="rounded-2xl border border-white/60 bg-white/55 p-2 shadow-xl backdrop-blur-xl animate-in fade-in duration-200">
-                      <Link to="/dashboard" onClick={() => setPlanningDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-white/40 hover:text-neutral-950 transition-colors duration-150">
-                        Create & Schedule Event
-                      </Link>
-                      <Link to="/dashboard" onClick={() => setPlanningDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-white/40 hover:text-neutral-950 transition-colors duration-150">
-                        Workspace Management
-                      </Link>
-                      <a href="#how-it-works" onClick={() => setPlanningDropdown(false)} className="block rounded-xl px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-white/40 hover:text-neutral-950 transition-colors duration-150">
-                        How Hosting Works
-                      </a>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <a href="#pricing" className="text-[13px] font-semibold text-neutral-600 hover:text-neutral-950 transition-colors">
-                Pricing
-              </a>
-            </div>
-
-            {/* Desktop Auth Controls */}
-            <div className="hidden md:flex items-center gap-3">
-              {isAuthenticated && user ? (
-                <Link
-                  to={user.role === 'super_admin' || user.role === 'admin' ? '/super-admin' : user.role === 'org_admin' ? '/org-admin' : '/dashboard'}
-                  className="rounded-full bg-neutral-950 px-4.5 py-1.5 text-xs font-bold text-white hover:bg-neutral-800 transition shadow-sm"
-                >
-                  Dashboard
-                </Link>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <Link to="/login" className="text-[13px] font-semibold text-neutral-600 hover:text-neutral-950 transition">
-                    Login
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className="rounded-full bg-neutral-950 px-4.5 py-1.5 text-xs font-bold text-white hover:bg-neutral-800 transition shadow-sm"
-                  >
-                    Register
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button 
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="rounded-full p-1.5 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none md:hidden"
-            >
-              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
-            </button>
-          </div>
-
-          {/* Collapsible mobile panel within floating pill container */}
-          <AnimatePresence>
-            {mobileMenuOpen && (
-              <motion.div 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2 }}
-                className="w-full mt-3 pt-3 border-t border-neutral-200/50 flex flex-col gap-2.5 overflow-hidden md:hidden px-1"
-              >
-                <Link to="/" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold text-neutral-700 hover:text-neutral-950">
-                  Home
-                </Link>
-                <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold text-neutral-700 hover:text-neutral-950">
-                  Hosting
-                </a>
-                <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold text-neutral-700 hover:text-neutral-950">
-                  Pricing
-                </a>
-                <div className="border-t border-neutral-100 pt-3 flex items-center justify-between gap-3">
-                  {isAuthenticated && user ? (
-                    <Link
-                      to={user.role === 'super_admin' || user.role === 'admin' ? '/super-admin' : user.role === 'org_admin' ? '/org-admin' : '/dashboard'}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="w-full rounded-full bg-neutral-950 text-center py-2 text-xs font-bold text-white"
-                    >
-                      Dashboard
-                    </Link>
-                  ) : (
-                    <>
-                      <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold text-neutral-600 py-1 px-3">
-                        Login
-                      </Link>
-                      <Link
-                        to="/signup"
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="rounded-full bg-neutral-950 text-center py-2 px-4 text-xs font-bold text-white shrink-0"
-                      >
-                        Register
-                      </Link>
-                    </>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.nav>
-      </div>
+      {/* Integrated React Bits CardNav Component */}
+      <CardNav
+        items={[
+          {
+            label: "Platform",
+            bgColor: "#171717",
+            textColor: "#ffffff",
+            links: [
+              { label: "Home Overview", href: "/", ariaLabel: "Home Overview" },
+              { label: "How Hosting Works", href: "#how-it-works", ariaLabel: "How Hosting Works" },
+              { label: "Ticket Pricing", href: "#pricing", ariaLabel: "Ticket Pricing" }
+            ]
+          },
+          {
+            label: "Workspace",
+            bgColor: "#262626",
+            textColor: "#ffffff",
+            links: [
+              { label: "Create Event", href: "/dashboard", ariaLabel: "Create Event" },
+              { label: "Workspace Dashboard", href: "/dashboard", ariaLabel: "Workspace Dashboard" },
+              { label: "Explore Events", href: "/events", ariaLabel: "Explore Events" }
+            ]
+          },
+          {
+            label: "Account",
+            bgColor: "#3b3b3b",
+            textColor: "#ffffff",
+            links: isAuthenticated && user ? [
+              { label: "Dashboard", href: "/dashboard", ariaLabel: "Dashboard" },
+              { label: "My Tickets", href: "/tickets", ariaLabel: "My Tickets" }
+            ] : [
+              { label: "Sign In", href: "/login", ariaLabel: "Sign In" },
+              { label: "Create Account", href: "/signup", ariaLabel: "Create Account" }
+            ]
+          }
+        ]}
+        baseColor="rgba(255, 255, 255, 0.95)"
+        menuColor="#0a0a0a"
+        buttonBgColor="#0a0a0a"
+        buttonTextColor="#ffffff"
+        ctaText={isAuthenticated && user ? 'Dashboard' : 'Get Started'}
+        ctaHref={isAuthenticated && user ? '/dashboard' : '/signup'}
+        ease="power3.out"
+      />
 
       {/* Full-Bleed Page Level Background Image spanning absolute top-0 */}
       <div className="absolute top-0 inset-x-0 h-screen z-0 overflow-hidden pointer-events-none select-none">
