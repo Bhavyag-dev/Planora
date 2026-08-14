@@ -44,6 +44,7 @@ const HERO_TUNNEL_IMAGES = [
 export function Landing() {
   const { isAuthenticated, user } = useAuth();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [landingTheme, setLandingTheme] = useState<'light' | 'dark'>('dark');
 
   // Navbar shrink scroll triggers (copied collapse physics from Fetchz)
   const { scrollY } = useScroll();
@@ -112,6 +113,8 @@ export function Landing() {
       
       {/* Integrated React Bits CardNav Component */}
       <CardNav
+        theme={landingTheme}
+        onThemeToggle={() => setLandingTheme(prev => prev === 'dark' ? 'light' : 'dark')}
         items={[
           {
             label: "Platform",
@@ -153,11 +156,13 @@ export function Landing() {
       />
 
       {/* Full-Bleed Page Level Background Gallery Tunnel from Originkit (Original #131313 Dark Theme) */}
-      <div className="absolute top-0 inset-x-0 h-screen z-0 overflow-hidden pointer-events-none select-none bg-[#131313]">
+      <div className={`absolute top-0 inset-x-0 h-screen z-0 overflow-hidden pointer-events-none select-none transition-colors duration-500 ${
+        landingTheme === 'dark' ? 'bg-[#131313]' : 'bg-white'
+      }`}>
         <GalleryTunnel
           images={HERO_TUNNEL_IMAGES.map(src => ({ src }))}
-          background="#131313"
-          lineColor="#B0B0B0"
+          background={landingTheme === 'dark' ? '#131313' : '#ffffff'}
+          lineColor={landingTheme === 'dark' ? '#B0B0B0' : '#e5e5e5'}
           lineOpacity={0}
           grid={8}
           speed={50}
@@ -167,8 +172,12 @@ export function Landing() {
           cellMode="square"
         />
         {/* Radial vignette blur behind hero text for legibility */}
-        <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[75vh] w-[90vw] max-w-4xl bg-[#131313]/85 blur-[50px] z-10" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-[#131313] z-10" />
+        <div className={`pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[75vh] w-[90vw] max-w-4xl blur-[50px] z-10 transition-colors duration-500 ${
+          landingTheme === 'dark' ? 'bg-[#131313]/85' : 'bg-white/85'
+        }`} />
+        <div className={`pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent z-10 transition-colors duration-500 ${
+          landingTheme === 'dark' ? 'to-[#131313]' : 'to-white'
+        }`} />
       </div>
 
       {/* Hero Section */}
@@ -179,11 +188,15 @@ export function Landing() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          style={{ textShadow: '0 4px 30px rgba(0, 0, 0, 0.95), 0 8px 60px rgba(0, 0, 0, 0.85)' }}
-          className="relative z-10 max-w-4xl text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.12] font-display"
+          style={landingTheme === 'dark' ? { textShadow: '0 4px 30px rgba(0, 0, 0, 0.95), 0 8px 60px rgba(0, 0, 0, 0.85)' } : {}}
+          className={`relative z-10 max-w-4xl text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] font-display transition-colors duration-500 ${
+            landingTheme === 'dark' ? 'text-white' : 'text-neutral-950'
+          }`}
         >
           Host Extraordinary Events.<br />
-          <span className="text-neutral-300 font-normal font-sans text-[0.88em] tracking-normal block mt-2">Workspace Operations Made Effortless.</span>
+          <span className={`font-normal font-sans text-[0.88em] tracking-normal block mt-2 transition-colors duration-500 ${
+            landingTheme === 'dark' ? 'text-neutral-300' : 'text-neutral-600'
+          }`}>Workspace Operations Made Effortless.</span>
         </motion.h1>
 
         {/* Subtitle */}
@@ -191,8 +204,10 @@ export function Landing() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          style={{ textShadow: '0 2px 20px rgba(0, 0, 0, 0.95)' }}
-          className="relative z-10 mt-6 max-w-2xl text-sm sm:text-base font-normal text-neutral-300 leading-relaxed font-sans"
+          style={landingTheme === 'dark' ? { textShadow: '0 2px 20px rgba(0, 0, 0, 0.95)' } : {}}
+          className={`relative z-10 mt-6 max-w-2xl text-sm sm:text-base font-normal leading-relaxed font-sans transition-colors duration-500 ${
+            landingTheme === 'dark' ? 'text-neutral-300' : 'text-neutral-600'
+          }`}
         >
           Planora empowers organizations, tech communities, and teams to schedule meetups, control capacities, and manage RSVPs with zero friction.
         </motion.p>
@@ -206,7 +221,11 @@ export function Landing() {
         >
           <Link
             to={isAuthenticated && user ? '/dashboard' : '/signup'}
-            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-white text-black font-extrabold text-sm hover:bg-neutral-200 transition-all duration-200 shadow-xl flex items-center justify-center gap-2 group cursor-pointer"
+            className={`w-full sm:w-auto px-8 py-3.5 rounded-full font-extrabold text-sm transition-all duration-300 shadow-xl flex items-center justify-center gap-2 group cursor-pointer hover:scale-105 active:scale-95 ${
+              landingTheme === 'dark' 
+                ? 'bg-white text-black hover:bg-neutral-200' 
+                : 'bg-neutral-950 text-white hover:bg-neutral-800'
+            }`}
           >
             <span>{isAuthenticated && user ? 'Go to Dashboard' : 'Get Started Free'}</span>
             <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />

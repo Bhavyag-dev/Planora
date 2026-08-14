@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, Sun, Moon } from 'lucide-react';
 import './CardNav.css';
 
 export interface CardNavLink {
@@ -31,6 +31,8 @@ export interface CardNavProps {
   ctaText?: string;
   ctaHref?: string;
   onCtaClick?: () => void;
+  theme?: 'light' | 'dark';
+  onThemeToggle?: () => void;
 }
 
 export const CardNav: React.FC<CardNavProps> = ({
@@ -45,7 +47,9 @@ export const CardNav: React.FC<CardNavProps> = ({
   buttonTextColor = '#fff',
   ctaText = 'Get Started',
   ctaHref = '/signup',
-  onCtaClick
+  onCtaClick,
+  theme = 'dark',
+  onThemeToggle
 }) => {
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -220,31 +224,48 @@ export const CardNav: React.FC<CardNavProps> = ({
             )}
           </Link>
 
-          {ctaHref.startsWith('/') ? (
-            <Link
-              to={ctaHref}
-              onClick={() => {
-                if (onCtaClick) onCtaClick();
-                if (isExpanded) closeMenu();
-              }}
-              className="card-nav-cta-button"
-              style={{ backgroundColor: buttonBgColor, color: buttonTextColor }}
-            >
-              {ctaText}
-            </Link>
-          ) : (
-            <button
-              type="button"
-              onClick={() => {
-                if (onCtaClick) onCtaClick();
-                if (isExpanded) closeMenu();
-              }}
-              className="card-nav-cta-button"
-              style={{ backgroundColor: buttonBgColor, color: buttonTextColor }}
-            >
-              {ctaText}
-            </button>
-          )}
+          <div className="flex items-center gap-2.5">
+            {onThemeToggle && (
+              <button
+                type="button"
+                onClick={onThemeToggle}
+                className="p-2.5 rounded-xl border border-neutral-200/60 hover:bg-neutral-50 hover:border-neutral-300 bg-white/20 backdrop-blur-md transition-all duration-200 cursor-pointer flex items-center justify-center text-neutral-800 focus:outline-none shadow-sm hover:scale-105 active:scale-95"
+                aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {theme === 'dark' ? (
+                  <Sun size={16} className="text-amber-500" />
+                ) : (
+                  <Moon size={16} className="text-indigo-650" />
+                )}
+              </button>
+            )}
+
+            {ctaHref.startsWith('/') ? (
+              <Link
+                to={ctaHref}
+                onClick={() => {
+                  if (onCtaClick) onCtaClick();
+                  if (isExpanded) closeMenu();
+                }}
+                className="card-nav-cta-button"
+                style={{ backgroundColor: buttonBgColor, color: buttonTextColor }}
+              >
+                {ctaText}
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  if (onCtaClick) onCtaClick();
+                  if (isExpanded) closeMenu();
+                }}
+                className="card-nav-cta-button"
+                style={{ backgroundColor: buttonBgColor, color: buttonTextColor }}
+              >
+                {ctaText}
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="card-nav-content" aria-hidden={!isExpanded}>
